@@ -1,20 +1,39 @@
+#SNP PIPELINE & TREES
+
 conda create -n localgnm
 conda activate localgnm
 
-conda install -c bioconda bamutil mosdepth phyml  tabix vcflib vt
-conda install -c conda-forge pixy ###THIS STEP does not function now for some reason. it did when installed in wrong place at first... 
-#if it does not function, see miniconda3 environment; create env.yml for it and pick pixy from there
+conda install -c bioconda bamutil mosdepth phyml tabix vcflib vt
 
 conda env export --from-history -n localgnm | grep -v prefix > env.yml
 
 ---
+
+#PIXY
+
+conda create -n pixyenv
+conda activate pixyenv
+
+conda install -c conda-forge pixy
+
+#usage:
+export PATH="/projappl/project_2001443/pixyenv/bin:$PATH"
+
+---
+
+#TWISST
 
 conda create -n ete3env python=3.4.10
 conda activate ete3env
 conda install -c etetoolkit ete3 ete_toolchain
 conda env export --from-history -n ete3env | grep -v prefix > env.yml
 
+#usage:
+export PATH="/projappl/project_2001443/ete3env/bin:$PATH"
+
 ---
+
+#PHASING 1/2 WHATSHAP
 
 conda create -n whatshapenv 
 conda activate whatshapenv
@@ -36,6 +55,6 @@ conda create -n myenv samtools bwa \
 
 ---
 
-SHAPEIT5
+#PHASING 2/2 SHAPEIT5
 
 see when relevant: https://odelaneau.github.io/shapeit5/docs/installation/build_from_source/required_libraries
