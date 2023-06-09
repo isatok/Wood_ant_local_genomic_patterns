@@ -26,8 +26,7 @@ trimmomatic PE -threads 4 -phred33 \
 raw/combined/$file"*1.fq.gz" raw/combined/$file"*2.fq.gz" \
 trim/$file"_1.trim.pair.fq.gz" trim/unpair/$file"_1.trim.unpair.fq.gz" \
 trim/$file"_2.trim.pair.fq.gz" trim/unpair/$file"_2.trim.unpair.fq.gz" \
-ILLUMINACLIP:/scratch/project_2001443/barriers_introgr_formica/fastq/adapters/nebnext_adapters.fa:2:30:10:2:keepBothReads LEADING:10 TRAILING:10 S
-LIDINGWINDOW:4:15 MINLEN:50
+ILLUMINACLIP:/scratch/project_2001443/barriers_introgr_formica/fastq/adapters/nebnext_adapters.fa:2:30:10:2:keepBothReads LEADING:10 TRAILING:10 SLIDINGWINDOW:4:15 MINLEN:50
 
 # Quality control
 fastqc trim/$file"_1.trim.pair.fq.gz" -o trim/fastqc && \
