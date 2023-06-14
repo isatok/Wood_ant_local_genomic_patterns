@@ -18,21 +18,21 @@
 
 # load modules
 module load biokit
-module load picard/2.21.4
+module load picard/2.27.5 #PICARD VERSION IS DIFFERENT FROM SATOKANGAS ET AL (2023) PIPELINE
 
 # Set work directory
 cd /scratch/project_2001443
 
 # Define paths
 REFPATH=/scratch/project_2001443/reference_genome
-FASTQPATH=/scratch/project_2001443/fastq/trim
-BAMPATH=/scratch/project_2001443/bam
+FASTQPATH=/scratch/project_2001443/barriers_introgr_formica/fastq/trim
+BAMPATH=/scratch/project_2001443/barriers_introgr_formica/bam
 
 # Get file name and sample ID
 file=$(sed -n "$SLURM_ARRAY_TASK_ID"p fastq/name.list)
-sample=${file%_S*}
+shortfile=${file}
 
-echo "###### STARTING file: $file - sample ID: $sample"
+echo "###### STARTING file: $file"
 
 
 ###
@@ -52,7 +52,7 @@ samtools index -@4 $BAMPATH/raw/${shortfile}".bam"
 
 echo "###### COLLECTING INSERT SIZES"
 
-java -Xmx4G -jar /appl/soft/bio/picard/picard-tools-2.21.4/picard.jar CollectInsertSizeMetrics \
+java -Xmx4G -jar /appl/soft/bio/picard/picard-tools-2.27.5/picard.jar CollectInsertSizeMetrics \
 I=$BAMPATH/raw/${shortfile}".bam" \
 O=$BAMPATH/stats/${shortfile}"_insert_size_metrics.txt" \
 H=$BAMPATH/stats/${shortfile}"_insert_size_hist.pdf"
@@ -64,7 +64,7 @@ H=$BAMPATH/stats/${shortfile}"_insert_size_hist.pdf"
 
 echo "###### FILTERING DUPLICATES"
 
-java -Xmx4G -jar /appl/soft/bio/picard/picard-tools-2.21.4/picard.jar MarkDuplicates \
+java -Xmx4G -jar /appl/soft/bio/picard/picard-tools-2.27.5/picard.jar MarkDuplicates \
 I=$BAMPATH/raw/${shortfile}".bam" \
 O=$BAMPATH/nodupl/${shortfile}"_nodupl.bam" \
 M=$BAMPATH/nodupl/stats/${shortfile}"_dupl_metrics.txt" \
