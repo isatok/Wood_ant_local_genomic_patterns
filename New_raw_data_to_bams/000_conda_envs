@@ -1,0 +1,16 @@
+conda create -n picardenv
+conda activate picardenv
+conda install -c bioconda picard=2.21.4
+
+conda env export --from-history -n picardenv
+# name: picardenv                                                                 
+# channels:                                                                       
+#   - defaults       
+#   - bioconda
+# dependencies:                                                                   
+#   - picard=2.21.4 
+
+module load tykky
+conda-containerize new --prefix /projappl/project_2001443/picardenv env.yml
+
+export PATH="/projappl/project_2001443/picardenv/bin:$PATH" 
