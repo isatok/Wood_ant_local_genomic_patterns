@@ -16,16 +16,17 @@ ls *bam > nodupl_name.list
 #SBATCH --mem-per-cpu=4GB
 
 module load biokit
+export PATH="/projappl/project_2001443/picardenv/bin:$PATH"  #use picard v 2.21.4, which was used for my other data as well 
 
 FINALDIR=/scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG
 
 cd /scratch/project_2001443/barriers_introgr_formica/bam/nodupl
 
 # Get file
-file=$(sed -n "$SLURM_ARRAY_TASK_ID"p nodupl_name.list) #CHECK
+file=$(sed -n "$SLURM_ARRAY_TASK_ID"p nodupl_name.list)
 
 # Get sample ID
-sample=${file%_nodupl*} #CHECK, MODIFY
+sample=${file%_nodupl*}
 
 
 ###
@@ -33,7 +34,7 @@ sample=${file%_nodupl*} #CHECK, MODIFY
 ###
 
 # Add RGs
-java -Xmx4G -jar /appl/soft/bio/picard/picard-tools-2.21.4/picard.jar AddOrReplaceReadGroups \
+picard AddOrReplaceReadGroups \
     I=$file \
     O=$FINALDIR/$sample"_nodupl_wRG.bam" \
     RGID=$sample \
@@ -48,7 +49,7 @@ samtools index $FINALDIR/$sample"_nodupl_wRG.bam"
 
 
 ###
-### Compute coverage per sample
+### Compute coverage per sample #### UPDATE FROM HERE ONWARDS!!
 ###
 
 module load bioconda/3
