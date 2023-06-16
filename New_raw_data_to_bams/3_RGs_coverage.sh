@@ -1,32 +1,31 @@
 # 3_RGs_coverage.sh
 
-
-cd /scratch/project_2001443/bam/nodupl
-mkdir /scratch/project_2001443/bam/nodupl_RG
+cd /scratch/project_2001443/barriers_introgr_formica/bam/nodupl
+mkdir /scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG
 ls *bam > nodupl_name.list
 
 #!/bin/bash -l
 #SBATCH -J RG_coverage
-#SBATCH -o /scratch/project_2001443/bam/logs/RG_coverage_%j.out
-#SBATCH -e /scratch/project_2001443/bam/logs/RG_coverage_%j.err
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/bam/logs/RG_coverage_%j.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/bam/logs/RG_coverage_%j.err
 #SBATCH --account=project_2001443
 #SBATCH -t 04:00:00
 #SBATCH -p small
-#SBATCH --array=1-71
+#SBATCH --array=1-12
 #SBATCH --ntasks 1
 #SBATCH --mem-per-cpu=4GB
 
 module load biokit
 
-FINALDIR=/scratch/project_2001443/bam/nodupl_RG
+FINALDIR=/scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG
 
-cd /scratch/project_2001443/bam/nodupl
+cd /scratch/project_2001443/barriers_introgr_formica/bam/nodupl
 
 # Get file
-file=$(sed -n "$SLURM_ARRAY_TASK_ID"p nodupl_name.list)
+file=$(sed -n "$SLURM_ARRAY_TASK_ID"p nodupl_name.list) #CHECK
 
 # Get sample ID
-sample=${file%_nodupl*}
+sample=${file%_nodupl*} #CHECK, MODIFY
 
 
 ###
