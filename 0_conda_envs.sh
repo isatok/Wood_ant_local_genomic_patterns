@@ -7,6 +7,8 @@ conda install -c bioconda bamutil mosdepth phyml tabix vcflib vt
 
 conda env export --from-history -n localgnm | grep -v prefix > env.yml
 
+export PATH="/projappl/project_2001443/localgnm/bin:$PATH"
+CHANGE THIS INTO bioinfo_1222_env - FIRST CHECK WHICH TOOLS IT HAS
 ---
 
 #PIXY
