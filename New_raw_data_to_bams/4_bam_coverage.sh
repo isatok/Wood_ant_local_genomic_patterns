@@ -19,7 +19,7 @@ ls *bam > ../bam.list ; cd ..
 #SBATCH --ntasks 1
 #SBATCH --mem-per-cpu=4GB
 
-export PATH="/projappl/project_2001443/localgnm/bin:$PATH"
+export PATH="/projappl/project_2001443/bioinfo_1222_env/bin:$PATH"
 
 mosdepth -t 1 -b 10000 -n -x ../stats/coverage/$sample $FINALDIR/$sample"_nodupl_wRG.bam"
 mosdepth -t 1 -b 10000 -n ../stats/coverage/${sample}_overlap_correction $FINALDIR/$sample"_nodupl_wRG.bam"
