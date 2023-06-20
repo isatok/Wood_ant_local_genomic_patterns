@@ -1,13 +1,13 @@
-# 3_RGs_coverage.sh
+# 3_RGs.sh
 
 cd /scratch/project_2001443/barriers_introgr_formica/bam/nodupl
 mkdir /scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG
 ls *bam > nodupl_name.list
 
 #!/bin/bash -l
-#SBATCH -J RG_coverage
-#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/bam/logs/RG_coverage_%j.out
-#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/bam/logs/RG_coverage_%j.err
+#SBATCH -J RGs
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/bam/logs/RGs_%j.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/bam/logs/RGs_%j.err
 #SBATCH --account=project_2001443
 #SBATCH -t 04:00:00
 #SBATCH -p small
@@ -46,17 +46,6 @@ picard AddOrReplaceReadGroups \
 
 # Index
 samtools index $FINALDIR/$sample"_nodupl_wRG.bam"
-
-
-###
-### Compute coverage per sample #### UPDATE FROM HERE ONWARDS!!
-###
-
-module load bioconda/3
-source activate my_seqdata
-
-mosdepth -t 1 -b 10000 -n -x ../stats/coverage/$sample $FINALDIR/$sample"_nodupl_wRG.bam"
-mosdepth -t 1 -b 10000 -n ../stats/coverage/${sample}_overlap_correction $FINALDIR/$sample"_nodupl_wRG.bam"
 
 
 ### END
