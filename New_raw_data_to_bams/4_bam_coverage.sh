@@ -1,7 +1,8 @@
+# 4_bam_coverage.sh
+
 ###
 ### Compute sequencing depth per sample (after duplicate removal) ------------------------------------------------------------------------
 ###
-WORK WITH THIS!!
 
 
 cd /scratch/project_2001443/barriers_introgr_formica/bam/nodupl
@@ -21,6 +22,17 @@ ls *bam > ../bam.list ; cd ..
 
 export PATH="/projappl/project_2001443/bioinfo_1222_env/bin:$PATH"
 
+FINALDIR=/scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG
+
+cd /scratch/project_2001443/barriers_introgr_formica/bam/nodupl
+
+# Get file
+file=$(sed -n "$SLURM_ARRAY_TASK_ID"p nodupl_name.list)
+
+# Get sample ID
+sample=${file%_nodupl*}
+
 mosdepth -t 1 -b 10000 -n -x ../stats/coverage/$sample $FINALDIR/$sample"_nodupl_wRG.bam"
 mosdepth -t 1 -b 10000 -n ../stats/coverage/${sample}_overlap_correction $FINALDIR/$sample"_nodupl_wRG.bam"
 
+### END
