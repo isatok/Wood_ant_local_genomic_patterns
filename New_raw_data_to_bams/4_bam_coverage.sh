@@ -36,3 +36,36 @@ mosdepth -t 1 -b 10000 -n -x ../stats/coverage/$sample $FINALDIR/$sample"_nodupl
 mosdepth -t 1 -b 10000 -n ../stats/coverage/${sample}_overlap_correction $FINALDIR/$sample"_nodupl_wRG.bam"
 
 ### END
+
+
+### Get coverage for overlap corrected data  --------------------
+
+cd /scratch/project_2001443/barriers_introgr_formica/bam/stats/coverage
+rm -rf *global*
+
+for i in *overlap_correction.mosdepth.summary.txt
+ do echo $i ; grep 'Scaffold' $i | awk '{sum+=$4;} END{print sum/NR;}'
+done > all.overlap_correction.mosdepth.summary.tmp
+
+grep -v 'txt' all.overlap_correction.mosdepth.summary.tmp > tmp1
+grep 'txt' all.overlap_correction.mosdepth.summary.tmp | perl -npe 's/_overlap_correction.mosdepth.summary.txt//' > tmp2
+paste tmp2 tmp1 > all.overlap_correction.mosdepth.summary.txt ; rm *tmp*
+
+### Get coverage for *NON* overlap corrected data  --------------------
+
+for i in RN???.mosdepth.summary.txt
+ do echo $i ; grep 'Scaffold' $i | awk '{sum+=$4;} END{print sum/NR;}'
+done > all.no_overlap_correction.mosdepth.summary.tmp
+
+grep -v 'txt' all.no_overlap_correction.mosdepth.summary.tmp > tmp1
+grep 'txt' all.no_overlap_correction.mosdepth.summary.tmp | perl -npe 's/.mosdepth.summary.txt//' > tmp2
+paste tmp2 tmp1 > all.no_overlap_correction.mosdepth.summary.txt ; rm *tmp*
+
+scp puhti:/scratch/project_2001443/barriers_introgr_formica/bam/coverage/all.overlap_correction.mosdepth.summary.txt .
+
+### MODIFY THIS WHEN DECIDING WHICH SAMPLES TO KEEP (ESP #217 MEAN COV=2.16 IS LOW ###
+# in R
+# options(stringsAsFactors=F)
+# tt = read.table("all.overlap_correction.mosdepth.summary.txt", h = F)
+# summary(tt$V2)
+# overall mean: XXX (XX - XX)
