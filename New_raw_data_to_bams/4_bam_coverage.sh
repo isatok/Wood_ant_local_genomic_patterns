@@ -51,6 +51,9 @@ grep -v 'txt' all.overlap_correction.mosdepth.summary.tmp > tmp1
 grep 'txt' all.overlap_correction.mosdepth.summary.tmp | perl -npe 's/_overlap_correction.mosdepth.summary.txt//' > tmp2
 paste tmp2 tmp1 > all.overlap_correction.mosdepth.summary.txt ; rm *tmp*
 
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/bam/stats/coverage/all.overlap_correction.mosdepth.summary.txt' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/mapping_and_insert_stats/'
+
 ### Get coverage for *NON* overlap corrected data  --------------------
 
 for i in RN???.mosdepth.summary.txt
@@ -60,6 +63,9 @@ done > all.no_overlap_correction.mosdepth.summary.tmp
 grep -v 'txt' all.no_overlap_correction.mosdepth.summary.tmp > tmp1
 grep 'txt' all.no_overlap_correction.mosdepth.summary.tmp | perl -npe 's/.mosdepth.summary.txt//' > tmp2
 paste tmp2 tmp1 > all.no_overlap_correction.mosdepth.summary.txt ; rm *tmp*
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/bam/stats/coverage/all.no_overlap_correction.mosdepth.summary.txt' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/mapping_and_insert_stats/'
 
 scp puhti:/scratch/project_2001443/barriers_introgr_formica/bam/coverage/all.overlap_correction.mosdepth.summary.txt .
 
