@@ -13,27 +13,24 @@ mkdir /scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG_clip
 ### sbatch script below ------------------------------------------------------------------------
 ###
 
-####MODIFY AND RUN FROM HERE ONWARDS ###
-
 #!/bin/bash -l
-#SBATCH -J clipOverlapRG
-#SBATCH -o /scratch/project_2001443/bam/logs/clipOverlap_RG_%j.out
-#SBATCH -e /scratch/project_2001443/bam/logs/clipOverlap_RG_%j.err
+#SBATCH -J clipOverlap
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/bam/logs/clipOverlap_%j.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/bam/logs/clipOverlap_%j.err
 #SBATCH --account=project_2001443
 #SBATCH -t 04:00:00
 #SBATCH -p small
-#SBATCH --array=1-71
+#SBATCH --array=1-12
 #SBATCH --ntasks 1
 #SBATCH --mem-per-cpu=4GB
 
 # Load modules
 module load biokit
-module load bioconda/3
-source activate my_seqdata
+export PATH="/projappl/project_2001443/bioinfo_1222_env/bin:$PATH"
 
 # Define directories
-cd /scratch/project_2001443/bam/nodupl_RG
-FINALDIR=/scratch/project_2001443/bam/nodupl_RG_clip
+cd /scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG
+FINALDIR=/scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG_clip
 
 # Get file & sample ID
 file=$(sed -n "$SLURM_ARRAY_TASK_ID"p input.list)
