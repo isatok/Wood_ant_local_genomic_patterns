@@ -34,7 +34,7 @@ FINALDIR=/scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG_clip
 
 # Get file & sample ID
 file=$(sed -n "$SLURM_ARRAY_TASK_ID"p input.list)
-sample=${file%_wRG*}
+sample=${file%_nodupl_wRG*}
 
 echo "### Processing $file"
 
@@ -44,14 +44,14 @@ echo "### Processing $file"
 ###
 
 # Reads are sorted by coordinates (see "samtools sort" command after mapping)
-bam clipOverlap --in $FINALDIR/${sample}"_wRG.bam" --out $FINALDIR/${sample}"_wRG_clip.bam" --stats --params
+bam clipOverlap --in $FINALDIR/${sample}"_nodupl_wRG.bam" --out $FINALDIR/${sample}"_nodupl_wRG_clip.bam" --stats --params
 
 
 ###
 ### Index
 ###
 
-samtools index $FINALDIR/$sample"_wRG_clip.bam"
+samtools index $FINALDIR/$sample"_nodupl_wRG_clip.bam"
 
 
 
