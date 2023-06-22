@@ -30,6 +30,7 @@ export PATH="/projappl/project_2001443/bioinfo_1222_env/bin:$PATH"
 
 # Define directories
 cd /scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG
+INPUTDIR=/scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG
 FINALDIR=/scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG_clip
 
 # Get file & sample ID
@@ -44,7 +45,7 @@ echo "### Processing $file"
 ###
 
 # Reads are sorted by coordinates (see "samtools sort" command after mapping)
-bam clipOverlap --in $FINALDIR/${sample}"_nodupl_wRG.bam" --out $FINALDIR/${sample}"_nodupl_wRG_clip.bam" --stats --params
+bam clipOverlap --in $INPUTDIR/${sample}"_nodupl_wRG.bam" --out $FINALDIR/${sample}"_nodupl_wRG_clip.bam" --stats --params
 
 
 ###
