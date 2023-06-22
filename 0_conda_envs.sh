@@ -1,14 +1,21 @@
-#SNP PIPELINE & TREES
-
-conda create -n localgnm
-conda activate localgnm
-
-conda install -c bioconda bamutil mosdepth phyml tabix vcflib vt
-
-conda env export --from-history -n localgnm | grep -v prefix > env.yml
-
+#TREES
+#containerize this in Puhti:
 export PATH="/projappl/project_2001443/localgnm/bin:$PATH"
-CHANGE THIS INTO bioinfo_1222_env - FIRST CHECK WHICH TOOLS IT HAS
+#it has, in addition to bioinfo_1222_env, phyml & tabix.
+
+---
+
+#SNP PIPELINE
+
+conda create -n bioinfo_1222_env
+conda activate bioinfo_1222_env
+
+conda install -c conda-forge -c bioconda -c defaults vcflib mosdepth vt bamutil  
+
+conda env export --from-history -n bioinfo_1222_env | grep -v prefix > env.yml
+
+export PATH="/projappl/project_2001443/bioinfo_1222_env/bin:$PATH"
+
 ---
 
 #PIXY
