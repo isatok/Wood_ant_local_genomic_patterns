@@ -11,7 +11,7 @@ cd /scratch/project_2001443/vcf
 a) F. paralugubris bam files
 /scratch/project_2001443/paralugubris/bam/nodupl_RG_clip
 b) bam files from the previous project
-/scratch/project_2001443/barriers_introgr_formica/XXX
+/scratch/project_2001443/barriers_introgr_formica/bam_semipermeable
 
 ###
 ### Create additional input files
