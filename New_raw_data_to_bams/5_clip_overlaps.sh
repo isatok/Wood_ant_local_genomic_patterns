@@ -57,3 +57,25 @@ samtools index $FINALDIR/$sample"_nodupl_wRG_clip.bam"
 
 
 ### END
+
+### Check that the bam files are alright: -------
+#(Despite the errors, last project (Satokangas et al 2023) worked well, so no reason for now to freak out about these.)
+
+## Unclipped ## -------
+/scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG
+picard ValidateSamFile I=RN415_nodupl_wRG.bam R=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa MODE=SUMMARY
+
+## HISTOGRAM	java.lang.String
+#Error Type	Count
+#ERROR:INVALID_TAG_NM	26664
+
+## Clipped ## -------
+cd /scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG_clip
+picard ValidateSamFile I=RN415_nodupl_wRG_clip.bam R=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa MODE=SUMMARY
+
+## HISTOGRAM	java.lang.String
+#Error Type	Count
+#ERROR:CIGAR_MAPS_OFF_REFERENCE	655
+#ERROR:INVALID_CIGAR	1055424
+#ERROR:INVALID_TAG_NM	5704471
+#ERROR:MISMATCH_MATE_CIGAR_STRING	12683598
