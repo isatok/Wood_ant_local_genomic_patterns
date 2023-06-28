@@ -17,12 +17,12 @@ b) bam files from the previous project
 ### Create additional input files
 ###
 
-# 1. BAM list w/out sample 121 (excluded due to low quality)
+# 1. BAM list w/out samples 121 and RNXXX (excluded due to low quality)
 ls /scratch/project_2001443/bam/nodupl_RG_clip/*.bam > bam.tmp
-grep -v 121 bam.tmp > bam.list ; rm bam.tmp
+grep -v -e 121 -e RNXXX bam.tmp > bam.list ; rm bam.tmp
 
 # 2. Split ref in 50 kb regions to speed up the analysis
-source activate freebayes
+module load freebayes
 fasta_generate_regions.py Formica_hybrid_v1.fa.fai 50000 > Formica_hybrid_v1_50kb_regions.tmp
 
 
@@ -32,8 +32,10 @@ fasta_generate_regions.py Formica_hybrid_v1.fa.fai 50000 > Formica_hybrid_v1_50k
 ### Full SNP calling
 ###
 
-module load bioconda
-source activate freebayes # version: v1.3.1
+# --skip-coverage = total DP combined across all samples; assuming max 400x per sample per region, 400X per sample * 101 samples = 40400X
+# use screen for the SNP calling https://linuxize.com/post/how-to-use-linux-screen/?utm_content=cmp-true
+
+module load freebayes # version 2023: v1.3.6
 
 cd /scratch/project_2001443/vcf
 REF=/scratch/project_2001443/reference_genome
@@ -44,7 +46,7 @@ RES=/scratch/project_2001443/vcf
   -regions $REF/Formica_hybrid_v1_50kb_regions.txt \
   -f $REF/Formica_hybrid_v1_wFhyb_Sapis.fa \
   -L $RES/bam.list \
-  -k --genotype-qualities --skip-coverage 36000 \
+  -k --genotype-qualities --skip-coverage 40400 \
   -out $RES/raw/all_samples_raw.vcf
 
 
