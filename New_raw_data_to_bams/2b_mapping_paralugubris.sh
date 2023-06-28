@@ -27,6 +27,7 @@ cd /scratch/project_2001443/paralugubris/
 # Define paths
 REFPATH=/scratch/project_2001443/reference_genome
 FASTQPATH=/scratch/project_2001443/paralugubris/fastq/trim
+TMPBAMPATH=/scratch/project_2001443/tmp
 BAMPATH=/scratch/project_2001443/paralugubris/bam
 
 # Get file name and sample ID
@@ -42,9 +43,9 @@ echo "###### STARTING file: $file"
 
 echo "###### MAPPING"
 
-bwa mem -t8 $REFPATH/Formica_hybrid_v1_wFhyb_Sapis.fa $FASTQPATH/$file"_1.trim.pair.fq.gz" $FASTQPATH/$file"_2.trim.pair.fq.gz" | samtools sort -@8 -m512M -o $BAMPATH/raw/${shortfile}".bam" -
+bwa mem -t8 $REFPATH/Formica_hybrid_v1_wFhyb_Sapis.fa $FASTQPATH/$file"_1.trim.pair.fq.gz" $FASTQPATH/$file"_2.trim.pair.fq.gz" | samtools sort -@8 -m512M -o $TMPBAMPATH/${shortfile}".bam" -
 
-samtools index -@4 $BAMPATH/raw/${shortfile}".bam"
+samtools index -@4 $TMPBAMPATH/${shortfile}".bam"
 
 
 ###
@@ -54,7 +55,7 @@ samtools index -@4 $BAMPATH/raw/${shortfile}".bam"
 echo "###### COLLECTING INSERT SIZES"
 
 picard CollectInsertSizeMetrics \
-I=$BAMPATH/raw/${shortfile}".bam" \
+I=$TMPBAMPATH/${shortfile}".bam" \
 O=$BAMPATH/stats/${shortfile}"_insert_size_metrics.txt" \
 H=$BAMPATH/stats/${shortfile}"_insert_size_hist.pdf"
 
@@ -65,11 +66,11 @@ H=$BAMPATH/stats/${shortfile}"_insert_size_hist.pdf"
 
 echo "###### FILTERING DUPLICATES"
 
-picard MarkDuplicates \
-I=$BAMPATH/raw/${shortfile}".bam" \
+picard16 MarkDuplicates \
+I=$TMPBAMPATH/${shortfile}".bam" \
 O=$BAMPATH/nodupl/${shortfile}"_nodupl.bam" \
 M=$BAMPATH/nodupl/stats/${shortfile}"_dupl_metrics.txt" \
-REMOVE_DUPLICATES=T
+REMOVE_DUPLICATES=T TMP_DIR=$TMPBAMPATH
 
 
 ###
