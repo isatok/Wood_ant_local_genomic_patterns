@@ -31,4 +31,9 @@ export PATH="/projappl/project_2001443/ete3env/bin:$PATH" #This contains NUMPY
 #### build trees with sticcs.py
 
 #input file: /scratch/project_2001443/vcf/geno/phased.exsecta.bases.csv
-
+#needs imputed or phased data (since it allows no missing data)
+#sensitive to genotyping (and imputation) errors. when zooming in to narrow regions this manifests as spurious trees but with broader distances works well
+#Simon wants to see:
+#-relative proportions of topologies genome-wide, and patterns along the chromosomes, in comparison to PhyML trees
+#-also interesting to make a comparison with relate & tsinfer but not priority now
+#download the script from discord
