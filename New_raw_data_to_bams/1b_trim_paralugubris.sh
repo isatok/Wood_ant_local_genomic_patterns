@@ -32,3 +32,8 @@ fastqc trim/$file"_1.trim.pair.fq.gz" -o trim/fastqc && \
 fastqc trim/$file"_2.trim.pair.fq.gz" -o trim/fastqc
 
 ### END
+
+
+## Inspect the fastqc results (everything ok) ##
+ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/paralugubris/fastq/trim/fastqc/s35*' \
+ '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Trimmed_reads_fastqc/'
