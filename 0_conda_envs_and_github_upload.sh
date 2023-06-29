@@ -67,3 +67,11 @@ conda create -n myenv samtools bwa \
 #PHASING 2/2 SHAPEIT5
 
 see when relevant: https://odelaneau.github.io/shapeit5/docs/installation/build_from_source/required_libraries
+
+
+---
+
+#GENOMICS_GENERAL GitHub update (last uploaded 29.06.2023)
+
+cd /scratch/project_2001443/analysis/genomics_simon
+git clone https://github.com/simonhmartin/genomics_general.git
