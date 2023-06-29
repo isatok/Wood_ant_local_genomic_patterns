@@ -67,8 +67,6 @@ paste tmp2 tmp1 > paralugubris.no_overlap_correction.mosdepth.summary.txt ; rm *
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/paralugubris/bam/stats/coverage/paralugubris.no_overlap_correction.mosdepth.summary.txt' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/mapping_and_insert_stats/'
 
-scp puhti:/scratch/project_2001443/paralugubris/bam/coverage/paralugubris.overlap_correction.mosdepth.summary.txt .
-
 # in R
 # options(stringsAsFactors=F)
 # tt = read.table("paralugubris.overlap_correction.mosdepth.summary.txt", h = F)
