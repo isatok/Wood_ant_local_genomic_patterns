@@ -17,12 +17,12 @@ b) bam files from the previous project
 ### Create additional input files
 ###
 
-# 1. BAM list w/out samples 121 and RNXXX (excluded due to low quality)
+# 1. BAM list w/out samples 121 and RN217 (RN217 excluded due to low quality; coverage only 2.16 after overlap correction)
 ls /scratch/project_2001443/bam/nodupl_RG_clip/*.bam > bam.tmp
-grep -v -e 121 -e RNXXX bam.tmp > bam.list ; rm bam.tmp
+grep -v -e 121 -e RN217 bam.tmp > bam.list ; rm bam.tmp
 
-# 2. Split ref in 50 kb regions to speed up the analysis
-module load freebayes
+# 2. Split ref in 50 kb regions to speed up the analysis #https://docs.csc.fi/apps/freebayes/
+module load freebayes #v. 1.3.6 - different v. from earlier Satokangas et al 2023 pipeline; ok since now all data is re-prepared.
 fasta_generate_regions.py Formica_hybrid_v1.fa.fai 50000 > Formica_hybrid_v1_50kb_regions.tmp
 
 
