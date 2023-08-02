@@ -8,22 +8,34 @@ cd /scratch/project_2001443/vcf
 ### Copy to the major bam folder a) F. paralugubris bam files and b) bam files from the previous project
 ###
 
-a) F. paralugubris bam files
-/scratch/project_2001443/paralugubris/bam/nodupl_RG_clip
-b) bam files from the previous project
-/scratch/project_2001443/barriers_introgr_formica/bam_semipermeable
+FINALBAMDIR=/scratch/project_2001443/barriers_introgr_formica/bam_all
+
+# a) F. paralugubris bam files (for Seifert)
+cp /scratch/project_2001443/paralugubris/bam/nodupl_RG_clip/*.bam $FINALBAMDIR
+cp /scratch/project_2001443/paralugubris/bam/nodupl_RG_clip/*.bam.bai $FINALBAMDIR
+
+# b) bam files from the previous project (Satokangas et al 2023)
+cp /scratch/project_2001443/barriers_introgr_formica/bam_semipermeable/*.bam $FINALBAMDIR
+cp /scratch/project_2001443/barriers_introgr_formica/bam_semipermeable/*.bam.bai $FINALBAMDIR
+
+# c) newly created bam files for this project
+cp /scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG_clip/*.bam $FINALBAMDIR
+cp /scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG_clip/*.bam.bai $FINALBAMDIR
+
 
 ###
 ### Create additional input files
 ###
 
-# 1. BAM list w/out samples 121 and RN217 (RN217 excluded due to low quality; coverage only 2.16 after overlap correction)
-ls /scratch/project_2001443/bam/nodupl_RG_clip/*.bam > bam.tmp
-grep -v -e 121 -e RN217 bam.tmp > bam.list ; rm bam.tmp
+# 1. BAM list w/out samples 121 and RN417 (RN417 excluded due to low quality; coverage only 2.16 after overlap correction)
+ls $FINALBAMDIR/*.bam > $FINALBAMDIR/bam.tmp
+grep -v -e 121 -e RN417 $FINALBAMDIR/bam.tmp > $FINALBAMDIR/bam.list ; rm $FINALBAMDIR/bam.tmp
 
 # 2. Split ref in 50 kb regions to speed up the analysis #https://docs.csc.fi/apps/freebayes/
+sinteractive --account project_2001443 --mem 2000
 module load freebayes #v. 1.3.6 - different v. from earlier Satokangas et al 2023 pipeline; ok since now all data is re-prepared.
-fasta_generate_regions.py Formica_hybrid_v1.fa.fai 50000 > Formica_hybrid_v1_50kb_regions.tmp
+cd /scratch/project_2001443/reference_genome
+fasta_generate_regions.py Formica_hybrid_v1_wFhyb_Sapis.fa.fai 50000 > Formica_hybrid_v1_50kb_regions.txt
 
 
 
@@ -32,10 +44,12 @@ fasta_generate_regions.py Formica_hybrid_v1.fa.fai 50000 > Formica_hybrid_v1_50k
 ### Full SNP calling
 ###
 
-# --skip-coverage = total DP combined across all samples; assuming max 400x per sample per region, 400X per sample * 101 samples = 40400X
+# --skip-coverage = total DP combined across all samples; assuming max 400x per sample per region, 400X per sample * 103 samples = 41200X
 # use screen for the SNP calling https://linuxize.com/post/how-to-use-linux-screen/?utm_content=cmp-true
 
 module load freebayes # version 2023: v1.3.6
+
+###INA CONTINUE FROM HERE  - 2.8.2023! ####### -----------------
 
 cd /scratch/project_2001443/vcf
 REF=/scratch/project_2001443/reference_genome
