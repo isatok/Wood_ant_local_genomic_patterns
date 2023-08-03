@@ -35,9 +35,11 @@ grep -v -e 121 -e RN417 $FINALBAMDIR/bam.tmp > $FINALBAMDIR/bam.list ; rm $FINAL
 sinteractive --account project_2001443 --mem 2000
 module load freebayes #v. 1.3.6 - different v. from earlier Satokangas et al 2023 pipeline; ok since now all data is re-prepared.
 cd /scratch/project_2001443/reference_genome
-fasta_generate_regions.py Formica_hybrid_v1_wFhyb_Sapis.fa.fai 50000 > Formica_hybrid_v1_50kb_regions.txt
+fasta_generate_regions.py Formica_hybrid_v1_wFhyb_Sapis.fa.fai 50000 > Formica_hybrid_v1_50kb_regions.tmp
 
-
+#remove regions that require different SNP calling parameters if they are needed: mitchondria (mtDNA), Wolbachia (wFhyb*), and Spiroplasma (Spiroplasma*)
+cd /scratch/project_2001443/reference_genome/
+grep -v -e mtDNA -e wFhyb -e Spiroplasma Formica_hybrid_v1_50kb_regions.tmp > Formica_hybrid_v1_50kb_regions.txt ; rm Formica_hybrid_v1_50kb_regions.tmp
 
 
 ###
@@ -47,25 +49,37 @@ fasta_generate_regions.py Formica_hybrid_v1_wFhyb_Sapis.fa.fai 50000 > Formica_h
 # --skip-coverage = total DP combined across all samples; assuming max 400x per sample per region, 400X per sample * 103 samples = 41200X
 # use screen for the SNP calling https://linuxize.com/post/how-to-use-linux-screen/?utm_content=cmp-true
 
+##screen -S snp_calling # create a named screen session
+##"# Ctrl + a ? - list of commands
+### Ctrl + a d - detach
+##screen -r # resume screen session
+
+
 module load freebayes # version 2023: v1.3.6
 
 ###INA CONTINUE FROM HERE  - 2.8.2023! ####### -----------------
 
-cd /scratch/project_2001443/vcf
+cd /scratch/project_2001443/barriers_introgr_formica/vcf
 REF=/scratch/project_2001443/reference_genome
-RES=/scratch/project_2001443/vcf
+RES=/scratch/project_2001443/barriers_introgr_formica/vcf
+BAM=/scratch/project_2001443/barriers_introgr_formica/bam_all
 
-/appl/soft/bio/bioconda/miniconda3/envs/freebayes/bin/freebayes-puhti \
+freebayes-puhti \
   -time 72 \
+  -mem 64 \
   -regions $REF/Formica_hybrid_v1_50kb_regions.txt \
   -f $REF/Formica_hybrid_v1_wFhyb_Sapis.fa \
-  -L $RES/bam.list \
-  -k --genotype-qualities --skip-coverage 40400 \
+  -L $BAM/bam.list \
+  -k --genotype-qualities --skip-coverage 41200 \
   -out $RES/raw/all_samples_raw.vcf
 
+#MORE OPTIONS:
+--limit-coverage 50 #patrick has 5-10x, so 50x is repeat territory
+-n best alleles
+-E N=-1 disable complex variants - maybe use??
 
-
-
+biopython module
+move python3 
 ###
 ### Compress & sort
 ###
