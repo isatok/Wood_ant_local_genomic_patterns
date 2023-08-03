@@ -1,6 +1,5 @@
 # 6_SNP_calling.sh
 
-
 cd /scratch/project_2001443/vcf
 
 
@@ -31,15 +30,31 @@ cp /scratch/project_2001443/barriers_introgr_formica/bam/nodupl_RG_clip/*.bam.ba
 ls $FINALBAMDIR/*.bam > $FINALBAMDIR/bam.tmp
 grep -v -e 121 -e RN417 $FINALBAMDIR/bam.tmp > $FINALBAMDIR/bam.list ; rm $FINALBAMDIR/bam.tmp
 
-# 2. Split ref in 50 kb regions to speed up the analysis #https://docs.csc.fi/apps/freebayes/
+## 2. Split ref in 50 kb regions to speed up the analysis #https://docs.csc.fi/apps/freebayes/
+#sinteractive --account project_2001443 --mem 2000
+#module load freebayes #v. 1.3.6 - different v. from earlier Satokangas et al 2023 pipeline; ok since now all data is re-prepared.
+#cd /scratch/project_2001443/reference_genome
+#fasta_generate_regions.py Formica_hybrid_v1_wFhyb_Sapis.fa.fai 50000 > Formica_hybrid_v1_50kb_regions.tmp
+
+# 2. Split ref in equal data size regions to speed up the analysis #https://docs.csc.fi/apps/freebayes/
+
 sinteractive --account project_2001443 --mem 2000
-module load freebayes #v. 1.3.6 - different v. from earlier Satokangas et al 2023 pipeline; ok since now all data is re-prepared.
-cd /scratch/project_2001443/reference_genome
-fasta_generate_regions.py Formica_hybrid_v1_wFhyb_Sapis.fa.fai 50000 > Formica_hybrid_v1_50kb_regions.tmp
+cd /scratch/project_2001443/barriers_introgr_formica/vcf
+nano split_ref_by_bai_datasize.py #paste code from https://github.com/freebayes/freebayes/blob/master/scripts/split_ref_by_bai_datasize.py and change 'python3' into 'python'
+module load biopythontools
+
+python split_ref_by_bai_datasize.py \
+-L /scratch/project_2001443/barriers_introgr_formica/bam_all/bam.list \
+-r /scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa.fai \
+-s 5000000 > /scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis_5e6_data_regions.fa.fai
+
+#modify regions file so that Freebayes accepts it
+awk 'BEGIN{OFS=""} {print $1,":",$2,"-",$3}' Formica_hybrid_v1_wFhyb_Sapis_5e6_data_regions.fa.fai > Formica_hybrid_v1_5e6_data_regions.tmp
 
 #remove regions that require different SNP calling parameters if they are needed: mitchondria (mtDNA), Wolbachia (wFhyb*), and Spiroplasma (Spiroplasma*)
 cd /scratch/project_2001443/reference_genome/
-grep -v -e mtDNA -e wFhyb -e Spiroplasma Formica_hybrid_v1_50kb_regions.tmp > Formica_hybrid_v1_50kb_regions.txt ; rm Formica_hybrid_v1_50kb_regions.tmp
+#grep -v -e mtDNA -e wFhyb -e Spiroplasma Formica_hybrid_v1_50kb_regions.tmp > Formica_hybrid_v1_50kb_regions.txt ; rm Formica_hybrid_v1_50kb_regions.tmp
+grep -v -e mtDNA -e wFhyb -e Spiroplasma Formica_hybrid_v1_5e6_data_regions.tmp > Formica_hybrid_v1_5e6_data_regions.txt ; rm Formica_hybrid_v1_5e6_data_regions.tmp
 
 
 ###
@@ -49,15 +64,13 @@ grep -v -e mtDNA -e wFhyb -e Spiroplasma Formica_hybrid_v1_50kb_regions.tmp > Fo
 # --skip-coverage = total DP combined across all samples; assuming max 400x per sample per region, 400X per sample * 103 samples = 41200X
 # use screen for the SNP calling https://linuxize.com/post/how-to-use-linux-screen/?utm_content=cmp-true
 
-##screen -S snp_calling # create a named screen session
-##"# Ctrl + a ? - list of commands
-### Ctrl + a d - detach
-##screen -r # resume screen session
+screen -S snp_calling # create a named screen session
+# Ctrl + a ? - list of commands
+# Ctrl + a d - detach
+screen -r # resume screen session
 
 
 module load freebayes # version 2023: v1.3.6
-
-###INA CONTINUE FROM HERE  - 2.8.2023! ####### -----------------
 
 cd /scratch/project_2001443/barriers_introgr_formica/vcf
 REF=/scratch/project_2001443/reference_genome
@@ -67,19 +80,24 @@ BAM=/scratch/project_2001443/barriers_introgr_formica/bam_all
 freebayes-puhti \
   -time 72 \
   -mem 64 \
-  -regions $REF/Formica_hybrid_v1_50kb_regions.txt \
+  -regions $REF/Formica_hybrid_v1_5e6_data_regions.txt \
   -f $REF/Formica_hybrid_v1_wFhyb_Sapis.fa \
   -L $BAM/bam.list \
   -k --genotype-qualities --skip-coverage 41200 \
   -out $RES/raw/all_samples_raw.vcf
 
-#MORE OPTIONS:
+#MORE POTENTIAL OPTIONS IF NEEDED:
+
+freebayes-puhti -regions regions.txt --limit-coverage 50 -k --genotype-qualities -f /scratch/project_2003480/patrick/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa  -L test_bams_last10_bam_bam22.list -out test_bams_last10_bam_bam22.vcf
+
 --limit-coverage 50 #patrick has 5-10x, so 50x is repeat territory
 -n best alleles
 -E N=-1 disable complex variants - maybe use??
 
-biopython module
-move python3 
+
+#########INA CONTINUE FROM HERE 3.8.2023###########
+
+
 ###
 ### Compress & sort
 ###
