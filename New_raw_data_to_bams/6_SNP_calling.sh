@@ -67,7 +67,7 @@ grep -v -e mtDNA -e wFhyb -e Spiroplasma Formica_hybrid_v1_5e6_data_regions.tmp 
 screen -S snp_calling # create a named screen session
 # Ctrl + a ? - list of commands
 # Ctrl + a d - detach
-screen -r # resume screen session
+screen -r # resume screen session; screen -r 2195566.snp_calling
 
 
 module load freebayes # version 2023: v1.3.6
@@ -79,13 +79,14 @@ BAM=/scratch/project_2001443/barriers_introgr_formica/bam_all
 
 freebayes-puhti \
   -time 72 \
-  -mem 64 \
   -regions $REF/Formica_hybrid_v1_5e6_data_regions.txt \
   -f $REF/Formica_hybrid_v1_wFhyb_Sapis.fa \
   -L $BAM/bam.list \
   -k --genotype-qualities --skip-coverage 41200 \
+  --limit-coverage 100 -E -1 \ 
   -out $RES/raw/all_samples_raw.vcf
 
+#max mean depth as per 'vcftools --depth' was 46x for sample 108-Flug. Later on all sites that have 2x per ind mean depth are anyway set as '.', which is why limiting to 100x with '--limit-coverage' is safe.
 #MORE POTENTIAL OPTIONS IF NEEDED:
 
 freebayes-puhti -regions regions.txt --limit-coverage 50 -k --genotype-qualities -f /scratch/project_2003480/patrick/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa  -L test_bams_last10_bam_bam22.list -out test_bams_last10_bam_bam22.vcf
