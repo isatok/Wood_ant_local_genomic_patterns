@@ -49,6 +49,7 @@ python split_ref_by_bai_datasize.py \
 -s 5000000 > /scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis_5e6_data_regions.fa.fai
 
 #modify regions file so that Freebayes accepts it
+cd /scratch/project_2001443/reference_genome
 awk 'BEGIN{OFS=""} {print $1,":",$2,"-",$3}' Formica_hybrid_v1_wFhyb_Sapis_5e6_data_regions.fa.fai > Formica_hybrid_v1_5e6_data_regions.tmp
 
 #remove regions that require different SNP calling parameters if they are needed: mitchondria (mtDNA), Wolbachia (wFhyb*), and Spiroplasma (Spiroplasma*), as well as Scaffold00 
@@ -65,10 +66,10 @@ grep -v -e mtDNA -e wFhyb -e Spiroplasma -e Scaffold00 Formica_hybrid_v1_5e6_dat
 # --skip-coverage = total DP combined across all samples; assuming max 400x per sample per region, 400X per sample * 103 samples = 41200X
 # use screen for the SNP calling https://linuxize.com/post/how-to-use-linux-screen/?utm_content=cmp-true
 
-screen -S snp_calling # create a named screen session
+screen -S snp_calling_150823 # create a named screen session
 # Ctrl + a ? - list of commands
 # Ctrl + a d - detach
-screen -r # resume screen session; screen -r 2195566.snp_calling
+# screen -r # resume screen session
 
 
 module load freebayes # version 2023: v1.3.6
@@ -80,6 +81,7 @@ BAM=/scratch/project_2001443/barriers_introgr_formica/bam_all
 
 freebayes-puhti \
   -time 72 \
+  -mem 64 \
   -regions $REF/Formica_hybrid_v1_5e6_data_regions.txt \
   -f $REF/Formica_hybrid_v1_wFhyb_Sapis.fa \
   -L $BAM/bam.list \
