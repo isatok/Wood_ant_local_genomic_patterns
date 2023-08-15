@@ -51,10 +51,11 @@ python split_ref_by_bai_datasize.py \
 #modify regions file so that Freebayes accepts it
 awk 'BEGIN{OFS=""} {print $1,":",$2,"-",$3}' Formica_hybrid_v1_wFhyb_Sapis_5e6_data_regions.fa.fai > Formica_hybrid_v1_5e6_data_regions.tmp
 
-#remove regions that require different SNP calling parameters if they are needed: mitchondria (mtDNA), Wolbachia (wFhyb*), and Spiroplasma (Spiroplasma*)
+#remove regions that require different SNP calling parameters if they are needed: mitchondria (mtDNA), Wolbachia (wFhyb*), and Spiroplasma (Spiroplasma*), as well as Scaffold00 
+#that has unmapped reads (for cutting off SNP calling time since it will not be used anyway in the analyses I can think of)
 cd /scratch/project_2001443/reference_genome/
 #grep -v -e mtDNA -e wFhyb -e Spiroplasma Formica_hybrid_v1_50kb_regions.tmp > Formica_hybrid_v1_50kb_regions.txt ; rm Formica_hybrid_v1_50kb_regions.tmp
-grep -v -e mtDNA -e wFhyb -e Spiroplasma Formica_hybrid_v1_5e6_data_regions.tmp > Formica_hybrid_v1_5e6_data_regions.txt ; rm Formica_hybrid_v1_5e6_data_regions.tmp
+grep -v -e mtDNA -e wFhyb -e Spiroplasma -e Scaffold00 Formica_hybrid_v1_5e6_data_regions.tmp > Formica_hybrid_v1_5e6_data_regions.txt ; rm Formica_hybrid_v1_5e6_data_regions.tmp
 
 
 ###
@@ -84,6 +85,7 @@ freebayes-puhti \
   -L $BAM/bam.list \
   -k --genotype-qualities --skip-coverage 41200 \
   --limit-coverage 100 -E -1 \ 
+  --use-best-n-alleles 3 \
   -out $RES/raw/all_samples_raw.vcf
 
 #max mean depth as per 'vcftools --depth' was 46x for sample 108-Flug. Later on all sites that have 2x per ind mean depth are anyway set as '.', which is why limiting to 100x with '--limit-coverage' is safe.
