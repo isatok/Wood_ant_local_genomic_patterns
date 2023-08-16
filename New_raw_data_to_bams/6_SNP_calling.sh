@@ -72,7 +72,7 @@ screen -S snp_calling_150823 # create a named screen session
 # screen -r # resume screen session
 
 
-module load freebayes # version 2023: v1.3.6
+module load freebayes # version used in 2023: v1.3.6
 
 cd /scratch/project_2001443/barriers_introgr_formica/vcf
 REF=/scratch/project_2001443/reference_genome
@@ -90,17 +90,9 @@ freebayes-puhti \
   --use-best-n-alleles 3 \
   -out $RES/raw/all_samples_raw.vcf
 
-#max mean depth as per 'vcftools --depth' was 46x for sample 108-Flug. Later on all sites that have 2x per ind mean depth are anyway set as '.', which is why limiting to 100x with '--limit-coverage' is safe.
-#MORE POTENTIAL OPTIONS IF NEEDED:
-
-freebayes-puhti -regions regions.txt --limit-coverage 50 -k --genotype-qualities -f /scratch/project_2003480/patrick/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa  -L test_bams_last10_bam_bam22.list -out test_bams_last10_bam_bam22.vcf
-
---limit-coverage 50 #patrick has 5-10x, so 50x is repeat territory
--n best alleles
--E N=-1 disable complex variants - maybe use??
-
-
-#########INA CONTINUE FROM HERE 3.8.2023###########
+# max mean depth as per 'vcftools --depth' was 46x for sample 108-Flug. Later on all sites that have 2x per ind mean depth are anyway set as '.', which is why limiting to 100x with '--limit-coverage' is safe.
+# -E N=-1 disable complex variants
+# --use-best-n-alleles 3 = reduce computational time to exclude multiple alternative alleles if present. Setting to 3 is safe since all but biallelic sites will be filtered out later on.
 
 
 ###
@@ -109,8 +101,8 @@ freebayes-puhti -regions regions.txt --limit-coverage 50 -k --genotype-qualities
 
 #!/bin/bash -l
 #SBATCH -J comp_sort
-#SBATCH -o /scratch/project_2001443/vcf/raw/compress_sort.out
-#SBATCH -e /scratch/project_2001443/vcf/raw/compress_sort.err
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/vcf/raw/compress_sort.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/vcf/raw/compress_sort.err
 #SBATCH --account=project_2001443
 #SBATCH -t 24:00:00
 #SBATCH -p small
@@ -118,15 +110,16 @@ freebayes-puhti -regions regions.txt --limit-coverage 50 -k --genotype-qualities
 #SBATCH --mem=8G
 
 module load biokit
-cd /scratch/project_2001443/vcf/raw
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/raw
+
 # Compress
-/appl/soft/bio/samtools/htslib-1.9/bgzip all_samples_raw.vcf
+bgzip all_samples_raw.vcf #samtools version 1.16.1, containing HTSlib 1.16
 
 # Sort
 bcftools sort -m 1G -O z -o all_samples.vcf.gz -T ./tmp_sort all_samples_raw.vcf.gz
 
 # Index
-/appl/soft/bio/samtools/htslib-1.9/tabix -p vcf all_samples.vcf.gz
+tabix -p vcf all_samples.vcf.gz
 bcftools index -n all_samples.vcf.gz
 
 gunzip -c all_samples.vcf.gz | grep -v "^#" | cut -f 1 | uniq -c > site_count_per_chromosome.tab
