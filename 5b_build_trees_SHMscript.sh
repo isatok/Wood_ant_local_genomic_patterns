@@ -37,3 +37,19 @@ export PATH="/projappl/project_2001443/ete3env/bin:$PATH" #This contains NUMPY
 #-relative proportions of topologies genome-wide, and patterns along the chromosomes, in comparison to PhyML trees
 #-also interesting to make a comparison with relate & tsinfer but not priority now
 #download the script from discord
+
+#python3 /scratch/project_2001443/analysis/twisst/trees_simon/sticcs.py \
+#-i input.freqs.tsv.gz -o output_prefix -l reference.fai
+#one more option is --allowSecondChances
+
+#>>>>>>>>>>>>>>>>>>>>>>INA CONTINUE  FROM HERE 16.08.2023<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+sinteractive --account project_2001443 --mem 6000
+
+cd /scratch/project_2001443/analysis/twisst/trees_simon/
+
+INPUT=/scratch/project_2001443/vcf/geno/phased.exsecta.bases.csv
+REFERENCE=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa.fai
+
+python3 /scratch/project_2001443/analysis/twisst/trees_simon/sticcs.py \
+-i $INPUT -o test_160823 -l $REFERENCE --allowSecondChances
