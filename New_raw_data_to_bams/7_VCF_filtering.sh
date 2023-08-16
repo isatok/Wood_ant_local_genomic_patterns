@@ -14,11 +14,15 @@
 #SBATCH --ntasks 8
 #SBATCH --mem=12G
 
-module load bioconda/3
-source activate my_seqdata
-
+export PATH="/projappl/project_2001443/bioinfo_1222_env/bin:$PATH"
 module load biokit
-cd /scratch/project_2001443/vcf/filt
+
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
+
+
+
+>>>>>>>>>>>>>>>>>>INA CONTINUE FROM HERE 16.8.2023<<<<<<<<<<<<<<<<
+
 
 ##
 ## 0. Pre-filtering: normalisation, indels, non-SNPs, read imbalance, decomposition ---------------
