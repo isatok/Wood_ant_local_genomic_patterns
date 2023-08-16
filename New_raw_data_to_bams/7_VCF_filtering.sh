@@ -28,7 +28,7 @@ cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
 ## 0. Pre-filtering: normalisation, indels, non-SNPs, read imbalance, decomposition ---------------
 ##
 
-vt normalize -n -r ../../../ref/Formica_hybrid_v1_wFhyb_Sapis.fa ../all_samples.vcf.gz | bgzip -c > all_samples.normalized.vcf.gz
+vt normalize -n -r ../../../reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa ../raw/all_samples.vcf.gz | bgzip -c > all_samples.normalized.vcf.gz
 
 bcftools filter --threads 8 -Oz -s+ --SnpGap 2 all_samples.normalized.vcf.gz > all_samples.normalized.SnpGap_2.vcf.gz && \
 
