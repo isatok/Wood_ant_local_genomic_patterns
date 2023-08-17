@@ -88,11 +88,14 @@ freebayes-puhti \
   -k --genotype-qualities --skip-coverage 41200 \
   --limit-coverage 100 \ 
   --use-best-n-alleles 3 \
-  -out $RES/raw/all_samples_raw_complex.vcf
+  -out $RES/raw/all_samples_raw.vcf
 
 # max mean depth as per 'vcftools --depth' was 46x for sample 108-Flug. Later on all sites that have 2x per ind mean depth are anyway set as '.', which is why limiting to 100x with '--limit-coverage' is safe.
 # -E N=-1 disable complex variants #NOT USED CURRENTLY -  does it mess up w snpgap and vcfallelicprimitives later on?
 # --use-best-n-alleles 3 = reduce computational time to exclude multiple alternative alleles if present. Setting to 3 is safe since all but biallelic sites will be filtered out later on.
+
+sinteractive...
+bcftools stats all_samples_raw.vcf > all_samples_raw.stats
 
 
 ###
