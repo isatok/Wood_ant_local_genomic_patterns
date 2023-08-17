@@ -42,10 +42,10 @@ export PATH="/projappl/project_2001443/ete3env/bin:$PATH" #This contains NUMPY
 #-i input.freqs.tsv.gz -o output_prefix -l reference.fai
 #one more option is --allowSecondChances
 
-#>>>>>>>>>>>>>>>>>>>>>>INA CONTINUE  FROM HERE 16.08.2023<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 sinteractive --account project_2001443 --mem 6000
 
+module load python-data
 cd /scratch/project_2001443/analysis/twisst/trees_simon/
 
 INPUT=/scratch/project_2001443/vcf/geno/phased.exsecta.bases.csv
