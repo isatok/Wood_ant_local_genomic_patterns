@@ -27,13 +27,13 @@ FINALDIR=/scratch/project_2001443/barriers_introgr_formica/bam_all
 cd /scratch/project_2001443/barriers_introgr_formica/bam_all
 
 # Get file
-file=$(sed -n "$SLURM_ARRAY_TASK_ID"p bam.PierreSamples.list)
+file=$(sed -n "$SLURM_ARRAY_TASK_ID"p bam.nouhaudsamples.list)
 
 # Get sample ID
 sample=${file%_nodupl*}
 
-mosdepth -t 1 -b 10000 -n -x ./stats/coverage/$sample $sample"_nodupl_wRG.bam"
-mosdepth -t 1 -b 10000 -n ./stats/coverage/${sample}_overlap_correction $sample"_nodupl_wRG.bam"
+mosdepth -t 1 -b 10000 -n -x ./stats/coverage/$sample $FINALDIR/$sample"_nodupl_wRG.bam"
+mosdepth -t 1 -b 10000 -n ./stats/coverage/${sample}_overlap_correction $FINALDIR/$sample"_nodupl_wRG.bam"
 
 ### END
 
@@ -45,26 +45,26 @@ rm -rf *global*
 
 for i in *overlap_correction.mosdepth.summary.txt
  do echo $i ; grep 'Scaffold' $i | awk '{sum+=$4;} END{print sum/NR;}'
-done > paralugubris.overlap_correction.mosdepth.summary.tmp
+done > nouhaudsamples.overlap_correction.mosdepth.summary.tmp
 
-grep -v 'txt' paralugubris.overlap_correction.mosdepth.summary.tmp > tmp1
-grep 'txt' paralugubris.overlap_correction.mosdepth.summary.tmp | perl -npe 's/_overlap_correction.mosdepth.summary.txt//' > tmp2
-paste tmp2 tmp1 > paralugubris.overlap_correction.mosdepth.summary.txt ; rm *tmp*
+grep -v 'txt' nouhaudsamples.overlap_correction.mosdepth.summary.tmp > tmp1
+grep 'txt' nouhaudsamples.overlap_correction.mosdepth.summary.tmp | perl -npe 's/_overlap_correction.mosdepth.summary.txt//' > tmp2
+paste tmp2 tmp1 > nouhaudsamples.overlap_correction.mosdepth.summary.txt ; rm *tmp*
 
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/paralugubris/bam/stats/coverage/paralugubris.overlap_correction.mosdepth.summary.txt' \
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/bam_all/stats/coverage/nouhaudsamples.overlap_correction.mosdepth.summary.txt' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/mapping_and_insert_stats/'
 
 ### Get coverage for *NON* overlap corrected data  --------------------
 
-for i in s???.mosdepth.summary.txt
+for i in *w.mosdepth.summary.txt
  do echo $i ; grep 'Scaffold' $i | awk '{sum+=$4;} END{print sum/NR;}'
-done > paralugubris.no_overlap_correction.mosdepth.summary.tmp
+done > nouhaudsamples.no_overlap_correction.mosdepth.summary.tmp
 
-grep -v 'txt' paralugubris.no_overlap_correction.mosdepth.summary.tmp > tmp1
-grep 'txt' paralugubris.no_overlap_correction.mosdepth.summary.tmp | perl -npe 's/.mosdepth.summary.txt//' > tmp2
-paste tmp2 tmp1 > paralugubris.no_overlap_correction.mosdepth.summary.txt ; rm *tmp*
+grep -v 'txt' nouhaudsamples.no_overlap_correction.mosdepth.summary.tmp > tmp1
+grep 'txt' nouhaudsamples.no_overlap_correction.mosdepth.summary.tmp | perl -npe 's/.mosdepth.summary.txt//' > tmp2
+paste tmp2 tmp1 > nouhaudsamples.no_overlap_correction.mosdepth.summary.txt ; rm *tmp*
 
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/paralugubris/bam/stats/coverage/paralugubris.no_overlap_correction.mosdepth.summary.txt' \
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/bam_all/stats/coverage/nouhaudsamples.no_overlap_correction.mosdepth.summary.txt' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/mapping_and_insert_stats/'
 
 # in R
