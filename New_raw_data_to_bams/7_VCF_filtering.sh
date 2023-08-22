@@ -7,7 +7,7 @@
 ######################################################## Beginning script 1
 
 #!/bin/bash -l
-#SBATCH -J proc
+#SBATCH -J filt1
 #SBATCH --account=project_2001443
 #SBATCH -t 48:00:00
 #SBATCH -p small
@@ -18,10 +18,6 @@ export PATH="/projappl/project_2001443/bioinfo_1222_env/bin:$PATH"
 module load biokit
 
 cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
-
-
-
->>>>>>>>>>>>>>>>>>INA CONTINUE FROM HERE 16.8.2023<<<<<<<<<<<<<<<<
 
 
 ##
