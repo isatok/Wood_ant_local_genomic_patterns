@@ -18,7 +18,7 @@ export PATH="/projappl/project_2001443/bioinfo_1222_env/bin:$PATH"
 module load biokit
 
 cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
-
+TMPDIR=/scratch/project_2001443/barriers_introgr_formica/tmp
 
 ##
 ## 0. Pre-filtering: normalisation, indels, non-SNPs, read imbalance, decomposition ---------------
@@ -34,7 +34,7 @@ bcftools filter --threads 8 -Oz -s Balance -m+ -i 'RPL>=1 && RPR>=1 & SAF>=1 && 
 
 bcftools view --threads 8 -O z -f PASS all_samples.normalized.SnpGap_2.NonSNP.Balance.vcf.gz > all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.vcf.gz && \
 
-bcftools view --threads 8 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.vcf.gz | vcfallelicprimitives --keep-info --keep-geno -t decomposed | sed '/^##/! s/|/\//g' | sed 's/\.:\.:\.:\.:\.:\.:\.:\./\.\/\.:\.:\.:\.:\.:\.:\.:\./g' | bcftools sort --temp-dir /scratch/project_2001443 --max-mem 4G -O z > all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.vcf.gz && \
+bcftools view --threads 8 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.vcf.gz | vcfallelicprimitives --keep-info --keep-geno -t decomposed | sed '/^##/! s/|/\//g' | sed 's/\.:\.:\.:\.:\.:\.:\.:\./\.\/\.:\.:\.:\.:\.:\.:\.:\./g' | bcftools sort --temp-dir $TMPDIR --max-mem 4G -O z > all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.vcf.gz && \
 
 bcftools index -t all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.vcf.gz
 echo "bcftools index -n all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.vcf.gz"
