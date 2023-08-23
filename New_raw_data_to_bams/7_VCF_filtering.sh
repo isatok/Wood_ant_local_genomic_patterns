@@ -87,7 +87,7 @@ vcftools --depth --gzvcf all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.dec
 
 ### c. Compute individual DP thresholds
 module load r-env
-scriptR minMaxDP.R
+Rscript minMaxDP.R
 
 # minMaxDP.R script copied below, for the record
 
@@ -111,6 +111,10 @@ mkdir individualDP
 ## 3. Filtering on sequencing depth ---------------------------------------------------------------
 ##
 
+#create a list of individuals remaining in the vcf
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
+vcf-query -l all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.vcf.gz > ind.list
+
 ######################################################## Beginning script 2
 
 #!/bin/bash -l
@@ -120,12 +124,12 @@ mkdir individualDP
 #SBATCH -e logs/splitDP_%a.err
 #SBATCH -t 24:00:00
 #SBATCH -p small
-#SBATCH --array=1-90
+#SBATCH --array=1-103
 #SBATCH --ntasks 1
 #SBATCH --mem=2G
 
 module load biokit
-cd /scratch/project_2001443/vcf/filt
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
 
 # Get file name and sample ID
 ind=$(sed -n "$SLURM_ARRAY_TASK_ID"p ind.list)
@@ -135,7 +139,7 @@ cd individualDP/${ind}
 # Extract single individual from VCF and apply DP filters
 
 dpmin=2 # hard-coded, we will apply the same min filter accross all individuals afterwards
-dpmax=$(grep $ind ../../all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.idepth.MinMax | cut -f5)
+dpmax=$(grep -w "$ind" ../../all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.idepth.MinMax | cut -f5)
 
 echo "Processing individual $ind with $dpmin < DP <= $dpmax"
 bcftools view -s ${ind} -Ou ../../all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.vcf.gz | bcftools filter -e "FORMAT/DP < ${dpmin} | FORMAT/DP >= ${dpmax}" --set-GTs . -Oz > ${ind}.vcf.gz &&
@@ -161,19 +165,19 @@ bcftools index -t ${ind}.vcf.gz
 #SBATCH --mem=8G
 
 
-cd /scratch/project_2001443/vcf/filt/individualDP
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt/individualDP
 module load biokit
 module load r-env
 
 
 ### Combine all samples
-ls */*gz > female.list
-bcftools merge -l female.list -Oz --threads 4 > ../all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.vcf.gz
+ls */*gz > sample.list
+bcftools merge -l sample.list -Oz --threads 4 > ../all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.vcf.gz
 
 
-### Test HWE in females
+### Test HWE in the samples
 cd ..
-vcftools --gzvcf all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.vcf.gz --hardy --out FEMALES_hwe
+vcftools --gzvcf all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.vcf.gz --hardy --out SAMPLES_hwe
 
 ### Extract sites with heterozygote excess, in R
 Rscript hwe_filtering.R
@@ -181,7 +185,7 @@ Rscript hwe_filtering.R
 # hwe_filtering.R copied below, for the record
 
       # # get the filename to read the hwe test
-      # filename = "FEMALES_hwe" # file name of reference table
+      # filename = "SAMPLES_hwe" # file name of reference table
       # # print the command line options
       # print(paste("file name with hwe output:", filename))
       #
@@ -203,9 +207,9 @@ Rscript hwe_filtering.R
       # write(t(bedmatrix), file=paste("nohwe_excess_",filename,".bed",sep=""), ncolumns = 3, append=T)
 
 
-### Remove these sites in both sex-specific VCFs
+### Remove these sites in the VCF
 
-vcftools --gzvcf all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.vcf.gz --exclude-bed nohwe_excess_FEMALES_hwe.bed --recode --recode-INFO-all --stdout | bgzip >  all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.hwe.vcf.gz
+vcftools --gzvcf all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.vcf.gz --exclude-bed nohwe_excess_SAMPLES_hwe.bed --recode --recode-INFO-all --stdout | bgzip >  all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.hwe.vcf.gz
 
 
 
@@ -225,6 +229,13 @@ bcftools index -t all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed
 ##
 ## 6. Filter based on missing data ----------------------------------------------------------------
 ##
+
+
+
+##############
+############ ------------------INA CONTINUE FROM HERE 23.8.23----------------###############
+#############
+
 
 ### FILTERING BASED ON ALLELIC NUMBER (AN)
 
