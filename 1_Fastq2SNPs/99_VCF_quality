@@ -1,0 +1,139 @@
+###Inspect the early VCF file to get a picture of data quality and decide on appropriate filtering thresholds.
+###Following here instructions from https://speciationgenomics.github.io/filtering_vcfs/
+
+#Make a directory for the output stats
+mkdir ./vcftools
+
+----
+
+#!/bin/bash -l
+#SBATCH -J subset
+#SBATCH --account=project_2001443
+#SBATCH -t 3:00:00
+#SBATCH -p small
+#SBATCH --ntasks 7
+#SBATCH --mem=6G
+
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
+module load biokit
+module load vcflib
+
+VCF=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.vcf.gz
+#bcftools index -n $VCF #13652856
+
+#Subset 100000 variants; 100000/13652856=0,0073
+bcftools view $VCF | vcfrandomsample -r 0.007 > test_subset.vcf &&
+bgzip test_subset.vcf &&
+bcftools index test_subset.vcf.gz &&
+
+SUBSET_VCF=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/test_subset.vcf.gz
+OUT=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/vcftools/test_subset
+
+#Allele frequency for each variant
+vcftools --gzvcf $SUBSET_VCF --freq2 --out $OUT --max-alleles 2
+
+#Mean depth per individual
+vcftools --gzvcf $SUBSET_VCF --depth --out $OUT
+
+#Mean depth per site
+vcftools --gzvcf $SUBSET_VCF --site-mean-depth --out $OUT
+
+#Site quality score for each site
+vcftools --gzvcf $SUBSET_VCF --site-quality --out $OUT
+
+#Proportion of missing data per individual
+vcftools --gzvcf $SUBSET_VCF --missing-indv --out $OUT
+
+#Proportion of missing data per site
+vcftools --gzvcf $SUBSET_VCF --missing-site --out $OUT
+
+#Heterozygosity and inbreeding coefficient per individual
+vcftools --gzvcf $SUBSET_VCF --het --out $OUT
+
+### END OF THE BATCH SCRIPT.
+----
+
+#How many variants in the subsetted file?
+bcftools index -n test_subset.vcf.gz
+
+
+###
+###### Go working and plotting in R
+###
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/vcf/filt/vcftools' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/'
+
+# load tidyverse package
+library(tidyverse)
+
+###### VARIANT BASED STATISTICS ######
+
+### 1. Variant quality (Phred)
+
+var_qual <- read_delim("./cichlid_subset.lqual", delim = "\t",
+           col_names = c("chr", "pos", "qual"), skip = 1)
+
+a <- ggplot(var_qual, aes(qual)) + geom_density(fill = "dodgerblue1", colour = "black", alpha = 0.3)
+a + theme_light()
+
+summary(var_depth$mean_depth)
+a + theme_light() + xlim(0, 100)
+#10x is a good rule of thumb as a minimum cutoff for read depth, although if we wanted to be conservative, we could go with 15x.
+
+
+### 2. Mean variant depth
+
+var_depth <- read_delim("./cichlid_subset.ldepth.mean", delim = "\t",
+           col_names = c("chr", "pos", "mean_depth", "var_depth"), skip = 1)
+
+a <- ggplot(var_qual, aes(qual)) + geom_density(fill = "dodgerblue1", colour = "black", alpha = 0.3)
+a + theme_light()
+
+summary(var_depth$mean_depth)
+
+
+### 3. Proportion of missingness at each variant
+var_miss <- read_delim("./cichlid_subset.lmiss", delim = "\t",
+                       col_names = c("chr", "pos", "nchr", "nfiltered", "nmiss", "fmiss"), skip = 1)
+
+a <- ggplot(var_miss, aes(fmiss)) + geom_density(fill = "dodgerblue1", colour = "black", alpha = 0.3)
+a + theme_light()
+
+summary(var_miss$fmiss)
+                       
+### 4. Minor allele frequency
+
+var_freq <- read_delim("./cichlid_subset.frq", delim = "\t",
+                       col_names = c("chr", "pos", "nalleles", "nchr", "a1", "a2"), skip = 1)
+
+a <- ggplot(var_freq, aes(maf)) + geom_density(fill = "dodgerblue1", colour = "black", alpha = 0.3)
+a + theme_light()
+
+summary(var_freq$maf)
+
+###### INDIVIDUAL BASED STATISTICS ######
+
+### 5. Mean depth per individual
+
+ind_depth <- read_delim("./cichlid_subset.idepth", delim = "\t",
+                        col_names = c("ind", "nsites", "depth"), skip = 1)
+
+a <- ggplot(ind_depth, aes(depth)) + geom_histogram(fill = "dodgerblue1", colour = "black", alpha = 0.3)
+a + theme_light()
+
+
+### 6. Proportion of missing data per individual
+
+ind_miss  <- read_delim("./cichlid_subset.imiss", delim = "\t",
+                        col_names = c("ind", "ndata", "nfiltered", "nmiss", "fmiss"), skip = 1)
+
+a <- ggplot(ind_miss, aes(fmiss)) + geom_histogram(fill = "dodgerblue1", colour = "black", alpha = 0.3)
+a + theme_light()
+
+### 7. Heterozygosity and inbreeding coefficient per individual
+ind_het <- read_delim("./cichlid_subset.het", delim = "\t",
+           col_names = c("ind","ho", "he", "nsites", "f"), skip = 1)
+
+a <- ggplot(ind_het, aes(f)) + geom_histogram(fill = "dodgerblue1", colour = "black", alpha = 0.3)
+a + theme_light()
