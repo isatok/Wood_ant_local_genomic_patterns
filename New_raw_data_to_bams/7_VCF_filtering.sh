@@ -220,6 +220,21 @@ vcftools --gzvcf all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.
 
 # Individual genotypes not reaching the minimal cutoff dpmin are tagged as missing (--set-GTs .)
 
+# DP 5
+dpmin=5
+bcftools filter --threads 4 -i "FORMAT/DP>=${dpmin}" --set-GTs . -Oz all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.hwe.vcf.gz > all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP${dpmin}.hwe.vcf.gz
+bcftools index -t all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP${dpmin}.hwe.vcf.gz
+
+# DP 6
+dpmin=6
+bcftools filter --threads 4 -i "FORMAT/DP>=${dpmin}" --set-GTs . -Oz all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.hwe.vcf.gz > all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP${dpmin}.hwe.vcf.gz
+bcftools index -t all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP${dpmin}.hwe.vcf.gz
+
+# DP 7
+dpmin=7
+bcftools filter --threads 4 -i "FORMAT/DP>=${dpmin}" --set-GTs . -Oz all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.hwe.vcf.gz > all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP${dpmin}.hwe.vcf.gz
+bcftools index -t all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP${dpmin}.hwe.vcf.gz
+
 # DP 8
 dpmin=8
 bcftools filter --threads 4 -i "FORMAT/DP>=${dpmin}" --set-GTs . -Oz all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.indDP.hwe.vcf.gz > all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP${dpmin}.hwe.vcf.gz
@@ -231,21 +246,26 @@ bcftools index -t all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed
 ##
 
 
-
-##############
-############ ------------------INA CONTINUE FROM HERE 23.8.23----------------###############
-#############
-
-
 ### FILTERING BASED ON ALLELIC NUMBER (AN)
 
-# 90 diploid samples = 180 alleles expected (the name "allele" is misleading here, as all sites are biallelic)
-# 10% missing data = 162 alleles min.
+# 103 diploid samples = 206 alleles expected 
+# 10% missing data = 185,4 = 186 alleles min.
 
+# DP5
+inputfile=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.vcf.gz
+bcftools view --threads 4 -Oz -i 'AN >= 186' ${inputfile} > ${inputfile%.vcf.gz}.AN10percMiss.vcf.gz
+
+# DP6
+inputfile=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.vcf.gz
+bcftools view --threads 4 -Oz -i 'AN >= 186' ${inputfile} > ${inputfile%.vcf.gz}.AN10percMiss.vcf.gz
+
+# DP7
+inputfile=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.vcf.gz
+bcftools view --threads 4 -Oz -i 'AN >= 186' ${inputfile} > ${inputfile%.vcf.gz}.AN10percMiss.vcf.gz
 
 # DP8
 inputfile=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.vcf.gz
-bcftools view --threads 4 -Oz -i 'AN >= 162' ${inputfile} > ${inputfile%.vcf.gz}.AN10percMiss.vcf.gz
+bcftools view --threads 4 -Oz -i 'AN >= 186' ${inputfile} > ${inputfile%.vcf.gz}.AN10percMiss.vcf.gz
 
 
 # Index VCFs, count number of sites left overall & percentage of missing data
@@ -262,18 +282,21 @@ done
 
 ######################################################## Beginning script 4
 
-# Thin with 20kb distances, exclude unmapped regions (Scaffold00) and the social chromosome (Scaffold 03),
-# exclude a collaborative sample prepared alongside our data but not belonging to this study (110-FaquH),
+# Thin with 20kb distances, exclude the social chromosome (Scaffold 03). Unmapped regions (Scaffold00) have not been part of the SNP calling.
+# exclude collaborative samples prepared alongside our data but not belonging to this study (s353, s354),
 # and run minor allele frequency filter
+
+####### INA CHECK 08/23: do we need to remove other indvs bc of missing data in the final vcf?  which DP threshold to continue with?
 
 #start interactive mode
 sinteractive --account project_2001443 --mem 4000
 
 module load biokit
+#####CHANGE FULLVCF? - SEE ABOVE
 FULLVCF=/scratch/project_2001443/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
 OUTVCF=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
-vcftools --gzvcf $FULLVCF --not-chr Scaffold00 --not-chr Scaffold03 --remove-indv 110-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF
+vcftools --gzvcf $FULLVCF --not-chr Scaffold00 --not-chr Scaffold03 --remove-indv s353 --remove-indv s354 --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF
 bcftools index -t $OUTVCF
 
 ######################################################## End script 4
