@@ -137,3 +137,26 @@ ind_het <- read_delim("./cichlid_subset.het", delim = "\t",
 
 a <- ggplot(ind_het, aes(f)) + geom_histogram(fill = "dodgerblue1", colour = "black", alpha = 0.3)
 a + theme_light()
+
+
+
+##### INSPECT INDIVIDUAL MISSINGNESS FROM THE READY-FILTERED VCF FILES TO HELP DECIDING THE DP FILTERS #####
+##### MODIFY THIS SCRIPT BELOW TO DO THE JOB ######
+
+
+#!/bin/bash
+
+# Extract the first column from each file and save it to temporary files
+cut -f1 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.AN10percMiss.imiss > tmp_col1
+cut -f1 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.imiss > tmp_col2
+cut -f1 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.imiss > tmp_col3
+cut -f1 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.imiss > tmp_col4
+
+# Create the output file with the header
+echo -e "ID\tDP5AN10\tDP6AN10\tDP7AN10\tDP8AN10" > merged_output.txt
+
+# Merge the columns using awk
+paste tmp_col1 tmp_col2 tmp_col3 tmp_col4 | awk 'BEGIN { OFS="\t" } { print $1, $2, $3, $4, $5 }' >> merged_output.txt
+
+# Clean up temporary files
+rm tmp_col1 tmp_col2 tmp_col3 tmp_col4
