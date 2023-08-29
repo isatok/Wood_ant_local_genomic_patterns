@@ -54,14 +54,14 @@ vcftools --gzvcf $SUBSET_VCF --het --out $OUT
 ----
 
 #How many variants in the subsetted file?
-bcftools index -n test_subset.vcf.gz
+bcftools index -n test_subset.vcf.gz #95196
 
 
 ###
 ###### Go working and plotting in R
 ###
 
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/vcf/filt/vcftools' \
+scp -r satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/vcf/filt/vcftools' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/'
 
 # load tidyverse package
@@ -143,20 +143,30 @@ a + theme_light()
 ##### INSPECT INDIVIDUAL MISSINGNESS FROM THE READY-FILTERED VCF FILES TO HELP DECIDING THE DP FILTERS #####
 ##### MODIFY THIS SCRIPT BELOW TO DO THE JOB ######
 
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
 
 #!/bin/bash
 
 # Extract the first column from each file and save it to temporary files
 cut -f1 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.AN10percMiss.imiss > tmp_col1
-cut -f1 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.imiss > tmp_col2
-cut -f1 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.imiss > tmp_col3
-cut -f1 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.imiss > tmp_col4
+cut -f5 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.AN10percMiss.imiss > tmp_col2
+cut -f5 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.imiss > tmp_col3
+cut -f5 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.imiss > tmp_col4
+cut -f5 all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.imiss > tmp_col5
 
 # Create the output file with the header
 echo -e "ID\tDP5AN10\tDP6AN10\tDP7AN10\tDP8AN10" > merged_output.txt
 
 # Merge the columns using awk
-paste tmp_col1 tmp_col2 tmp_col3 tmp_col4 | awk 'BEGIN { OFS="\t" } { print $1, $2, $3, $4, $5 }' >> merged_output.txt
+paste tmp_col1 tmp_col2 tmp_col3 tmp_col4 tmp_col5 | awk 'BEGIN { OFS="\t" } { print $1, $2, $3, $4, $5 }' >> merged_output.tmp
+
+(head -n 2 merged_output.tmp && tail -n +3 merged_output.tmp | sort -k 5) > merged_output_sorted.txt
+(head -n 2 merged_output.tmp && tail -n +3 merged_output.tmp | sort -k 5) > all_samples_imiss_DP5678.txt
 
 # Clean up temporary files
-rm tmp_col1 tmp_col2 tmp_col3 tmp_col4
+rm tmp_col1 tmp_col2 tmp_col3 tmp_col4 tmp_col5 merged_output.tmp
+
+# Scp
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_imiss_DP5678.txt' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/vcf_stats'
