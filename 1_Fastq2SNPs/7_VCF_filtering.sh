@@ -282,9 +282,10 @@ done
 
 ######################################################## Beginning script 4
 
-# Thin with 20kb distances, exclude the social chromosome (Scaffold 03). Unmapped regions (Scaffold00) have not been part of the SNP calling.
-# exclude collaborative samples prepared alongside our data but not belonging to this study (s353, s354),
-# and run minor allele frequency filter
+# Thin with 20kb distances, exclude the social chromosome (Scaffold 03). Unmapped regions (Scaffold00) have not been part of the SNP calling in the first place.
+# Exclude sample "105-FaquH" since it has likely too much missing data (DP5 0.44; DP6 0.57; DP7 0.66; DP8 0.72)
+# ********* exclude collaborative samples prepared alongside our data but not belonging to this study (s353, s354) for my final own dataset ************,
+# and run minor allele frequency filter.
 
 ####### INA CHECK 08/23: do we need to remove other indvs bc of missing data in the final vcf?  which DP threshold to continue with?
 
@@ -292,12 +293,31 @@ done
 sinteractive --account project_2001443 --mem 4000
 
 module load biokit
-#####CHANGE FULLVCF? - SEE ABOVE
-FULLVCF=/scratch/project_2001443/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
-OUTVCF=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
-vcftools --gzvcf $FULLVCF --not-chr Scaffold00 --not-chr Scaffold03 --remove-indv s353 --remove-indv s354 --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF
+FULLVCF1=/scratch/project_2001443/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.AN10percMiss.vcf.gz
+OUTVCF1=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+
+FULLVCF2=/scratch/project_2001443/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.vcf.gz
+OUTVCF2=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP6.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+
+FULLVCF3=/scratch/project_2001443/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.vcf.gz
+OUTVCF3=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP7.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+
+FULLVCF4=/scratch/project_2001443/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
+OUTVCF4=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+
+vcftools --gzvcf $FULLVCF1 --not-chr Scaffold03 --remove-indv 105-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF #--remove-indv s353 --remove-indv s354
 bcftools index -t $OUTVCF
+
+vcftools --gzvcf $FULLVCF2 --not-chr Scaffold03 --remove-indv 105-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF #--remove-indv s353 --remove-indv s354
+bcftools index -t $OUTVCF2
+
+vcftools --gzvcf $FULLVCF2 --not-chr Scaffold03 --remove-indv 105-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF #--remove-indv s353 --remove-indv s354
+bcftools index -t $OUTVCF2
+
+vcftools --gzvcf $FULLVCF2 --not-chr Scaffold03 --remove-indv 105-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF #--remove-indv s353 --remove-indv s354
+bcftools index -t $OUTVCF2
+
 
 ######################################################## End script 4
 ### THIS IS THE END.
