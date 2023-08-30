@@ -5,8 +5,8 @@
 sinteractive --account project_2001443 --mem 3000
 module load biokit
 
-cd /scratch/project_2001443/barriers_introgr_formic/gen_str/pca
-OUTPATH=/scratch/project_2001443/barriers_introgr_formic/gen_str/pca
+cd /scratch/project_2001443/barriers_introgr_formica/gen_str/pca
+OUTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/pca
 
 #For Bernhard Seifert (all_samples_BS.*), social chromosome EXCLUDED and 20.000 KB THINNING
 VCF1=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
@@ -44,7 +44,7 @@ $PROJAPPL/PLINK/plink --threads 1 --vcf $VCF4 --remove no_prat.txt --double-id -
 #122-Fprat	122-Fprat
 #123-Fprat	123-Fprat
 
-scp -r satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formic/gen_str/pca' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/gen_str'
+scp -r satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen_str/pca' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/gen_str'
 
 
-##### Plotting in R, with file pca_02021_ver2.R ####
+##### Plotting in R, with file pca_300823.R ####
