@@ -1,28 +1,50 @@
-# PCA 20.12.22 for 1st submission to Mol Ecol
+# PCA
 
+##### ON THE CLUSTER #####
 
-#for which to run PCA
 sinteractive --account project_2001443 --mem 3000
 module load biokit
 
-cd /scratch/project_2001443/analysis/pca/201222
+cd /scratch/project_2001443/barriers_introgr_formic/gen_str/pca
+OUTPATH=/scratch/project_2001443/barriers_introgr_formic/gen_str/pca
 
-OUTPATH=/scratch/project_2001443/analysis/pca/201222
-VCF=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+#For Bernhard Seifert (all_samples_BS.*), social chromosome EXCLUDED and 20.000 KB THINNING
+VCF1=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+VCF2=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP6.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+VCF3=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP7.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+VCF4=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
-#all data
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF --double-id --allow-extra-chr --set-missing-var-ids @:# \
---pca header var-wts --out $OUTPATH/all_sp
+#For my project (all_samples.*), social chromosome EXCLUDED and 20.000 KB THINNING
+VCF5=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+VCF6=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP6.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+VCF7=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP7.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+VCF8=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
-#pratensis clear cluster (2,3,6,117,120,122,123) filtered out
+# PLINK/ PCA #
+
+#all samples; BS
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF1 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP5_BS
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF2 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP6_BS
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF3 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP7_BS
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF4 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP8_BS
+
+#pratensis clear cluster (2,3,6,117,120,122,123) filtered out; BS
 #removed inds listed in no_prat.txt, following instructions in https://www.cog-genomics.org/plink/1.9/filter
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# \
---pca header var-wts --out $OUTPATH/no_prat
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF1 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP5_BS
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF2 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP6_BS
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF3 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP7_BS
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF4 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP8_BS
 
-#and lugubris clear clusters (1,108,113,115,119,11,124,125,126,56,88 - includes admixed) filtered out
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF --remove no_prat_lug.txt --double-id --allow-extra-chr --set-missing-var-ids @:# \
---pca header var-wts --out $OUTPATH/no_prat_lug
+#For record; no_prat.txt
+#2-Fprat	2-Fprat
+#3-Fprat	3-Fprat
+#6-Fprat	6-Fprat
+#117-Fprat	117-Fprat
+#120-Fprat	120-Fprat
+#122-Fprat	122-Fprat
+#123-Fprat	123-Fprat
+
+scp -r satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formic/gen_str/pca' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/gen_str'
 
 
-scp -r satokan1@puhti.csc.fi:'/scratch/project_2001443/analysis/pca/201222' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/1_FormicaWGS&hybrids/PCA/PCA_201222'
-#### Plotting in R, with file pca_02021_ver2.R ####
+##### Plotting in R, with file pca_02021_ver2.R ####
