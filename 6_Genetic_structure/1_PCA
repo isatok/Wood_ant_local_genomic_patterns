@@ -1,0 +1,28 @@
+# PCA 20.12.22 for 1st submission to Mol Ecol
+
+
+#for which to run PCA
+sinteractive --account project_2001443 --mem 3000
+module load biokit
+
+cd /scratch/project_2001443/analysis/pca/201222
+
+OUTPATH=/scratch/project_2001443/analysis/pca/201222
+VCF=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+
+#all data
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF --double-id --allow-extra-chr --set-missing-var-ids @:# \
+--pca header var-wts --out $OUTPATH/all_sp
+
+#pratensis clear cluster (2,3,6,117,120,122,123) filtered out
+#removed inds listed in no_prat.txt, following instructions in https://www.cog-genomics.org/plink/1.9/filter
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# \
+--pca header var-wts --out $OUTPATH/no_prat
+
+#and lugubris clear clusters (1,108,113,115,119,11,124,125,126,56,88 - includes admixed) filtered out
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF --remove no_prat_lug.txt --double-id --allow-extra-chr --set-missing-var-ids @:# \
+--pca header var-wts --out $OUTPATH/no_prat_lug
+
+
+scp -r satokan1@puhti.csc.fi:'/scratch/project_2001443/analysis/pca/201222' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/1_FormicaWGS&hybrids/PCA/PCA_201222'
+#### Plotting in R, with file pca_02021_ver2.R ####
