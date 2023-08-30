@@ -292,32 +292,69 @@ done
 #start interactive mode
 sinteractive --account project_2001443 --mem 4000
 
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt/
 module load biokit
 
-FULLVCF1=/scratch/project_2001443/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.AN10percMiss.vcf.gz
-OUTVCF1=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+#For Bernhard Seifert (all_samples_BS.*)
+FULLVCF1=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.AN10percMiss.vcf.gz
+OUTVCF1=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
-FULLVCF2=/scratch/project_2001443/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.vcf.gz
-OUTVCF2=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP6.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+FULLVCF2=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.vcf.gz
+OUTVCF2=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP6.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
-FULLVCF3=/scratch/project_2001443/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.vcf.gz
-OUTVCF3=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP7.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+FULLVCF3=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.vcf.gz
+OUTVCF3=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP7.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
-FULLVCF4=/scratch/project_2001443/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
-OUTVCF4=$SCRATCH/vcf/filtered_modified_vcf/all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+FULLVCF4=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
+OUTVCF4=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
-vcftools --gzvcf $FULLVCF1 --not-chr Scaffold03 --remove-indv 105-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF #--remove-indv s353 --remove-indv s354
-bcftools index -t $OUTVCF
+#For my project (all_samples.*), social chromosome EXCLUDED and 20.000 KB THINNING
+OUTVCF5=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+OUTVCF6=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP6.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+OUTVCF7=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP7.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+OUTVCF8=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
-vcftools --gzvcf $FULLVCF2 --not-chr Scaffold03 --remove-indv 105-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF #--remove-indv s353 --remove-indv s354
+vcftools --gzvcf $FULLVCF1 --not-chr Scaffold03 --remove-indv 105-FaquH --remove-indv 110-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF1
+bcftools index -t $OUTVCF1
+
+vcftools --gzvcf $FULLVCF2 --not-chr Scaffold03 --remove-indv 105-FaquH --remove-indv 110-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF2
 bcftools index -t $OUTVCF2
 
-vcftools --gzvcf $FULLVCF2 --not-chr Scaffold03 --remove-indv 105-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF #--remove-indv s353 --remove-indv s354
-bcftools index -t $OUTVCF2
+vcftools --gzvcf $FULLVCF3 --not-chr Scaffold03 --remove-indv 105-FaquH --remove-indv 110-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF3
+bcftools index -t $OUTVCF3
 
-vcftools --gzvcf $FULLVCF2 --not-chr Scaffold03 --remove-indv 105-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF #--remove-indv s353 --remove-indv s354
-bcftools index -t $OUTVCF2
+vcftools --gzvcf $FULLVCF4 --not-chr Scaffold03 --remove-indv 105-FaquH --remove-indv 110-FaquH --thin 20000 --mac 2 --recode --stdout | bgzip > $OUTVCF4
+bcftools index -t $OUTVCF4
 
+
+vcftools --gzvcf $OUTVCF1 --remove-indv s353 --remove-indv s354 --recode --stdout | bgzip > $OUTVCF5 
+bcftools index -t $OUTVCF5
+
+vcftools --gzvcf $OUTVCF2 --remove-indv s353 --remove-indv s354 --recode --stdout | bgzip > $OUTVCF6
+bcftools index -t $OUTVCF6
+
+vcftools --gzvcf $OUTVCF3 --remove-indv s353 --remove-indv s354 --recode --stdout | bgzip > $OUTVCF7
+bcftools index -t $OUTVCF7
+
+vcftools --gzvcf $OUTVCF4 --remove-indv s353 --remove-indv s354 --recode --stdout | bgzip > $OUTVCF8
+bcftools index -t $OUTVCF8
+
+bcftools index -n $FULLVCF1 #DP5: 3.155.615 SNPs
+bcftools index -n $FULLVCF2 #DP6: 2.755.753 SNPs
+bcftools index -n $FULLVCF3 #DP7: 1.832.066 SNPs
+bcftools index -n $FULLVCF4 #DP8: 708.783 SNPs
+
+
+bcftools index -n $OUTVCF1 #DP5: 9.846 SNPs
+bcftools index -n $OUTVCF2 #DP6: 9.793 SNPs
+bcftools index -n $OUTVCF3 #DP7: 9.678 SNPs
+bcftools index -n $OUTVCF4 #DP8: 9.279 SNPs
+
+
+#For my project (all_samples.*), social chromosome INCLUDED and 20.000 KB THINNING - FOR SOME ANALYSES?
+## ***
+## ***
+## ***
 
 ######################################################## End script 4
 ### THIS IS THE END.
