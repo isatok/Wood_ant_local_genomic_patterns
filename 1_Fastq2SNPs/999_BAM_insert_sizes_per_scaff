@@ -1,0 +1,37 @@
+
+#samtools stats [options] in.sam|in.bam|in.cram [region...] 
+#-t, --target-regions FILE; Do stats in these regions only. Tab-delimited file chr,from,to, 1-based, inclusive. [] 
+
+cd /scratch/project_2001443/barriers_introgr_formica/bam_all
+sinteractive ...
+module load biokit
+
+#create target regions lists
+
+nano target_region_00.tsv
+Scaffold00  1  59526201
+
+nano target_region_01.tsv
+Scaffold01  1  14915360
+
+
+#run the stats for example scaffolds 00 and 01, and a few indvs
+
+samtools stats -t target_region_00.tsv 102_nodupl_wRG_clip.bam > stats/102_nodupl_wRG_clip_Scaff00_bamstats.txt
+samtools stats -t target_region_01.tsv 102_nodupl_wRG_clip.bam > stats/102_nodupl_wRG_clip_Scaff01_bamstats.txt
+
+samtools stats -t target_region_00.tsv RN422_nodupl_wRG_clip.bam > stats/RN422_nodupl_wRG_clip_Scaff00_bamstats.txt
+samtools stats -t target_region_01.tsv RN422_nodupl_wRG_clip.bam > stats/RN422_nodupl_wRG_clip_Scaff01_bamstats.txt
+
+#extract only insert size statistics
+
+cd /scratch/project_2001443/barriers_introgr_formica/bam_all/stats
+
+less -S 102_nodupl_wRG_clip_Scaff00_bamstats.txt |  grep ^IS | cut -f 2- > 102_nodupl_wRG_clip_Scaff00_insert_sizes.txt
+less -S 102_nodupl_wRG_clip_Scaff01_bamstats.txt |  grep ^IS | cut -f 2- > 102_nodupl_wRG_clip_Scaff01_insert_sizes.txt
+less -S RN422_nodupl_wRG_clip_Scaff00_bamstats.txt |  grep ^IS | cut -f 2- > RN422_nodupl_wRG_clip_Scaff00_insert_sizes.txt
+less -S RN422_nodupl_wRG_clip_Scaff01_bamstats.txt |  grep ^IS | cut -f 2- > RN422_nodupl_wRG_clip_Scaff01_insert_sizes.txt
+
+#plot in R
+
+scp ...
