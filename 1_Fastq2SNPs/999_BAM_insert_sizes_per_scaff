@@ -36,3 +36,71 @@ less -S RN422_nodupl_wRG_clip_Scaff01_bamstats.txt |  grep ^IS | cut -f 2- > RN4
 
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/bam_all/stats/*insert_sizes.txt' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/mapping_and_insert_stats/'
+
+
+### Compare insert sizes per scaffold in R (to see if the Scaffold00 has very different insert sizes that might skew statistics) ###
+
+install.packages("cowplot")
+library(cowplot)
+library(ggplot2)
+
+setwd('/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/mapping_and_insert_stats/')
+ind102_scaff00 <- read_tsv('102_nodupl_wRG_clip_Scaff00_insert_sizes.txt', col_names=F)
+ind102_scaff01 <- read_tsv('102_nodupl_wRG_clip_Scaff01_insert_sizes.txt', col_names=F)
+ind422_scaff00 <- read_tsv('RN422_nodupl_wRG_clip_Scaff00_insert_sizes.txt', col_names=F)
+ind422_scaff01 <- read_tsv('RN422_nodupl_wRG_clip_Scaff01_insert_sizes.txt', col_names=F)
+
+#The columns are: insert size, pairs total, inward oriented pairs, outward oriented pairs, other pairs
+a <- ggplot(ind102_scaff00)+
+  geom_point(aes(X1, X2)) +
+  xlim(0,600) +
+  ylim(0,90000) +
+  xlab("Insert size") + 
+  ylab("Count") +
+  ggtitle("ind102_scaff00")
+
+b <- ggplot(ind102_scaff01)+
+  geom_point(aes(X1, X2)) +
+  xlim(0,600) +
+  ylim(0,90000) +
+  xlab("Insert size") + 
+  ylab("Count") +
+  ggtitle("ind102_scaff01")
+
+c <- ggplot(ind422_scaff00)+
+  geom_point(aes(X1, X2)) +
+  xlim(0,600) +
+  ylim(0,90000) +
+  xlab("Insert size") + 
+  ylab("Count") +
+  ggtitle("ind422_scaff00")
+
+
+d <- ggplot(ind422_scaff01)+
+  geom_point(aes(X1, X2)) +
+  xlim(0,600) +
+  ylim(0,90000) +
+  xlab("Insert size") + 
+  ylab("Count") +
+  ggtitle("ind422_scaff01")
+
+
+plot_grid(a,b,c,d)
+
+
+RN422, Scaff01
+SN      insert size average:    316.9
+SN      insert size standard deviation: 108.1
+
+RN422, Scaff00
+SN      insert size average:    1882.4
+SN      insert size standard deviation: 3111.6
+
+102, Scaff01
+SN      insert size average:    260.2
+SN      insert size standard deviation: 78.7
+
+102, Scaff00
+SN      insert size average:    1348.1
+SN      insert size standard deviation: 2712.9
+
