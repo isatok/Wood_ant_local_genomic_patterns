@@ -18,15 +18,17 @@ sinteractive --account project_2001443 --mem 6000
 module load biokit
 module load python-data
 
-VCFFULL5=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.AN10percMiss.vcf.gz
-VCFFULL6=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.vcf.gz
-VCFFULL7=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.vcf.gz
-VCFFULL8=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
+VCFPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/
 
-VCFFILT5=all_samples.DP5.hwe.AN10.noScaff00.mac2.vcf.gz
-VCFFILT6=all_samples.DP6.hwe.AN10.noScaff00.mac2.vcf.gz
-VCFFILT7=all_samples.DP7.hwe.AN10.noScaff00.mac2.vcf.gz
-VCFFILT8=all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
+FULLVCF5=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.AN10percMiss.vcf.gz
+FULLVCF6=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.vcf.gz
+FULLVCF7=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.vcf.gz
+FULLVCF8=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
+
+FILTVCF5=all_samples.DP5.hwe.AN10.noScaff00.mac2.vcf.gz
+FILTVCF6=all_samples.DP6.hwe.AN10.noScaff00.mac2.vcf.gz
+FILTVCF7=all_samples.DP7.hwe.AN10.noScaff00.mac2.vcf.gz
+FILTVCF8=all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
 
 GENO5=all_samples.DP5.hwe.AN10.noScaff00.mac2.geno.gz
 GENO6=all_samples.DP6.hwe.AN10.noScaff00.mac2.geno.gz
@@ -40,19 +42,70 @@ DISTMAT8=all_samples.DP8.hwe.AN10.noScaff00.mac2.dist
 
 # MAC2, remove 105-FaquH and 110-FaquH
 
+vcftools --gzvcf $VCFPATH/$FULLVCF5 --remove-indv 105-FaquH --remove-indv 110-FaquH --mac 2 --recode --stdout | bgzip > $VCFPATH/$FILTVCF5
+bcftools index -t $VCFPATH/$FILTVCF5
 
+# Create a a geno-file and a distance matrix
 
-python ./genomics_general/VCF_processing/parseVCF.py -i $VCFFILT5 | bgzip > $GENO5 &&
+python ./genomics_general/VCF_processing/parseVCF.py -i $VCFPATH/$FILTVCF5 | bgzip > $GENO5 &&
 python ./genomics_general/distMat.py -g $GENO5 -f phased --windType cat -o $DISTMAT5
 
-python ./genomics_general/VCF_processing/parseVCF.py -i $VCFFILT6 | bgzip > $GENO6 &&
+
+#Run the rest of the files as a batch job: 
+----------------------------------
+
+#!/bin/bash -l
+#SBATCH -J mac2_geno
+#SBATCH --account=project_2001443
+#SBATCH -t 5:00:00
+#SBATCH -p small
+#SBATCH --ntasks=3
+#SBATCH --mem=8G
+
+module load biokit
+module load python-data
+
+cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbournet
+
+VCFPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/
+
+FULLVCF6=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.vcf.gz
+FULLVCF7=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.vcf.gz
+FULLVCF8=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
+
+FILTVCF6=all_samples.DP6.hwe.AN10.noScaff00.mac2.vcf.gz
+FILTVCF7=all_samples.DP7.hwe.AN10.noScaff00.mac2.vcf.gz
+FILTVCF8=all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
+
+GENO6=all_samples.DP6.hwe.AN10.noScaff00.mac2.geno.gz
+GENO7=all_samples.DP7.hwe.AN10.noScaff00.mac2.geno.gz
+GENO8=all_samples.DP8.hwe.AN10.noScaff00.mac2.geno.gz
+
+DISTMAT6=all_samples.DP6.hwe.AN10.noScaff00.mac2.dist
+DISTMAT7=all_samples.DP7.hwe.AN10.noScaff00.mac2.dist
+DISTMAT8=all_samples.DP8.hwe.AN10.noScaff00.mac2.dist
+
+# do it
+
+vcftools --gzvcf $VCFPATH/$FULLVCF6 --remove-indv 105-FaquH --remove-indv 110-FaquH --mac 2 --recode --stdout | bgzip > $VCFPATH/$FILTVCF6 &&
+bcftools index -t $VCFPATH/$FILTVCF6 &&
+python ./genomics_general/VCF_processing/parseVCF.py -i $VCFPATH/$FILTVCF6 | bgzip > $GENO6 &&
 python ./genomics_general/distMat.py -g $GENO6 -f phased --windType cat -o $DISTMAT6
 
-python ./genomics_general/VCF_processing/parseVCF.py -i $VCFFILT7 | bgzip > $GENO7 &&
+vcftools --gzvcf $VCFPATH/$FULLVCF7 --remove-indv 105-FaquH --remove-indv 110-FaquH --mac 2 --recode --stdout | bgzip > $VCFPATH/$FILTVCF7 &&
+bcftools index -t $VCFPATH/$FILTVCF7 &&
+python ./genomics_general/VCF_processing/parseVCF.py -i $VCFPATH/$FILTVCF7 | bgzip > $GENO7 &&
 python ./genomics_general/distMat.py -g $GENO7 -f phased --windType cat -o $DISTMAT7
 
-python ./genomics_general/VCF_processing/parseVCF.py -i $VCFFILT8 | bgzip > $GENO8 &&
+vcftools --gzvcf $VCFPATH/$FULLVCF8 --remove-indv 105-FaquH --remove-indv 110-FaquH --mac 2 --recode --stdout | bgzip > $VCFPATH/$FILTVCF8 &&
+bcftools index -t $VCFPATH/$FILTVCF8 &&
+python ./genomics_general/VCF_processing/parseVCF.py -i $VCFPATH/$FILTVCF8 | bgzip > $GENO8 &&
 python ./genomics_general/distMat.py -g $GENO8 -f phased --windType cat -o $DISTMAT8
+
+# THIS IS THE END.
+
+----------------------------------
+
 
 
 ### 3. Download the .dist file to local
