@@ -1,0 +1,67 @@
+#This is to construct a phylogenetic network based on NeighbourNet approach (loosely based on the neighbor joining algorithm). 
+#The input is a distance matrix and the algorithm works by agglomerating clusters, and it is run using SplitsTree with default parameters.
+#The script follows the pipeline in SH Martin et al. 2019 (https://doi.org/10.1371/journal.pbio.2006288).
+
+cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbournet
+
+### 1. Update the code
+
+git clone https://github.com/simonhmartin/genomics_general.git
+
+### 2. Remove singletons from the full vcf, create a a geno-file and a distance matrix from VCFs with different min DP filtering thresholds (DP5, DP6, DP7, DP8)
+# KEEP SCAFFFOLD03 AND DO NOT THIN. DO MAC2, REMOVE 105-FaquH AND 110-FaquH
+
+### LATER ON REMOVE ALSO SEIFERT'S SAMPLES AND DECIDE ON WHETHER TO KEEP Pus2_1w OR 104-Faqu ###
+
+sinteractive --account project_2001443 --mem 6000
+
+module load biokit
+module load python-data
+
+VCFFULL5=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.AN10percMiss.vcf.gz
+VCFFULL6=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.vcf.gz
+VCFFULL7=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.vcf.gz
+VCFFULL8=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
+
+VCFFILT5=all_samples.DP5.hwe.AN10.noScaff00.mac2.vcf.gz
+VCFFILT6=all_samples.DP6.hwe.AN10.noScaff00.mac2.vcf.gz
+VCFFILT7=all_samples.DP7.hwe.AN10.noScaff00.mac2.vcf.gz
+VCFFILT8=all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
+
+GENO5=all_samples.DP5.hwe.AN10.noScaff00.mac2.geno.gz
+GENO6=all_samples.DP6.hwe.AN10.noScaff00.mac2.geno.gz
+GENO7=all_samples.DP7.hwe.AN10.noScaff00.mac2.geno.gz
+GENO8=all_samples.DP8.hwe.AN10.noScaff00.mac2.geno.gz
+
+DISTMAT5=all_samples.DP5.hwe.AN10.noScaff00.mac2.dist
+DISTMAT6=all_samples.DP6.hwe.AN10.noScaff00.mac2.dist
+DISTMAT7=all_samples.DP7.hwe.AN10.noScaff00.mac2.dist
+DISTMAT8=all_samples.DP8.hwe.AN10.noScaff00.mac2.dist
+
+# MAC2, remove 105-FaquH and 110-FaquH
+
+
+
+python ./genomics_general/VCF_processing/parseVCF.py -i $VCFFILT5 | bgzip > $GENO5 &&
+python ./genomics_general/distMat.py -g $GENO5 -f phased --windType cat -o $DISTMAT5
+
+python ./genomics_general/VCF_processing/parseVCF.py -i $VCFFILT6 | bgzip > $GENO6 &&
+python ./genomics_general/distMat.py -g $GENO6 -f phased --windType cat -o $DISTMAT6
+
+python ./genomics_general/VCF_processing/parseVCF.py -i $VCFFILT7 | bgzip > $GENO7 &&
+python ./genomics_general/distMat.py -g $GENO7 -f phased --windType cat -o $DISTMAT7
+
+python ./genomics_general/VCF_processing/parseVCF.py -i $VCFFILT8 | bgzip > $GENO8 &&
+python ./genomics_general/distMat.py -g $GENO8 -f phased --windType cat -o $DISTMAT8
+
+
+### 3. Download the .dist file to local
+
+# (If needed: Modify the sample names so that Finnish ones have only the number and from Pierre's samples
+#  only "Lai" has the 1/2w extension: done manually; find&replace in Atom)
+
+# Open SplitsTree, and draw the tree with default settings.
+# Works in a few seconds; just import the file and the tree will appear.
+
+# In splitstree:
+# node shape: circle, size 5
