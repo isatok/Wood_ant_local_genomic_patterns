@@ -13,45 +13,39 @@ git clone https://github.com/simonhmartin/genomics_general.git
 
 ### LATER ON REMOVE ALSO SEIFERT'S SAMPLES AND DECIDE ON WHETHER TO KEEP Pus2_1w OR 104-Faqu ###
 
-sinteractive --account project_2001443 --mem 6000
+#Run the DP5 data first to try it out
+#(the job took 2:30hrs / 45GB)
+
+--------
+
+#!/bin/bash -l
+#SBATCH -J mac2_geno_DP5
+#SBATCH --account=project_2001443
+#SBATCH -t 24:00:00
+#SBATCH -p small
+#SBATCH --mem=70G
+#SBATCH --mail-type=END
 
 module load biokit
 module load python-data
 
+cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet
+
 VCFPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/
-
-FULLVCF5=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP5.hwe.AN10percMiss.vcf.gz
-FULLVCF6=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP6.hwe.AN10percMiss.vcf.gz
-FULLVCF7=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP7.hwe.AN10percMiss.vcf.gz
-FULLVCF8=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
-
-FILTVCF5=all_samples.DP5.hwe.AN10.noScaff00.mac2.vcf.gz
-FILTVCF6=all_samples.DP6.hwe.AN10.noScaff00.mac2.vcf.gz
-FILTVCF7=all_samples.DP7.hwe.AN10.noScaff00.mac2.vcf.gz
-FILTVCF8=all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
-
 GENO5=all_samples.DP5.hwe.AN10.noScaff00.mac2.geno.gz
-GENO6=all_samples.DP6.hwe.AN10.noScaff00.mac2.geno.gz
-GENO7=all_samples.DP7.hwe.AN10.noScaff00.mac2.geno.gz
-GENO8=all_samples.DP8.hwe.AN10.noScaff00.mac2.geno.gz
-
 DISTMAT5=all_samples.DP5.hwe.AN10.noScaff00.mac2.dist
-DISTMAT6=all_samples.DP6.hwe.AN10.noScaff00.mac2.dist
-DISTMAT7=all_samples.DP7.hwe.AN10.noScaff00.mac2.dist
-DISTMAT8=all_samples.DP8.hwe.AN10.noScaff00.mac2.dist
 
-# MAC2, remove 105-FaquH and 110-FaquH
+# do it
 
-vcftools --gzvcf $VCFPATH/$FULLVCF5 --remove-indv 105-FaquH --remove-indv 110-FaquH --mac 2 --recode --stdout | bgzip > $VCFPATH/$FILTVCF5
-bcftools index -t $VCFPATH/$FILTVCF5
-
-# Create a a geno-file and a distance matrix
-
-python ./genomics_general/VCF_processing/parseVCF.py -i $VCFPATH/$FILTVCF5 | bgzip > $GENO5 &&
 python ./genomics_general/distMat.py -g $GENO5 -f phased --windType cat -o $DISTMAT5
 
+# THIS IS THE END.
+
+
+---------
 
 #Run the rest of the files as a batch job: 
+#(the batch job took 3:30hrs (10:30hrs core-walltime), ca 40GB mem)
 ----------------------------------
 
 #!/bin/bash -l
@@ -60,12 +54,14 @@ python ./genomics_general/distMat.py -g $GENO5 -f phased --windType cat -o $DIST
 #SBATCH -t 5:00:00
 #SBATCH -p small
 #SBATCH --ntasks=3
-#SBATCH --mem=8G
+#SBATCH --nodes=1
+#SBATCH --mem=70G
+#SBATCH --mail-type=END
 
 module load biokit
 module load python-data
 
-cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbournet
+cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet
 
 VCFPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/
 
@@ -109,6 +105,8 @@ python ./genomics_general/distMat.py -g $GENO8 -f phased --windType cat -o $DIST
 
 
 ### 3. Download the .dist file to local
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet/*.dist' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/gen_str/neighbornet/'
 
 # (If needed: Modify the sample names so that Finnish ones have only the number and from Pierre's samples
 #  only "Lai" has the 1/2w extension: done manually; find&replace in Atom)
