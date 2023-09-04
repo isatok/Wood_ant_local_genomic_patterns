@@ -1,0 +1,63 @@
+cd $SCRATCH/vcf/filt
+
+#start sinteractive
+sinteractive --account project_2001443 --mem 2000
+
+module load biokit
+VCF=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+OUTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples
+
+#count the number of variants (-> 9846)
+bcftools index -n $VCF
+
+#convert vcf into PLINK format for admixture analysis
+$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF --make-bed --out $OUTPATH/all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb --allow-extra-chr
+
+# ADMIXTURE does not accept chromosome names that are not human chromosomes. We will thus just exchange the first column by 0
+cd $OUTPATH
+FILE=all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb
+awk '{$1=0;print $0}' $FILE.bim > $FILE.bim.tmp
+mv $FILE.bim.tmp $FILE.bim
+
+#created a nano sh for admixture, and ran it
+sbatch admixture.sh
+
+####For record the admixture.sh:
+
+###################
+
+#!/bin/bash -l
+#SBATCH -J admixture
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples/logs/admixture.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples/logs/admixture.err
+#SBATCH --account=project_2001443
+#SBATCH -t 00:30:00
+#SBATCH -p small
+#SBATCH --ntasks 1
+#SBATCH --mem=8G
+
+# Load modules
+module load biokit
+module load bioconda/3
+
+export PATH="/projappl/project_2001443/admixture_1122_env/bin:$PATH"
+
+cd /scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples
+
+OUTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples
+FILE=all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb
+
+for i in {2..10}
+do
+admixture --cv $OUTPATH/$FILE.bed $i > log${i}.out
+
+done
+
+grep "CV" *out | awk '{print $3,$4}' | cut -c 4,7-20 > $FILE.cv.error
+
+### END
+
+#Plot
+Rscript plotADMIXTURE_all_0003.R -p all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb \
+-i all_samples.list -m 2 -k 7 -l Faqu,Faqu_nf,Flug,FlugH,FaquXpolrufa,Fpol_nf,Frufa,Fprat \
+-o all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb
