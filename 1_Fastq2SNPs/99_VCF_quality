@@ -122,6 +122,17 @@ ind_depth <- read_delim("./cichlid_subset.idepth", delim = "\t",
 a <- ggplot(ind_depth, aes(depth)) + geom_histogram(fill = "dodgerblue1", colour = "black", alpha = 0.3)
 a + theme_light()
 
+### DEPTH PER INDIVIDUAL BY SPECIES ###
+
+samples <- read.csv("/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/analysis_sample_list.txt", sep="\t")
+ind_depth_species <- left_join(samples, ind_depth,  by = c("vcf_id"="ind" ))
+
+ggplot(ind_depth_species, aes(x = group_geo, y = depth, fill = group_geo)) +
+  geom_violin(trim = FALSE, scale = "width") +
+  geom_boxplot(width = 0.1, fill = "white", outlier.shape = NA) +
+  labs(x = "Group", y = "Individual depth") +
+  theme_minimal()
+
 
 ### 6. Proportion of missing data per individual
 
@@ -130,6 +141,7 @@ ind_miss  <- read_delim("./cichlid_subset.imiss", delim = "\t",
 
 a <- ggplot(ind_miss, aes(fmiss)) + geom_histogram(fill = "dodgerblue1", colour = "black", alpha = 0.3)
 a + theme_light()
+
 
 ### 7. Heterozygosity and inbreeding coefficient per individual
 ind_het <- read_delim("./cichlid_subset.het", delim = "\t",
