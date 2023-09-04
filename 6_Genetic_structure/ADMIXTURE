@@ -57,6 +57,12 @@ grep "CV" *out | awk '{print $3,$4}' | cut -c 4,7-20 > $FILE.cv.error
 
 ### END
 
+### 3. Download the .dist file to local
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples/*.thin20kb.*' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/gen_str/admixture/'
+
+######INA CONTINUE FROM HERE - CHECK HOW NEED TO MODIFY THE SAMPLE LIST TO DO SUCCESSFUL PLOTTING #########
+
 #Plot
 Rscript plotADMIXTURE_all_0003.R -p all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb \
 -i all_samples.list -m 2 -k 7 -l Faqu,Faqu_nf,Flug,FlugH,FaquXpolrufa,Fpol_nf,Frufa,Fprat \
