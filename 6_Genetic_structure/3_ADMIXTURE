@@ -64,6 +64,6 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen
 ######INA CONTINUE FROM HERE - CHECK HOW NEED TO MODIFY THE SAMPLE LIST TO DO SUCCESSFUL PLOTTING #########
 
 #Plot
-Rscript plotADMIXTURE_all_0003.R -p all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb \
+Rscript plotADMIXTURE.R -p all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb \
 -i all_samples.list -m 2 -k 7 -l Faqu,Faqu_nf,Flug,FlugH,FaquXpolrufa,Fpol_nf,Frufa,Fprat \
 -o all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb
