@@ -44,17 +44,33 @@ export PATH="/projappl/project_2001443/ete3env/bin:$PATH"
 
 #PHASING 1/2 WHATSHAP
 
-conda create -n whatshapenv 
-conda activate whatshapenv
-conda install whatshap \
---channel conda-forge \
-  --channel bioconda \
-  --channel defaults \
-  --strict-channel-priority
 
-whatshap --version #should be v1.7 (2022-12-01) as of 28.04.2023
+#8.9.2023 update bioconda set-up as instructed on the whatshap website
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+
+#install whatshap
+conda create -n whatshap-env whatshap
+conda activate whatshapenv
+
+whatshap --version #2.0, on 08.09.2023
 
 conda env export --from-history -n whatshapenv | grep -v prefix > env.yml
+
+#usage:
+export PATH="/projappl/project_2001443/whatshapenv/bin:$PATH" 
+
+# name: whatshapenv
+# channels:
+#   - conda-forge
+#   - bioconda
+#   - defaults
+# dependencies:
+#   - whatshap
+
+
 
 conda create -n myenv samtools bwa \
   --channel conda-forge \
