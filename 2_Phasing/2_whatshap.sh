@@ -1,26 +1,33 @@
+#Create and ind list of the used vcf:
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
+bcftools query -l all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz > all_samples.DP8.hwe.AN10.noScaff00.mac2.ind.list
+# contains all samples except 110 and 105 (even does contain 54, Pus2, s353 and s354)
+
+---
+
 #!/bin/bash -l
 #SBATCH -J whap
-#SBATCH -o /scratch/project_2001443/vcf/phasing/whatshap/logs/whatshap_%a.out
-#SBATCH -e /scratch/project_2001443/vcf/phasing/whatshap/logs/whatshap_%a.err
+#SBATCH -o /scratch/project_2001443/vcf/phasing/whatshap/logs/whatshap_%a.out ##CHANGE
+#SBATCH -e /scratch/project_2001443/vcf/phasing/whatshap/logs/whatshap_%a.err ##CHANGE
 #SBATCH --account=project_2001443
 #SBATCH -t 24:00:00
 #SBATCH -p small
-#SBATCH --array=1-89
+#SBATCH --array=1-89 ##CHANGE
 #SBATCH --ntasks 1
 #SBATCH --mem=3G
 
-# conda mambo
+# modules
 module load biokit
-module load bioconda/3
-conda activate my_seqdata
+export PATH="/projappl/project_2001443/whatshapenv/bin:$PATH" 
 
-cd $SCRATCH/vcf/phasing
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing
 
 # Define paths
-BAMDIR=$SCRATCH/bam/nodupl_RG_clip/renamed
-masterVCF=$SCRATCH/vcf/filt/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.mac2.vcf.gz
-REF=$SCRATCH/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
+BAMDIR=/scratch/project_2001443/barriers_introgr_formica/bam_all
+masterVCF=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
+REF=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
 
+###UPDATE FROM HERE ON###
 # Define focal ind
 ind=$(sed -n "$SLURM_ARRAY_TASK_ID"p ind.list)
 
