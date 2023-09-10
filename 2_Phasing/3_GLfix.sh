@@ -1,14 +1,16 @@
 #!/bin/bash -l
 #SBATCH -J GLfix
-#SBATCH -o /scratch/project_2001443/vcf/phasing/whatshap/GLfix.out
-#SBATCH -e /scratch/project_2001443/vcf/phasing/whatshap/GLfix.err
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/whatshap/logs/GLfix.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/whatshap/logs/GLfix.err
 #SBATCH --account=project_2001443
 #SBATCH -t 08:00:00
 #SBATCH -p small
 #SBATCH --ntasks 1
 #SBATCH --mem=6G
+#SBATCH --mail-type=END
 
-cd /scratch/project_2001443/vcf/phasing/whatshap
+
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/whatshap
 module load biokit
 
 for i in *.phased.vcf.gz ; do
