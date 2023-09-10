@@ -1,3 +1,6 @@
+### Replace "##FORMAT=<ID=GL,Number=G" with "##FORMAT=<ID=GL,Number=." in the phased vcf files
+
+
 #!/bin/bash -l
 #SBATCH -J GLfix
 #SBATCH -o /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/whatshap/logs/GLfix.out
