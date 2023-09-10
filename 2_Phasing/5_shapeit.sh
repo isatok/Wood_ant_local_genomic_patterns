@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH -J shpt4
-#SBATCH -o /scratch/project_2001443/vcf/phasing/shapeit/logs/shpt4_Scaffold%a.out
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/logs/shpt4_Scaffold%a.out
 #SBATCH -e /scratch/project_2001443/vcf/phasing/shapeit/logs/shpt4_Scaffold%a.err
 #SBATCH --account=project_2001443
 #SBATCH -t 06:00:00
