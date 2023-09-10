@@ -1,0 +1,24 @@
+#install htslib version 1.9
+
+wget https://github.com/samtools/htslib/releases/download/1.9/htslib-1.9.tar.bz2
+tar -vxjf htslib-1.9.tar.bz2
+cd htslib-1.9
+make
+
+#install boost version 1.67
+
+wget https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.bz2
+tar -vxjf boost_1_67_0.tar.bz2
+cd boost_1_67_0
+./bootstrap.sh --help
+./bootstrap.sh --prefix=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/shapeit4_package/boost_1_67_0 \
+  --with-libraries=program_options,iostreams
+./b2 install
+
+#install shapeit4
+
+wget https://github.com/odelaneau/shapeit4/archive/refs/tags/v4.2.2.tar.gz
+tar -vxjf v4.2.2.tar.gz
+#modify requested paths in makefile to refer to the right files in packages above, and type "make"
+#installed in
+/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/shapeit4_package/shapeit4-4.2.2
