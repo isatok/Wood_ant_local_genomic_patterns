@@ -89,7 +89,7 @@ conda activate shapeit5env
 conda install -c bioconda shapeit5
 
 
-shapeit5 --version #
+#shapeit5 version 5.1.1
 
 conda env export --from-history -n shapeit5env | grep -v prefix > env.yml
 
