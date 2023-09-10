@@ -80,7 +80,14 @@ export PATH="/projappl/project_2001443/whatshapenv/bin:$PATH"
 
 ---
 
-#PHASING 2/2 SHAPEIT5
+#PHASING 2/2 SHAPEIT
+
+
+#install shapeit4
+
+#conda create -n shapeit4env
+#conda activate shapeit4env
+#conda install -c bioconda shapeit4
 
 #install shapeit5
 
