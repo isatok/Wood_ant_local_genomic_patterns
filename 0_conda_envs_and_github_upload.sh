@@ -52,7 +52,7 @@ conda config --add channels conda-forge
 conda config --set channel_priority strict
 
 #install whatshap
-conda create -n whatshap-env whatshap
+conda create -n whatshapenv whatshap
 conda activate whatshapenv
 
 whatshap --version #2.0, on 08.09.2023
@@ -71,19 +71,37 @@ export PATH="/projappl/project_2001443/whatshapenv/bin:$PATH"
 #   - whatshap
 
 
-
-conda create -n myenv samtools bwa \
-  --channel conda-forge \
-  --channel bioconda \
-  --channel defaults \
-  --strict-channel-priority
+#WHY IS THIS HERE?
+# conda create -n myenv samtools bwa \
+#   --channel conda-forge \
+#   --channel bioconda \
+#   --channel defaults \
+#   --strict-channel-priority
 
 ---
 
 #PHASING 2/2 SHAPEIT5
 
-see when relevant: https://odelaneau.github.io/shapeit5/docs/installation/build_from_source/required_libraries
+#install shapeit5
 
+conda create -n shapeit5env
+conda activate shapeit5env
+conda install -c bioconda shapeit5
+
+
+shapeit5 --version #
+
+conda env export --from-history -n shapeit5env | grep -v prefix > env.yml
+
+# name: shapeit5env
+# channels:
+#   - conda-forge
+#   - bioconda
+#   - defaults
+
+
+#usage:
+export PATH="/projappl/project_2001443/shapeit5env/bin:$PATH" 
 
 ---
 
