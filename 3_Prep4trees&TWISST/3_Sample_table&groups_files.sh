@@ -8,15 +8,16 @@
 /scratch/project_2001443/analysis/genomics_simon/genomics_general/VCF_processing/parseVCF.py
 
 #Phased vcf:
-/scratch/project_2001443/vcf/phasing/shapeit/all_samples.minDP8.AN10percMiss.mac2.whap.shapeit.allScafs.vcf.gz
+
+PHASEDVCF=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/phased_with_outgroup_gtfix.vcf.gz
 
 #create a sample list from the phased vcf file:
-cd /scratch/project_2001443/vcf/phasing/shapeit
-gunzip -c all_samples.minDP8.AN10percMiss.mac2.whap.shapeit.allScafs.vcf.gz | grep 'CHROM' | perl -npe 's/\#CHROM.+FORMAT//' | \
-sed 's/       /,/' -> sample.list.csv #to make sed recongize "tab", insert it in console with ctrl+v+[Tab]
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+gunzip -c $PHASEDVCF | grep 'CHROM' | perl -npe 's/\#CHROM.+FORMAT//' | \
+sed 's/      /,/2g' -> sample.list.csv #to make sed recongize "tab", insert it in console with ctrl+v+[Tab]
 
 #move it to local computer to add species and geographical information
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/vcf/phasing/shapeit/sample.list.csv' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics'
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/sample.list.csv' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/twisst_autumn2023'
 
 
 #### in R - build a species-informative table from the list ####
