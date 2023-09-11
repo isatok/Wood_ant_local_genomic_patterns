@@ -1,6 +1,10 @@
 #parceVCF.py script:
 /scratch/project_2001443/analysis/genomics_simon/genomics_general/VCF_processing/parseVCF.py
 
+sinteractive ...
+module load python-data
+module load biokit
+
 cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/
 
 #Phased vcf, with F. exsecta added in:
