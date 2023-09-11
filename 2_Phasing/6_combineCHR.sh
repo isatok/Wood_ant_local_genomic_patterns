@@ -1,7 +1,9 @@
 ## Combine all chromosomes
-cd $SCRATCH/vcf/phasing/shapeit
+module load biokit
+
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 ls *vcf.gz > shapeit.file.list
-bcftools concat -Oz -f shapeit.file.list -o all_samples.minDP8.AN10percMiss.mac2.whap.shapeit.allScafs.vcf.gz
+bcftools concat -Oz -f shapeit.file.list -o all_samples.DP8.hwe.AN10.noScaff00.mac2.whap.shapeit.allScafs.vcf.gz
 
 # Remove temp files
 rm -rf *it.Scaffold*vcf*
