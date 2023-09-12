@@ -36,4 +36,7 @@ python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/phylo/
   -w $x -Mi $Mi --windType sites --model GTR --optimise n
 
 done
+
+###END.
+
 trees_exs_Mi50.sh (END)
