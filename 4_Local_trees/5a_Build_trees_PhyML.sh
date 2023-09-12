@@ -6,13 +6,12 @@
 #SBATCH --ntasks=4
 #SBATCH --mem=8G
 
-cd /scratch/project_2001443/analysis/twisst
+cd /scratch/project_2001443/barriers_introgr_formica/local_trees/phyml
 
-DATADIR=/scratch/project_2001443/vcf/geno
-RESDIR=/scratch/project_2001443/analysis/twisst/trees/exs
+DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+RESDIR=/scratch/project_2001443/barriers_introgr_formica/local_trees/phyml
 
-module load bioconda/3
-source activate my_seqdata
+export PATH="/projappl/project_2001443/localgnm/bin:$PATH" 
 export PYTHONPATH="/scratch/project_2001443/analysis/genomics_simon/genomics_general:$PYTHONPATH"
 
 # Fraction of missing data allowed
