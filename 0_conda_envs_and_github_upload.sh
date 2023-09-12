@@ -1,11 +1,26 @@
-#TREES
-#containerize this in Puhti:
-export PATH="/projappl/project_2001443/localgnm/bin:$PATH"
-#it has, in addition to bioinfo_1222_env, phyml & tabix.
 
----
+### LOCAL TREES ###
 
-#SNP PIPELINE
+#usage:
+export PATH="/projappl/project_2001443/localgnm/bin:$PATH" 
+
+## env.yml
+# name: localgnm
+# channels:
+#  - conda-forge
+#   - bioconda
+#   - defaults
+# dependencies:
+#   - vt
+#   - tabix
+#   - bamutil
+#   - mosdepth
+#   - vcflib
+#   - phyml
+
+# ---------------------
+
+### SNP PIPELINE ###
 
 conda create -n bioinfo_1222_env
 conda activate bioinfo_1222_env
@@ -14,11 +29,12 @@ conda install -c conda-forge -c bioconda -c defaults vcflib mosdepth vt bamutil
 
 conda env export --from-history -n bioinfo_1222_env | grep -v prefix > env.yml
 
+#usage:
 export PATH="/projappl/project_2001443/bioinfo_1222_env/bin:$PATH"
 
----
+# ---------------------
 
-#PIXY
+### PIXY ###
 
 conda create -n pixyenv
 conda activate pixyenv
@@ -28,9 +44,9 @@ conda install -c conda-forge pixy
 #usage:
 export PATH="/projappl/project_2001443/pixyenv/bin:$PATH"
 
----
+# ---------------------
 
-#TWISST
+### TWISST ###
 
 conda create -n ete3env python=3.4.10
 conda activate ete3env
@@ -40,10 +56,9 @@ conda env export --from-history -n ete3env | grep -v prefix > env.yml
 #usage:
 export PATH="/projappl/project_2001443/ete3env/bin:$PATH"
 
----
+# ---------------------
 
-#PHASING 1/2 WHATSHAP
-
+### PHASING 1/2 WHATSHAP ###
 
 #8.9.2023 update bioconda set-up as instructed on the whatshap website
 conda config --add channels defaults
@@ -62,6 +77,7 @@ conda env export --from-history -n whatshapenv | grep -v prefix > env.yml
 #usage:
 export PATH="/projappl/project_2001443/whatshapenv/bin:$PATH" 
 
+## env.yml
 # name: whatshapenv
 # channels:
 #   - conda-forge
@@ -70,25 +86,38 @@ export PATH="/projappl/project_2001443/whatshapenv/bin:$PATH"
 # dependencies:
 #   - whatshap
 
+# ---------------------
 
-#WHY IS THIS HERE?
-# conda create -n myenv samtools bwa \
-#   --channel conda-forge \
-#   --channel bioconda \
-#   --channel defaults \
-#   --strict-channel-priority
+### PHASING 2/2 SHAPEIT ###
 
----
+## Using ShapeIt4 for the current analyses ##
 
-#PHASING 2/2 SHAPEIT
+## Install ShapeIt4 dependencies htslib and boost (suitable older versions)
 
+#htslib version 1.9
 
-#install shapeit4
+wget https://github.com/samtools/htslib/releases/download/1.9/htslib-1.9.tar.bz2
+tar -vxjf htslib-1.9.tar.bz2
+cd htslib-1.9
+make
 
-#conda create -n shapeit4env
-#conda activate shapeit4env
-#conda install -c bioconda shapeit4
+#boost version 1.67
 
+wget https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.bz2
+tar -vxjf boost_1_67_0.tar.bz2
+cd boost_1_67_0
+./bootstrap.sh --help
+./bootstrap.sh --prefix=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/shapeit4_package/boost_1_67_0 \
+  --with-libraries=program_options,iostreams
+./b2 install
+
+## Install ShapeIt4
+
+wget https://github.com/odelaneau/shapeit4/archive/refs/tags/v4.2.2.tar.gz
+tar -vxjf v4.2.2.tar.gz
+#modify requested paths in makefile to refer to the right files in packages above, and type "make"
+#installed in
+/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/shapeit4_package/shapeit4-4.2.2
 #install shapeit5
 
 conda create -n shapeit5env
@@ -96,7 +125,7 @@ conda activate shapeit5env
 conda install -c bioconda shapeit5
 
 
-#shapeit5 version 5.1.1
+## Install ShapeIt5 (version 5.1.1) - NOT USED IN THE CURRENT ANALYSES
 
 conda env export --from-history -n shapeit5env | grep -v prefix > env.yml
 
@@ -110,9 +139,9 @@ conda env export --from-history -n shapeit5env | grep -v prefix > env.yml
 #usage:
 export PATH="/projappl/project_2001443/shapeit5env/bin:$PATH" 
 
----
+# ---------------------
 
-#GENOMICS_GENERAL GitHub update (last uploaded 29.06.2023)
+### GENOMICS_GENERAL GitHub update (last uploaded 29.06.2023) ###
 
 cd /scratch/project_2001443/analysis/genomics_simon
 git clone https://github.com/simonhmartin/genomics_general.git
