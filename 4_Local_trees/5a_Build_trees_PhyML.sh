@@ -1,10 +1,16 @@
+#Build local trees with PhyML, allowing max 50% of missing data per individual, for 50 SNPs per window.
+#Use F. exsecta as the outgroup, include all sequenced samples excluding 110 (collaborative sample not published here) and 105 (too much missing data).
+
 #!/bin/bash -l
-#SBATCH -J trees_all_exs_Mi50
+#SBATCH -J phyml_trees_exs_Mi50
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/local_trees/phyml/logs/phyml_trees_exs_Mi50.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/local_trees/phyml/logs/phyml_trees_exs_Mi50.err
 #SBATCH --account=project_2001443
 #SBATCH -t 08:00:00
 #SBATCH -p small
 #SBATCH --ntasks=4
 #SBATCH --mem=8G
+#SBATCH --mail-type=END
 
 cd /scratch/project_2001443/barriers_introgr_formica/local_trees/phyml
 
