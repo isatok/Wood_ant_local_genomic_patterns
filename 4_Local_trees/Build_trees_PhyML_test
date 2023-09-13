@@ -1,28 +1,21 @@
 #####
-##### test phyml trees #####
+##### test phyml trees ##### -> testing finished; the issue was loading python-data and my own container at the same time.
 #####
 
 
 #Build local trees with PhyML, allowing max 50% of missing data per individual, for 50 SNPs per window.
 #Use F. exsecta as the outgroup, include all sequenced samples excluding 110 (collaborative sample not published here) and 105 (too much missing data).
 
-#!/bin/bash -l
-#SBATCH -J phyml_trees_exs_Mi50_test
-#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/local_trees/phyml/logs/phyml_trees_exs_Mi50_test.out
-#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/local_trees/phyml/logs/phyml_trees_exs_Mi50_test.err
-#SBATCH --account=project_2001443
-#SBATCH -t 04:00:00
-#SBATCH -p small
-#SBATCH --ntasks=4
-#SBATCH --mem=8G
-#SBATCH --mail-type=END
+sinteractive...
+
+#module load python-data    ### DO NOT LOAD MORE THAN ONE TYKKY-COMPILED MODULE TO BE RUN IN A NESTED WAY (python-data is such) ###
 
 cd /scratch/project_2001443/barriers_introgr_formica/local_trees/phyml
 
 DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 RESDIR=/scratch/project_2001443/barriers_introgr_formica/local_trees/phyml
 
-export PATH="/projappl/project_2001443/localgnm/bin:$PATH" 
+export PATH="/projappl/project_2001443/phymlenv/bin:$PATH" 
 export PYTHONPATH="/scratch/project_2001443/analysis/genomics_simon/genomics_general:$PYTHONPATH"
 
 # Fraction of missing data allowed
