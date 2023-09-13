@@ -2,7 +2,23 @@
 ### LOCAL TREES ###
 
 #usage:
-export PATH="/projappl/project_2001443/localgnm/bin:$PATH" 
+PATH="/projappl/project_2001443/phymlenv/bin:$PATH" 
+
+## env.yml
+# name: phymlenv
+# channels:
+#  - conda-forge
+#   - bioconda
+#   - defaults
+# dependencies:
+#   - phyml
+#   - python
+#   - numpy
+
+
+###SEE IF THIS LOCALGNM IS NEEEDED. AT LEAST PHYML CANNOT BE RUN FROM HERE IF PYTHON/NUMPY NOT INSTALLED###
+#usage:
+#export PATH="/projappl/project_2001443/localgnm/bin:$PATH" 
 
 ## env.yml
 # name: localgnm
@@ -127,7 +143,7 @@ conda install -c bioconda shapeit5
 
 ## Install ShapeIt5 (version 5.1.1) - NOT USED IN THE CURRENT ANALYSES
 
-conda env export --from-history -n shapeit5env | grep -v prefix > env.yml
+#conda env export --from-history -n shapeit5env | grep -v prefix > env.yml
 
 # name: shapeit5env
 # channels:
