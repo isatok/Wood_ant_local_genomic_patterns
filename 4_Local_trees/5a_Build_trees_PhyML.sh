@@ -17,7 +17,7 @@ cd /scratch/project_2001443/barriers_introgr_formica/local_trees/phyml
 DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 RESDIR=/scratch/project_2001443/barriers_introgr_formica/local_trees/phyml
 
-export PATH="/projappl/project_2001443/localgnm/bin:$PATH" 
+export PATH="/projappl/project_2001443/phymlenv/bin:$PATH" 
 export PYTHONPATH="/scratch/project_2001443/analysis/genomics_simon/genomics_general:$PYTHONPATH"
 
 # Fraction of missing data allowed
