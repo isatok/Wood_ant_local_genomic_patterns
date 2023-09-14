@@ -26,25 +26,14 @@ export PATH="/projappl/project_2001443/phymlenv/bin:$PATH"
   --outputGenoFormat bases \
   -o $DATADIR/phased.exsecta.bases.geno.gz
 
-### Transform the data from the bases.geno.gz format into bases.csv, which XXXXX
+### Transform the data from the bases.geno.gz format into bases.csv, which (in this case) gives information on whether each allele in each individual is derived or ancestral
+### -> this results with 0 and 1 values (corresponding to ancestral and derived with respect to the exsecta sample).
  
- python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/freq.py \
- -g $DATADIR/phased.exsecta.bases.geno.gz --target derived --threads 10 --asCounts TRUE \
- -o $DATADIR/phased.exsecta.bases.csv --popsFile
+python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/freq.py \
+-g $DATADIR/phased.exsecta.bases.geno.gz -o $DATADIR/phased.exsecta.bases.csv \
+--indFreqs --target derived  --threads 10  --asCounts --verbose --ploidyFile ploidyAB.tab
 
-####THIS ONE WORKED; MODIFY THE FINAL VERSION FROM THIS!! #####
-python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/freq.py  -g $DATADIR/phased.exsecta.bases.geno.gz -o $DATADIR/phased.exsecta.bases_testing.csv \
---indFreqs --target derived  --threads 10  --asCounts --verbose --test --ploidyFile ploidyAB.tab
 
-#### TEST freq.py ####
-cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
---popsFile all_samples_pops.txt
---ploidyFile ploidyAB.tab 
-
-####T
- python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/freq.py \
- -g $DATADIR/phased.exsecta.bases.geno.gz -o $DATADIR/phased.exsecta.bases.csv --indFreqs --target derived \
- --threads 10  --asCounts --verbose  --test --popsFile all_samples_pops.txt --ploidyFile ploidyAB.tab
  
 #### build trees with sticcs.py
 
