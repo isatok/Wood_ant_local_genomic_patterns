@@ -22,3 +22,7 @@ phased_exs_out_max50percMi.phyml_bionj.w50.data.scaff01.tsv
 phased_exs_out_max50percMi.phyml_bionj.w50.trees.scaff01.gz
 #in
 /scratch/project_2001443/analysis/twisst/trees/exs
+
+
+#OR combine chr-level tree results (as from Simon Martin's sticcs.py script) into whole-genome tree file
+
