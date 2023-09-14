@@ -9,7 +9,6 @@ cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 sinteractive --account project_2001443 --mem 6000
 
 DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
-RESDIR=/scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs
 GENO=phased.exsecta.geno.gz
 PLOIDYTAB=ploidy.tab
 
@@ -49,14 +48,19 @@ python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/freq.p
 #-i input.freqs.tsv.gz -o output_prefix -l reference.fai
 #one more option is --allowSecondChances
 
-
 sinteractive --account project_2001443 --mem 6000
 
-module load python-data
-cd /scratch/project_2001443/analysis/twisst/trees_simon/
+#export PATH="/projappl/project_2001443/phymlenv/bin:$PATH" # No need to export if already did it during the same session (above)
 
-INPUT=/scratch/project_2001443/vcf/geno/phased.exsecta.bases.csv
+cd /scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs
+
+DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+RESDIR=/scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs
+BASES=phased.exsecta.bases.csv
 REFERENCE=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa.fai
+OUTFILE=phased_exs_out.sticcs
 
 python3 /scratch/project_2001443/analysis/twisst/trees_simon/sticcs.py \
--i $INPUT -o test_160823 -l $REFERENCE --allowSecondChances
+-i $DATADIR/$BASES -o $RESDIR/$OUTFILE -l $REFERENCE --allowSecondChances
+
+
