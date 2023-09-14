@@ -133,7 +133,7 @@ GROUPTMP=$GROUPFILE.tmp
 
 ##### B) - GENERAL #####
 
-### all samples, to be used as the popsfile in freq.py
+### all samples, to be used as the popsfile in freq.py #ACTUALLY THIS IS NOT NEEDED BUT NOW I CREATE THE PLOIDYAB THROUGH THIS#
 
 cat $GROUPTMP > tmp
 perl -npe 's/$/_A/' tmp > tmpA
