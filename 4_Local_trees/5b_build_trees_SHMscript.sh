@@ -64,3 +64,31 @@ python3 /scratch/project_2001443/analysis/twisst/trees_simon/sticcs.py \
 -i $DATADIR/$BASES -o $RESDIR/$OUTFILE -l $REFERENCE --allowSecondChances
 
 
+#####------------------- sticcs as a bash script
+
+#!/bin/bash -l
+#SBATCH -J sticcs_trees_exs
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs/logs/sticcs_trees_exs.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs/logs/sticcs_trees_exs.err
+#SBATCH --account=project_2001443
+#SBATCH -t 08:00:00
+#SBATCH -p small
+#SBATCH --ntasks=1
+#SBATCH --mem=8G
+#SBATCH --mail-type=END
+
+cd /scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs
+
+export PATH="/projappl/project_2001443/phymlenv/bin:$PATH"
+
+DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+RESDIR=/scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs
+BASES=phased.exsecta.bases.csv
+REFERENCE=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa.fai
+OUTFILE=phased_exs_out.sticcs
+
+python3 /scratch/project_2001443/analysis/twisst/trees_simon/sticcs.py \
+-i $DATADIR/$BASES -o $RESDIR/$OUTFILE -l $REFERENCE --allowSecondChances
+
+
+###END.
