@@ -45,7 +45,7 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/vcf
 ####
 
 #### Prepare group files from the sample table ####
-
+### UPDATE THE POSSIBLE GROUPS FOR 2023 ANALYSES ###
 ###possible groups ($2 & $3)
 #aquilonia	aquilonia_fi
 #aquilonia	aquilonia_swsc
@@ -57,10 +57,17 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/vcf
 #pratensis	pratensis_fi
 #exsecta  exsecta
 
-cd $SCRATCH/analysis/twisst/
-FULLSAMPLE=/scratch/project_2001443/vcf/ind_lists/sample_table.tab
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/sample_table.tab
 
 ##### A) AFTER CREATING ANY ONE OF THE GROUPTMP, GO TO B) TO ADD A&B TO TIPS #####
+
+### all samples, to be used as the popsfile in freq.py
+GROUPFILE=all_samples_pops.txt
+cut -f1 $FULLSAMPLE | grep -v 'vcf_id' > /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/$GROUPFILE.tmp
+GROUPTMP=$GROUPFILE.tmp
+
+
 
 ###non-admixed
 GROUPFILE=group_parentals.tab
@@ -127,6 +134,16 @@ GROUPTMP=$GROUPFILE.tmp
 
 
 ##### B) - GENERAL #####
+
+### all samples, to be used as the popsfile in freq.py
+cat $GROUPTMP > tmp
+perl -npe 's/$/_A/' tmp > tmpA
+perl -npe 's/$/_B/' tmp > tmpB
+cat tmpA tmpB | sort > tmpC
+cat tmpA tmpB | sort > tmpD
+paste tmpC tmpD > $GROUPFILE
+
+### Groups files for TWISST
 
 cat $GROUPTMP > tmp
 perl -npe 's/\t/_A\t/' tmp > tmpA
