@@ -67,8 +67,6 @@ GROUPFILE=all_samples_pops.txt
 cut -f1 $FULLSAMPLE | grep -v 'vcf_id' > /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/$GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
 
-
-
 ###non-admixed
 GROUPFILE=group_parentals.tab
 cut -f1,2 $FULLSAMPLE | grep -v 'vcfID' | awk '$2 == "aquilonia" || \
@@ -136,12 +134,18 @@ GROUPTMP=$GROUPFILE.tmp
 ##### B) - GENERAL #####
 
 ### all samples, to be used as the popsfile in freq.py
+
 cat $GROUPTMP > tmp
 perl -npe 's/$/_A/' tmp > tmpA
 perl -npe 's/$/_B/' tmp > tmpB
 cat tmpA tmpB | sort > tmpC
 cat tmpA tmpB | sort > tmpD
 paste tmpC tmpD > $GROUPFILE
+#THEN manually move the outgroup (Fexs) as the last one on the list, as the last one is interpreted as the outgroup.
+
+### also make a ploidyAB.tab to be used by freq.py
+cut -f1 all_samples_pops.txt | perl -npe 's/$/ 1/' > ploidyAB.tab 
+
 
 ### Groups files for TWISST
 
