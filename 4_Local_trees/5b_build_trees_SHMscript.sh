@@ -4,30 +4,48 @@ git clone https://github.com/simonhmartin/genomics_general.git
 
 ---
 
-cd /scratch/project_2001443/vcf/geno
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 
 sinteractive --account project_2001443 --mem 6000
 
-DATADIR=/scratch/project_2001443/vcf/geno
-RESDIR=/scratch/project_2001443/analysis/twisst/trees/exs
+DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+RESDIR=/scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs
 GENO=phased.exsecta.geno.gz
-PLOIDYTAB=/scratch/project_2001443/vcf/ind_lists/ploidy.tab
+PLOIDYTAB=ploidy.tab
 
 export PYTHONPATH="/scratch/project_2001443/analysis/genomics_simon/genomics_general:$PYTHONPATH"
-export PATH="/projappl/project_2001443/ete3env/bin:$PATH" #This contains NUMPY
+#export PATH="/projappl/project_2001443/ete3env/bin:$PATH" #This contains NUMPY
+export PATH="/projappl/project_2001443/phymlenv/bin:$PATH"
 
+### Transform the data from the geno.gz format into bases.geno.gz, which has each sample divided into two columns A&B corresponding to the phased haplotypes
   
   python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/filterGenotypes.py \
   -t 4 \
   -i $DATADIR/$GENO \
-  --ploidyFile /scratch/project_2001443/vcf/ind_lists/ploidy.tab \
+  --ploidyFile $DATADIR/$PLOIDYTAB \
   --outputGenoFormat bases \
   -o $DATADIR/phased.exsecta.bases.geno.gz
+
+### Transform the data from the bases.geno.gz format into bases.csv, which XXXXX
  
  python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/freq.py \
  -g $DATADIR/phased.exsecta.bases.geno.gz --target derived --threads 10 --asCounts TRUE \
  -o $DATADIR/phased.exsecta.bases.csv --popsFile
 
+####THIS ONE WORKED; MODIFY THE FINAL VERSION FROM THIS!! #####
+python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/freq.py  -g $DATADIR/phased.exsecta.bases.geno.gz -o $DATADIR/phased.exsecta.bases_testing.csv \
+--indFreqs --target derived  --threads 10  --asCounts --verbose --test --ploidyFile ploidyAB.tab
+
+#### TEST freq.py ####
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+--popsFile all_samples_pops.txt
+--ploidyFile ploidyAB.tab 
+
+####T
+ python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/freq.py \
+ -g $DATADIR/phased.exsecta.bases.geno.gz -o $DATADIR/phased.exsecta.bases.csv --indFreqs --target derived \
+ --threads 10  --asCounts --verbose  --test --popsFile all_samples_pops.txt --ploidyFile ploidyAB.tab
+ 
 #### build trees with sticcs.py
 
 #input file: /scratch/project_2001443/vcf/geno/phased.exsecta.bases.csv
