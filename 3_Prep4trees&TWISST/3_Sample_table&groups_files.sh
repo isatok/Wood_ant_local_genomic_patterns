@@ -50,23 +50,24 @@ cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/sample_table.tab
 
 cut -f3 $FULLSAMPLE | sort | uniq   #check which groups are possible (w-out geogr. information)
+# adm1
+# adm2
 # aqu
-# aquxpolrufa
 # exsecta
 # lug
-# lugxunk
 # paral
 # pol
 # prat
 # rufa
 
 cut -f4 $FULLSAMPLE | sort | uniq   #check which groups are possible (WITH geogr. information)
-# adm1
-# adm2
+# adm1_ceu
+# adm1_fi
+# adm2_ceu
+# adm2_fi
 # aqu_ceu
 # aqu_fi
 # exsecta
-# lug_ceu
 # lug_fi
 # paral_ceu
 # pol_ceu
@@ -90,8 +91,8 @@ GROUPTMP=$GROUPFILE.tmp
 
 ###non-admixed rufa-pol-aqu; rufa separated to fi & ceu
 GROUPFILE=group_byGeo_parentals_aqu_pol_rufa.tab
-cut -f1,4 $FULLSAMPLE | grep -v 'vcfID' | awk '$4 == "aqu_fi" || \
-$4 == "aqu_ceu" || $4 == "rufa_fi" || $4 == "rufa_ceu" || $4 == "pol_ceu" {print $0}' > $SCRATCH/analysis/twisst/$GROUPFILE.tmp
+cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu_fi" || \
+$2 == "aqu_ceu" || $2 == "rufa_fi" || $2 == "rufa_ceu" || $2 == "pol_ceu" {print $0}' > $GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
 
 ##### THESE GROUPFILES BELOW ARE FROM THE OLDER 2022 ANALYSIS RUN. CAN USE IF NEEDED. 
@@ -182,5 +183,5 @@ cat $GROUPTMP > tmp
 perl -npe 's/\t/_A\t/' tmp > tmpA
 perl -npe 's/\t/_B\t/' tmp > tmpB
 cat tmpA tmpB | sort > $GROUPFILE
-rm tmp tmpA tmpB $GROUPTMP #remove exsecta B & letter A when present
+rm tmp tmpA tmpB $GROUPTMP # additionally, remove manually Fexs_B line if exsecta is included
 
