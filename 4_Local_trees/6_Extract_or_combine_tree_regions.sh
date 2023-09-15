@@ -25,11 +25,13 @@ cat $WINDOWDATA | grep "$REGION" > windowdata_$REGION.tsv
 cat windowdata_header.txt windowdata_$REGION.tsv > phased_exs_out_max50percMi.phyml_bionj.w50.data.$REGION.tsv
 
 #How many lines the windowdata from the extracted region has?
-wc -l windowdata_$REGION.tsv > $WCOUNT #2249
+WCOUNT=$(wc -l < windowdata_$REGION.tsv)  #795
 
 # d) Extract the same number of lines from the tree file (has no header)
 zcat phased_exs_out_max50percMi.phyml_bionj.w50.trees.gz | head -$WCOUNT | bgzip > phased_exs_out_max50percMi.phyml_bionj.w50.trees.$REGION.gz
 
+# Remove obsolete files
+rm windowdata_header.txt windowdata_Scaffold01.tsv
 
 ### Results in out files
 phased_exs_out_max50percMi.phyml_bionj.w50.data.$REGION.tsv
