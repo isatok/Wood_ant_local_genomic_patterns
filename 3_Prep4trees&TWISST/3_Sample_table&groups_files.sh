@@ -45,20 +45,36 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/vcf
 ####
 
 #### Prepare group files from the sample table ####
-### UPDATE THE POSSIBLE GROUPS FOR 2023 ANALYSES ###
-###possible groups ($2 & $3)
-#aquilonia	aquilonia_fi
-#aquilonia	aquilonia_swsc
-#polyctena	polyctena_sw
-#rufa    rufa_fi
-#aqupolrufa_hybrids	aqupolrufa_hybrids_fi
-#lugubris        lugubris_fi
-#lugubris_hybrids        lugubris_hybrids_fi
-#pratensis	pratensis_fi
-#exsecta  exsecta
 
 cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/sample_table.tab
+
+cut -f3 $FULLSAMPLE | sort | uniq   #check which groups are possible (w-out geogr. information)
+# aqu
+# aquxpolrufa
+# exsecta
+# lug
+# lugxunk
+# paral
+# pol
+# prat
+# rufa
+
+cut -f4 $FULLSAMPLE | sort | uniq   #check which groups are possible (WITH geogr. information)
+# adm1
+# adm2
+# aqu_ceu
+# aqu_fi
+# exsecta
+# lug_ceu
+# lug_fi
+# paral_ceu
+# pol_ceu
+# prat_fi
+# rufa_ceu
+# rufa_fi
+
+
 
 ##### A) AFTER CREATING ANY ONE OF THE GROUPTMP, GO TO B) TO ADD A&B TO TIPS #####
 
@@ -66,6 +82,11 @@ FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 GROUPFILE=all_samples_pops.txt
 cut -f1 $FULLSAMPLE | grep -v 'vcf_id' > /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/$GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
+
+###rufa, aquilonia, polyctena, admixed1 -> see the general pattern? think about this...
+
+
+##### THESE GROUPFILES BELOW ARE FROM THE OLDER 2022 ANALYSIS RUN. CAN USE IF NEEDED. 
 
 ###non-admixed
 GROUPFILE=group_parentals.tab
