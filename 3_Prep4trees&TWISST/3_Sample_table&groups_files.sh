@@ -74,8 +74,6 @@ cut -f4 $FULLSAMPLE | sort | uniq   #check which groups are possible (WITH geogr
 # rufa_ceu
 # rufa_fi
 
-
-
 ##### A) AFTER CREATING ANY ONE OF THE GROUPTMP, GO TO B) TO ADD A&B TO TIPS #####
 
 ### all samples, to be used as the popsfile in freq.py
@@ -83,8 +81,18 @@ GROUPFILE=all_samples_pops.txt
 cut -f1 $FULLSAMPLE | grep -v 'vcf_id' > /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/$GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
 
-###rufa, aquilonia, polyctena, admixed1 -> see the general pattern? think about this...
 
+###all rufa-aqu-pol parentals and exsecta; locations mixed #######ERROR - THE NEW SAMPLES ARE DEFINED BY SPECIES BY THE ORIGINAL EXPECTATION - POL WARNING#########
+GROUPFILE=group_mixedGeo_parentals_aqu_pol_rufa.tab
+cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu" || \
+$2 == "rufa" || $2 == "pol" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
+GROUPTMP=$GROUPFILE.tmp
+
+###non-admixed rufa-pol-aqu; rufa separated to fi & ceu
+GROUPFILE=group_byGeo_parentals_aqu_pol_rufa.tab
+cut -f1,4 $FULLSAMPLE | grep -v 'vcfID' | awk '$4 == "aqu_fi" || \
+$4 == "aqu_ceu" || $4 == "rufa_fi" || $4 == "rufa_ceu" || $4 == "pol_ceu" {print $0}' > $SCRATCH/analysis/twisst/$GROUPFILE.tmp
+GROUPTMP=$GROUPFILE.tmp
 
 ##### THESE GROUPFILES BELOW ARE FROM THE OLDER 2022 ANALYSIS RUN. CAN USE IF NEEDED. 
 
