@@ -1,10 +1,13 @@
 #!/bin/bash -l
-#SBATCH -J twisst_parental_fi_exs_og_Mi50
+#SBATCH -J twisst_mixedGeo_parentals_aqu_pol_rufa_exs_og_Mi50_phyml
 #SBATCH --account=project_2001443
 #SBATCH -t 10:00:00
 #SBATCH -p small
 #SBATCH --ntasks=4
 #SBATCH --mem=8G
+
+#####CONTINUE EDITING FROM HERE FOR 2023 AUTUMN ANALYSES #####
+
 
 cd /scratch/project_2001443/analysis/twisst
 
