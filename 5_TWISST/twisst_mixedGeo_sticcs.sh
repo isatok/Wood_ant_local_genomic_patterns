@@ -26,6 +26,6 @@ python3.6 /projappl/project_2001443/twisst/twisst.py \
 -g pol \
 -g exsecta \
 --outgroup exsecta \
---groupsFile $GROUPDIR/group_mixedGeo_parentals_aqu_pol_rufa.tab
+--groupsFile $GROUPDIR/group_mixedGeo_parentals_aqu_pol_rufa_sticcs.tab #Fexs is "Fexs_A" in sticcs trees! Inspect why.
 
 ###END.
