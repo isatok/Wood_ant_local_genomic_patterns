@@ -183,5 +183,5 @@ cat $GROUPTMP > tmp
 perl -npe 's/\t/_A\t/' tmp > tmpA
 perl -npe 's/\t/_B\t/' tmp > tmpB
 cat tmpA tmpB | sort > $GROUPFILE
-rm tmp tmpA tmpB $GROUPTMP # additionally, remove manually Fexs_B line if exsecta is included
+rm tmp tmpA tmpB $GROUPTMP # additionally, remove manually "_A" AND "Fexs_B" if exsecta is included
 
