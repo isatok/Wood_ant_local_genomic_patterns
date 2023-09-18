@@ -90,9 +90,12 @@ $2 == "rufa" || $2 == "pol" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
 
 ###non-admixed rufa-pol-aqu; rufa separated to fi & ceu
-GROUPFILE=group_byGeo_parentals_aqu_pol_rufa.tab
+GROUPFILE=group_rufabyGeo_parentals_aqu_pol_rufa.tab
 cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu_fi" || \
-$2 == "aqu_ceu" || $2 == "rufa_fi" || $2 == "rufa_ceu" || $2 == "pol_ceu" {print $0}' > $GROUPFILE.tmp
+$2 == "aqu_ceu" || $2 == "rufa_fi" || $2 == "rufa_ceu" || $2 == "pol_ceu" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
+#IN GROUPTMP, replace "aqu_fi" and "aqu_ceu" with "aqu" so will have the max 5 groups
+sed -i 's/aqu_fi/aqu/g' $GROUPFILE.tmp
+sed -i 's/aqu_ceu/aqu/g' $GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
 
 ##### THESE GROUPFILES BELOW ARE FROM THE OLDER 2022 ANALYSIS RUN. CAN USE IF NEEDED. 
@@ -184,4 +187,5 @@ perl -npe 's/\t/_A\t/' tmp > tmpA
 perl -npe 's/\t/_B\t/' tmp > tmpB
 cat tmpA tmpB | sort > $GROUPFILE
 rm tmp tmpA tmpB $GROUPTMP # additionally, remove manually "_A" AND "Fexs_B" if exsecta is included
+#WHILE FOR STICCS, LEAVE "_A"
 
