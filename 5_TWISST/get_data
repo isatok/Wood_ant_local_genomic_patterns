@@ -18,6 +18,9 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/loc
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/twisst/phyml/mixedGeo_parentals_exs_og_max50percMi.w50.weights.csv.gz' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/twisst/phyml'
 
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/twisst/phyml/rufabyGeo_parentals_exs_og_max50percMi.w50.weights.csv.gz' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/twisst/phyml'
+
 #From STICCS
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/twisst/sticcs/mixedGeo_parentals_exs_og_max50percMi.weights.sticcs.csv.gz' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/twisst/sticcs'
