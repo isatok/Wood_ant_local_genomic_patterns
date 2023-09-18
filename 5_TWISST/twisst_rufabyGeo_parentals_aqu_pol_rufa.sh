@@ -26,7 +26,7 @@ python3.6 /projappl/project_2001443/twisst/twisst.py \
 -g aqu \
 -g rufa_fi \
 -g rufa_ceu \
--g pol \
+-g pol_ceu \
 -g exsecta \
 --outgroup exsecta \
 --groupsFile $GROUPDIR/group_rufabyGeo_parentals_aqu_pol_rufa.tab
