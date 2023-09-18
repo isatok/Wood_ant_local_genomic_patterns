@@ -5,20 +5,20 @@ MYPATH=/scratch/project_2001443/barriers_introgr_formica
 ### a) tree window data from local tree inference
 
 #From PhyML #10.670 windows
-scp satokan1@puhti.csc.fi:'$MYPATH/local_trees/phyml/phased_exs_out_max50percMi.phyml_bionj.w50.data.tsv' \
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/local_trees/phyml/phased_exs_out_max50percMi.phyml_bionj.w50.data.tsv' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/twisst/phyml'
 
 #From STICCS #271.731 windows
-scp satokan1@puhti.csc.fi:'$MYPATH/local_trees/sticcs/phased_exs_out.sticcs.window_data.tsv' \
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs/phased_exs_out.sticcs.window_data.tsv' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/twisst/sticcs'
 
 ### b) tree weights from TWISST
 
 #From PhyML
-scp satokan1@puhti.csc.fi:'$MYPATH/twisst/phyml/mixedGeo_parentals_exs_og_max50percMi.w50.weights.csv.gz' \
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/twisst/phyml/mixedGeo_parentals_exs_og_max50percMi.w50.weights.csv.gz' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/twisst/phyml'
 
 #From STICCS
-scp satokan1@puhti.csc.fi:'$MYPATH/twisst/sticcs/mixedGeo_parentals_exs_og_max50percMi.weights.sticcs.csv.gz' \
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/twisst/sticcs/mixedGeo_parentals_exs_og_max50percMi.weights.sticcs.csv.gz' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/twisst/sticcs'
 
