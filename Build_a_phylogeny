@@ -1,0 +1,19 @@
+Does it go like this:
+
+# 1) Take the genome annotation file (& scp it to Puhti)
+/Users/inaukkar/Downloads/Faqxpol_genome_annotation_v1.gff3.gz
+ANNOT=Faqxpol_genome_annotation_v1.gff3.gz
+
+# 2) Extract gene regions from there https://www.biostars.org/p/98725/
+gff2bed < annotations.gff | grep -w 'gene' | cut -f1-4 > genes.bed
+
+# 3) Use the gene coordinates to build gene trees https://github.com/simonhmartin/genomics_general#trees-for-sliding-windows,
+# maybe with "window can be defined based on genomic coordinates (--windType coord)", no outgroup (unrooted), all non-admixed samples
+
+# 4) Use ASTRAL to make a phylogeny from these gene trees https://github.com/smirarab/ASTRAL
+java -jar astral.5.7.8.jar -i in.tree -o out.tre 2>out.log
+# also include "-a" option: When multiple individuals from the same species are available, you can ask ASTRAL to force them to be together in the species tree. 
+# To do this, a mapping file needs to be provided using the -a option: one species per line; species_name [number of individuals] individual_1 individual_2 ...
+
+#QUESTIONS:
+# Can I use my imputed and phased SNP-data to build the gene trees? Is it correct to define the tree regions by using "gene" annotations from the annotation file?
