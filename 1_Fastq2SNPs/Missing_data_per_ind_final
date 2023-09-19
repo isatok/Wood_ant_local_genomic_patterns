@@ -12,6 +12,29 @@ vcftools --gzvcf all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz --missing-indv -
 
 sort -k 5 all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz.MISSING_DATA.imiss | column -t
 
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz.MISSING_DATA.imiss' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/vcf_stats'
+
+# For record, plotting in R:
+# (/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/vcf_stats/ind_missingness.R)
+
+library(dplyr)
+library(ggplot2)
+
+imiss <- read.csv("/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/vcf_stats/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz.MISSING_DATA.imiss", sep="\t")
+#INDV, F_MISS
+
+samples <- read.csv("/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/analysis_sample_list.txt", sep="\t")
+#vcf_id, group_geo
+
+imiss2 <- left_join(imiss, samples, by = c("INDV"="vcf_id"))
+
+ggplot(imiss2) +
+  geom_violin(aes(x=group_geo, y=F_MISS)) +
+  theme(axis.text=element_text(size=15,angle = 45)) +
+  geom_point(aes(x=group_geo, y=F_MISS)) 
+           
+
 #Here all samples that have missing data >10%:
 RN420      534202  0                     55250   0.103425 rufa_ceu
 93-Faqu    534202  0                     62192   0.11642 aqu
