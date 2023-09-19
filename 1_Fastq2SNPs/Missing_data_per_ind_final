@@ -1,0 +1,37 @@
+#Calculate per individual missing data in the final VCF that is used for TWISST, since tree inference may be sensitive to missing data.
+
+#DP8, no Scaffold00, mac2
+
+sinteractive...
+
+#VCFtools - 0.1.17
+  
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
+
+vcftools --gzvcf all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz --missing-indv --out all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz.MISSING_DATA
+
+sort -k 5 all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz.MISSING_DATA.imiss | column -t
+
+#Here all samples that have missing data >10%:
+RN420      534202  0                     55250   0.103425 rufa_ceu
+93-Faqu    534202  0                     62192   0.11642 aqu
+13-Faqu    534202  0                     64207   0.120192 aqu
+119-Flug   534202  0                     66135   0.123801 adm2
+66-Fpol    534202  0                     66983   0.125389 aqu
+14-Fpol    534202  0                     68524   0.128274 adm1
+55-FaquH   534202  0                     81746   0.153025 adm1
+12-Frufa   534202  0                     101031  0.189125 rufa
+36-FpolH   534202  0                     106293  0.198975 adm1
+53-Fpol    534202  0                     108027  0.202221 adm1
+RN416      534202  0                     110775  0.207365 adm2_ceu ("lug_ceu")
+RN424      534202  0                     114337  0.214033 rufa_ceu
+RN423      534202  0                     115357  0.215943 adm1_ceu ("pol_ceu")
+RN415      534202  0                     157767  0.295332 adm2_ceu ("lug_ceu")
+RN426      534202  0                     170583  0.319323 rufa_ceu
+RN422      534202  0                     176379  0.330173 rufa_ceu
+RN425      534202  0                     208871  0.390996 adm1_ceu ("pol_ceu")
+RN421      534202  0                     211021  0.395021 rufa_ceu
+s354       534202  0                     248373  0.464942 paral
+54-Frufa   534202  0                     252629  0.472909 adm1
+RN418      534202  0                     284731  0.533002 adm2_ceu ("lug_ceu")
+s353       534202  0                     346095  0.647873 paral
