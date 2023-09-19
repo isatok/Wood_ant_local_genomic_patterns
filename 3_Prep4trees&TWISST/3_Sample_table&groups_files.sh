@@ -77,19 +77,19 @@ cut -f4 $FULLSAMPLE | sort | uniq   #check which groups are possible (WITH geogr
 
 ##### A) AFTER CREATING ANY ONE OF THE GROUPTMP, GO TO B) TO ADD A&B TO TIPS #####
 
-### all samples, to be used as the popsfile in freq.py
+### 0. all samples, to be used as the popsfile in freq.py
 GROUPFILE=all_samples_pops.txt
 cut -f1 $FULLSAMPLE | grep -v 'vcf_id' > /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/$GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
 
 
-###all rufa-aqu-pol parentals and exsecta; locations mixed #######ERROR - THE NEW SAMPLES ARE DEFINED BY SPECIES BY THE ORIGINAL EXPECTATION - POL WARNING#########
+### 1. all rufa-aqu-pol parentals and exsecta; locations mixed #######ERROR - THE NEW SAMPLES ARE DEFINED BY SPECIES BY THE ORIGINAL EXPECTATION - POL WARNING#########
 GROUPFILE=group_mixedGeo_parentals_aqu_pol_rufa.tab
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu" || \
 $2 == "rufa" || $2 == "pol" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
 
-###non-admixed rufa-pol-aqu; rufa separated to fi & ceu
+### 2. non-admixed rufa-pol-aqu; rufa separated to fi & ceu
 GROUPFILE=group_rufabyGeo_parentals_aqu_pol_rufa.tab
 cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu_fi" || \
 $2 == "aqu_ceu" || $2 == "rufa_fi" || $2 == "rufa_ceu" || $2 == "pol_ceu" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
@@ -97,6 +97,17 @@ $2 == "aqu_ceu" || $2 == "rufa_fi" || $2 == "rufa_ceu" || $2 == "pol_ceu" || $2 
 sed -i 's/aqu_fi/aqu/g' $GROUPFILE.tmp
 sed -i 's/aqu_ceu/aqu/g' $GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
+
+### 3. non-admixed rufa-aqu and adm1_fi; rufa separated to fi & ceu
+GROUPFILE=group_rufabyGeo_vs_adm1_fi.tab
+cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu_fi" || \
+$2 == "aqu_ceu" || $2 == "rufa_fi" || $2 == "rufa_ceu" || $2 == "adm1_fi" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
+#IN GROUPTMP, replace "aqu_fi" and "aqu_ceu" with "aqu" so will have the max 5 groups
+sed -i 's/aqu_fi/aqu/g' $GROUPFILE.tmp
+sed -i 's/aqu_ceu/aqu/g' $GROUPFILE.tmp
+GROUPTMP=$GROUPFILE.tmp
+
+
 
 ##### THESE GROUPFILES BELOW ARE FROM THE OLDER 2022 ANALYSIS RUN. CAN USE IF NEEDED. 
 
@@ -168,16 +179,16 @@ GROUPTMP=$GROUPFILE.tmp
 
 ### all samples, to be used as the popsfile in freq.py #ACTUALLY THIS IS NOT NEEDED BUT NOW I CREATE THE PLOIDYAB THROUGH THIS#
 
-cat $GROUPTMP > tmp
-perl -npe 's/$/_A/' tmp > tmpA
-perl -npe 's/$/_B/' tmp > tmpB
-cat tmpA tmpB | sort > tmpC
-cat tmpA tmpB | sort > tmpD
-paste tmpC tmpD > $GROUPFILE
-#THEN manually move the outgroup (Fexs) as the last one on the list, as the last one is interpreted as the outgroup.
+# cat $GROUPTMP > tmp
+# perl -npe 's/$/_A/' tmp > tmpA
+# perl -npe 's/$/_B/' tmp > tmpB
+# cat tmpA tmpB | sort > tmpC
+# cat tmpA tmpB | sort > tmpD
+# paste tmpC tmpD > $GROUPFILE
+# #THEN manually move the outgroup (Fexs) as the last one on the list, as the last one is interpreted as the outgroup.
 
 ### also make a ploidyAB.tab to be used by freq.py
-cut -f1 all_samples_pops.txt | perl -npe 's/$/ 1/' > ploidyAB.tab 
+# cut -f1 all_samples_pops.txt | perl -npe 's/$/ 1/' > ploidyAB.tab 
 
 
 ### Groups files for TWISST
