@@ -107,7 +107,26 @@ sed -i 's/aqu_fi/aqu/g' $GROUPFILE.tmp
 sed -i 's/aqu_ceu/aqu/g' $GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
 
+### 4. non-admixed rufa-aqu and adm1_fi; aqu separated to fi & ceu
+GROUPFILE=group_aqubyGeo_vs_adm1_fi.tab
+cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu_fi" || \
+$2 == "aqu_ceu" || $2 == "rufa_fi" || $2 == "rufa_ceu" || $2 == "adm1_fi" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
+#IN GROUPTMP, replace "rufa_fi" and "rufa_ceu" with "rufa" so will have the max 5 groups
+sed -i 's/rufa_fi/rufa/g' $GROUPFILE.tmp
+sed -i 's/rufa_ceu/rufa/g' $GROUPFILE.tmp
+GROUPTMP=$GROUPFILE.tmp
 
+### 5. non-admixed rufa-aqu-pol and adm1_fi
+GROUPFILE=group_mixedParentals_vs_adm1_fi.tab
+cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu_fi" || \
+$2 == "aqu_ceu" || $2 == "rufa_fi" || $2 == "rufa_ceu" || $2 == "pol_ceu" \
+|| $2 == "adm1_fi" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
+#IN GROUPTMP, replace "aqu_fi" and "aqu_ceu" with "aqu" & rufa similarily, so will have the max 5 groups
+sed -i 's/aqu_fi/aqu/g' $GROUPFILE.tmp
+sed -i 's/aqu_ceu/aqu/g' $GROUPFILE.tmp
+sed -i 's/rufa_fi/rufa/g' $GROUPFILE.tmp
+sed -i 's/rufa_ceu/rufa/g' $GROUPFILE.tmp
+GROUPTMP=$GROUPFILE.tmp
 
 ##### THESE GROUPFILES BELOW ARE FROM THE OLDER 2022 ANALYSIS RUN. CAN USE IF NEEDED. 
 
