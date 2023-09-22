@@ -1,8 +1,6 @@
 #### Prepare group files from the sample table (same logic as with TWISST group files) ####
 
-####NO EIKU HELVETTI, TEE NÄÄ LOPPUUN. TÄÄLLÄKI https://d197for5662m48.cloudfront.net/documents/publicationstatus/120529/preprint_pdf/cdef18babcbe3b34b8e020e6293bd445.pdf
-####ON KÄYTETTY SAMANLAISESSA TILANTEESSA VCFTOOLSIA - WEIGHTED VAI MEAN SELVINNEE MYÖHEMMIN ######
-#######THE MEAN AND WEIGHTED ESTIMATES VARY INSANELY LOT. WILL NOT CONTINUE THIS NOW BUT TRY TO DO THE GVCF's AND RUN FST WITH THEM########
+####NOT THE BEST OPTION (NO INVARIANT SITES AT LEAST YET), BUT STILL USED E.G. HERE: https://d197for5662m48.cloudfront.net/documents/publicationstatus/120529/preprint_pdf/cdef18babcbe3b34b8e020e6293bd445.pdf
 
 ###
 ### 0. Prep --------------------
@@ -24,15 +22,13 @@ FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 
 cd /scratch/project_2001443/barriers_introgr_formica/fst_global
 
-######MAKE HERE ITERATIONS######
-
 #within species
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/rufa_ceu.tab --out rufafi_rufaceu                  #rufa_fi rufa_ceu
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out aqufi_aquceu    #aquilonia_fi aquilonia_ceu (balanced)
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_6inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out aqufi_aquceu_iter2    #aquilonia_fi aquilonia_ceu (balanced) #2nd iteration#
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_scot.tab --weir-fst-pop ./groupfiles/aquilonia_swi.tab --out aquscot_aquswi      #aquilonia_scotl aquilonia_switz
-vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds.tab --weir-fst-pop ./groupfiles/aquilonia_scotl.tab --out aqufi_aquscotl    #aquilonia_fi aquilonia_scotl (balanced)
-vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_scotl.tab --out aqufi_aquscotl_iter2    #aquilonia_fi aquilonia_scotl (balanced) #2nd iteration#
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds.tab --weir-fst-pop ./groupfiles/aquilonia_scot.tab --out aqufi_aquscotl    #aquilonia_fi aquilonia_scotl (balanced)
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_scot.tab --out aqufi_aquscotl_iter2    #aquilonia_fi aquilonia_scotl (balanced) #2nd iteration#
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds.tab --weir-fst-pop ./groupfiles/aquilonia_swi.tab --out aqufi_aquswitz    #aquilonia_fi aquilonia_switz (balanced)
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_swi.tab --out aqufi_aquswitz_iter2    #aquilonia_fi aquilonia_switz (balanced) #2nd iteration#
 
@@ -41,9 +37,8 @@ vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_ceu.tab --weir-fst-pop ./groupfiles/polyctena_ceu.tab --out rufaceu_polyctenaceu      #rufa_ceu polyctena_ceu
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/polyctena_ceu.tab --out rufafi_polyctenaceu      #rufa_fi polyctena_ceu
 
-
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds.tab --out rufa_aquilonia   #rufa_all aquilonia_all (balanced)
-vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds_iter2.tab --out rufa_aquilonia   #rufa_all aquilonia_all (balanced) #2nd iteration#
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds_iter2.tab --out rufa_aquilonia_iter2.tab   #rufa_all aquilonia_all (balanced) #2nd iteration#
 
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds.tab --out polyctenaceu_aquilonia   #polyctena_ceu aquilonia_all (balanced)
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out polyctenaceu_aquiloniaceu   #polyctena_ceu aquilonia_ceu 
