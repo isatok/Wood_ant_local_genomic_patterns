@@ -10,11 +10,10 @@
 
 sinteractive ...
 
-mkdir /scratch/project_2001443/barriers_introgr_formica/fst_global
-cd /scratch/project_2001443/barriers_introgr_formica/fst_global
+#mkdir /scratch/project_2001443/barriers_introgr_formica/fst_global
 
 module load biokit
-bcftools query -l all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz | wc -l #101 individuals
+#bcftools query -l all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz | wc -l #101 individuals
 
 VCFIN=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz #101 individuals (excluded 110, RN417, 105), singletons filtered out
 FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/sample_table.tab               #101 individuals + F.exsecta + header line
@@ -23,29 +22,56 @@ FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 ### 1. Compute pairwise Fst estimates --------------------
 ###
 
+cd /scratch/project_2001443/barriers_introgr_formica/fst_global
+
+######MAKE HERE ITERATIONS######
+
 #within species
-vcftools --gzvcf ${VCFIN} --weir-fst-pop rufa_fi.tab --weir-fst-pop rufa_ceu.tab --out rufafi_rufaceu                  #rufa_fi rufa_ceu
-vcftools --gzvcf ${VCFIN} --weir-fst-pop aquilonia_fi_6inds.tab --weir-fst-pop aquilonia_ceu.tab --out aqufi_aquceu    #aquilonia_fi aquilonia_ceu (balanced)
-vcftools --gzvcf ${VCFIN} --weir-fst-pop aquilonia_scot.tab --weir-fst-pop aquilonia_swi.tab --out aquscot_aquswi      #aquilonia_scotl aquilonia_switz
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/rufa_ceu.tab --out rufafi_rufaceu                  #rufa_fi rufa_ceu
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out aqufi_aquceu    #aquilonia_fi aquilonia_ceu (balanced)
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_scot.tab --weir-fst-pop ./groupfiles/aquilonia_swi.tab --out aquscot_aquswi      #aquilonia_scotl aquilonia_switz
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds.tab --weir-fst-pop ./groupfiles/aquilonia_scotl.tab --out aqufi_aquscotl    #aquilonia_fi aquilonia_scotl (balanced)
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds.tab --weir-fst-pop ./groupfiles/aquilonia_switz.tab --out aqufi_aquswitz    #aquilonia_fi aquilonia_switz (balanced)
 
 #between species
-vcftools --gzvcf ${VCFIN} --weir-fst-pop rufa_all_6inds.tab --weir-fst-pop polyctena_ceu.tab --out rufa_polyctenaceu   #rufa_all polyctena_ceu (balanced)
-vcftools --gzvcf ${VCFIN} --weir-fst-pop rufa_ceu.tab --weir-fst-pop polyctena_ceu.tab --out rufaceu_polyctenaceu      #rufa_ceu polyctena_ceu
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-fst-pop ./groupfiles/polyctena_ceu.tab --out rufa_polyctenaceu   #rufa_all polyctena_ceu (balanced)
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_ceu.tab --weir-fst-pop ./groupfiles/polyctena_ceu.tab --out rufaceu_polyctenaceu      #rufa_ceu polyctena_ceu
 
-vcftools --gzvcf ${VCFIN} --weir-fst-pop rufa_all_6inds.tab --weir-fst-pop aquilonia_all_6inds.tab --out rufa_aquilonia   #rufa_all aquilonia_all (balanced)
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds.tab --out rufa_aquilonia   #rufa_all aquilonia_all (balanced)
 
-vcftools --gzvcf ${VCFIN} --weir-fst-pop polyctena_ceu.tab --weir-fst-pop aquilonia_all_6inds.tab --out polyctenaceu_aquilonia   #polyctena_ceu aquilonia_all (balanced)
-vcftools --gzvcf ${VCFIN} --weir-fst-pop polyctena_ceu.tab --weir-fst-pop aquilonia_ceu.tab --out polyctenaceu_aquiloniaceu   #polyctena_ceu aquilonia_ceu 
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds.tab --out polyctenaceu_aquilonia   #polyctena_ceu aquilonia_all (balanced)
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out polyctenaceu_aquiloniaceu   #polyctena_ceu aquilonia_ceu 
 
 
 ###
 ### 2. Collect data on the mean and weighted Fst values in one file --------------------
 ###
 
-            ## STILL TO DO ##
+cd /scratch/project_2001443/barriers_introgr_formica/fst_global/
 
-/scratch/project_2001443/barriers_introgr_formica/fst_global/
---> looppaa kaikkien .log tiedostojen läpi siten että greppaat sieltä mean ja weighted rivit ja näiden eteen tulis tiedostotunniste
+output_file="fst_results.txt" 
+column_names=("Weir and Cockerham mean Fst" "Weir and Cockerham weighted Fst")
+
+> "$output_file"                                                 #emtpy the output file if it exists
+echo -e "Filename\t${column_names[@]}" >> "$output_file"         #add a header to the output file
+
+for file in *.log; do             #iterate through all *.log files
+filename="${file%.log}"           #extract the filename excluding ".log"
+values=()                         #initialise an array for the fst values
+while IFS= read -r line; do       #read each line in the file
+ for col_name in "${column_names[@]}"; do
+        if [[ $line == "$col_name"* ]]; then #these check that the line starts with the defined phrases (same as column_names)
+ value=$(echo "$line" | grep -oP '[0-9]+\.[0-9]+')
+ values+=("$value")
+        fi
+     done
+done < "$file"
+
+echo -e "$filename\t${values[@]}" >> "$output_file" #print results to the output file
+done
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/fst_global/fst_results.txt' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fst_global'
 
 ###
 ### 3. Info on how the sample groups were created --------------------
@@ -78,6 +104,9 @@ cut -f4 $FULLSAMPLE | sort | uniq   #check which groups are possible (WITH geogr
 # rufa_fi
 
 # All possible parental groups (by species and species further divided by geography)
+
+cd /scratch/project_2001443/barriers_introgr_formica/fst_global/groupfiles
+
 # F. rufa
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "rufa" {print $1}' > rufa_all.tab #12 inds
 cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "rufa_fi" {print $1}' > rufa_fi.tab #6 inds
