@@ -29,13 +29,13 @@ vcftools --gzvcf ${VCFIN} --weir-fst-pop aquilonia_fi_6inds.tab --weir-fst-pop a
 vcftools --gzvcf ${VCFIN} --weir-fst-pop aquilonia_scot.tab --weir-fst-pop aquilonia_swi.tab --out aquscot_aquswi      #aquilonia_scotl aquilonia_switz
 
 #between species
-vcftools --gzvcf ${VCFIN} --weir-fst-pop rufa_all.tab --weir-fst-pop polyctena_ceu.tab --out rufa_polyctenaceu         #rufa_all polyctena_ceu #12 vs 6 - balance??!
+vcftools --gzvcf ${VCFIN} --weir-fst-pop rufa_all_6inds.tab --weir-fst-pop polyctena_ceu.tab --out rufa_polyctenaceu   #rufa_all polyctena_ceu (balanced)
 vcftools --gzvcf ${VCFIN} --weir-fst-pop rufa_ceu.tab --weir-fst-pop polyctena_ceu.tab --out rufaceu_polyctenaceu      #rufa_ceu polyctena_ceu
 
-vcftools --gzvcf ${VCFIN} --weir-fst-pop rufa_all.tab --weir-fst-pop aquilonia_all_6inds.tab --out rufa_polyctenaceu   #rufa_all aquilonia_all - balance??!
+vcftools --gzvcf ${VCFIN} --weir-fst-pop rufa_all_6inds.tab --weir-fst-pop aquilonia_all_6inds.tab --out rufa_aquilonia   #rufa_all aquilonia_all (balanced)
 
-#polyctena_ceu aquilonia_all - balance??! ## STILL TO DO ##
-#polyctena_ceu aquilonia_ceu 
+vcftools --gzvcf ${VCFIN} --weir-fst-pop polyctena_ceu.tab --weir-fst-pop aquilonia_all_6inds.tab --out polyctenaceu_aquilonia   #polyctena_ceu aquilonia_all (balanced)
+vcftools --gzvcf ${VCFIN} --weir-fst-pop polyctena_ceu.tab --weir-fst-pop aquilonia_ceu.tab --out polyctenaceu_aquiloniaceu   #polyctena_ceu aquilonia_ceu 
 
 
 ###
@@ -43,6 +43,9 @@ vcftools --gzvcf ${VCFIN} --weir-fst-pop rufa_all.tab --weir-fst-pop aquilonia_a
 ###
 
             ## STILL TO DO ##
+
+/scratch/project_2001443/barriers_introgr_formica/fst_global/
+--> looppaa kaikkien .log tiedostojen läpi siten että greppaat sieltä mean ja weighted rivit ja näiden eteen tulis tiedostotunniste
 
 ###
 ### 3. Info on how the sample groups were created --------------------
@@ -79,6 +82,7 @@ cut -f4 $FULLSAMPLE | sort | uniq   #check which groups are possible (WITH geogr
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "rufa" {print $1}' > rufa_all.tab #12 inds
 cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "rufa_fi" {print $1}' > rufa_fi.tab #6 inds
 cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "rufa_ceu" {print $1}' > rufa_ceu.tab #6 inds
+shuf -n 3 rufa_fi.tab > rufa_all_6inds.tab; shuf -n 3 rufa_ceu.tab >> rufa_all_6inds.tab #6 inds
 
 # F. aquilonia
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu" {print $1}' > aquilonia_all.tab #45 inds
