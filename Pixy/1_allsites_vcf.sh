@@ -1,5 +1,18 @@
-mkdir /scratch/project_2001443/gvfc/
-mkdir /scratch/project_2001443/gvfc/logs/
+#Create needed directories:
+mkdir /scratch/project_2001443/gvfc/ ### NOT LIKE THIS. REMOVE IF EXISTS
+mkdir /scratch/project_2001443/gvfc/logs/ ### NOT LIKE THIS. REMOVE IF EXISTS
+
+mkdir /scratch/project_2001443/barriers_introgression_formica/gvfc/
+mkdir /scratch/project_2001443/barriers_introgression_formica/gvfc/raw/
+mkdir /scratch/project_2001443/barriers_introgression_formica/gvfc/logs/
+
+
+#Make or copy needed lists:
+scaffold.list
+sample.list (no #110, (#54,) #105, #RN417) (?) Currently IDEPTH calculated for 101 samples !!
+bam.list
+
+
 
 #!/bin/bash -l
 #SBATCH -J allsites_vcf
@@ -12,57 +25,35 @@ mkdir /scratch/project_2001443/gvfc/logs/
 #SBATCH --ntasks 1
 #SBATCH --mem=8G
 
-########INA CONTINUE UPDATING FROM HERE #########
-
-
-# # construct list of male samples in the ad scan
-# cd /scratch/project_2003480/patrick/data/bam
-# for sample in $(cat /scratch/project_2003480/patrick/data/vcf/filtered/male_samples.list)
-# do
-# grep -w "$sample" /scratch/project_2003480/patrick/2022_batch_metadata_350IDfiltered_withLineages.tsv | cut -f 1 >> IDs_246samples_onlymales.list
-# done
-
-# # construct list of bam files for only males in ad scan
-
-# cd /scratch/project_2003480/patrick/data/bam
-# for sample in $(cat IDs_246samples_onlymales.list)
-# do 
-# ls /scratch/project_2003480/patrick/data/bam/mkdupl_RG_clip | grep "${sample}_.*bam" | grep -v 'bai' >> mkduple_RG_clip_bams_246samples_onlymales.list
-# done
 
 #
 # 0. Load modules and set directory and variables -----------------------------
 #
 
 module load biokit
+
 # go to directory with bam files in 
-cd /scratch/project_2003480/patrick/data/bam/mkdupl_RG_clip
+cd /scratch/project_2001443/barriers_introgr_formica/xxx ######CHECK
 
 # Get scaffold ID
-REF=/scratch/project_2003480/patrick/reference_genome
+REF=/scratch/project_2001443/reference_genome ######CHECK
+scaffold=$(sed -n "$SLURM_ARRAY_TASK_ID"p $REF/scaffold.list) ######CHECK
 
-#SLURM_ARRAY_TASK_ID=1
-scaffold=$(sed -n "$SLURM_ARRAY_TASK_ID"p $REF/scaffold.list)
-
-
-echo Writing gvcf for $scaffold ...
 # write gvcf
-# bcftools mpileup -f $REF/Formica_hybrid_v1.fa.fai  \
-# 	 -b /scratch/project_2003480/patrick/data/bam/mkduple_RG_clip_bams_350samples.list \ 
-# 	 -r $scaffold | bcftools call -m -Oz -f GQ -o /scratch/project_2003480/patrick/data/gvfc/raw/${scaffold}_all350samples_noDiploidMales.vcf.gz
+echo Writing gvcf for $scaffold ...
 
 bcftools mpileup -f $REF/Formica_hybrid_v1_wFhyb_Sapis.fa \
-  -b /scratch/project_2003480/patrick/data/bam/mkduple_RG_clip_bams_246samples_onlymales.list  \
-  -r ${scaffold} | bcftools call -m -Oz -f GQ -o /scratch/project_2003480/patrick/data/gvfc/raw/${scaffold}_all350samples_noDiploidMales.vcf.gz
+  -b /scratch/project_2001443/bam/mkduple_RG_clip_bams_246samples_onlymales.list  \ ##BAMLIST HERE
+  -r ${scaffold} | bcftools call -m -Oz -f GQ -o /scratch/project_2001443/barriers_introgr_formica/gvfc/raw/${scaffold}_allsamples.vcf.gz
 
 
 # go to directory with gvcf for each scaffold
-cd /scratch/project_2003480/patrick/data/gvfc/raw
+cd /scratch/project_2001443/barriers_introgression_formica/gvfc/raw/
 
 # Set DP thresholds & filter missing data
 #Max depth threshold: Calculate average of the mean depths and multiply by two -> follow the logic from the variant site vcf filtering where sites with >2x mean ind depth are set as missing. Bc of big variance add some?
-IDEPTHPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt
-awk '{ total += $3; count++ } END { print total/count }' $IDEPTHPATH/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.idepth #15.4694
+# IDEPTHPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt
+# awk '{ total += $3; count++ } END { print total/count }' $IDEPTHPATH/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.idepth #15.4694
 # 15.4694*2= ca. 31; set max avg depth to 40x?
 mindp= # 2*101
 maxdp= # 40*101
