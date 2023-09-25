@@ -4,6 +4,8 @@ mkdir /scratch/project_2001443/barriers_introgr_formica/gvfc/
 mkdir /scratch/project_2001443/barriers_introgr_formica/gvfc/raw/
 mkdir /scratch/project_2001443/barriers_introgr_formica/gvfc/logs/
 
+#make a gvcf.bam.list
+find . -type f -name "*.bam" -exec realpath {} \; > gvcf.bam.list
 
 
 ### Batch script to make a gvcf: SNP calling and filtering ### 
