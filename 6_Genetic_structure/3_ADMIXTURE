@@ -29,7 +29,75 @@ mv $FILE.bim.tmp $FILE.bim
 ### Subsample for balanced sample sizes ###
 ###
 
+FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/sample_table.tab
 
+cut -f3 $FULLSAMPLE | sort | uniq   #check which groups are possible (w-out geogr. information)
+# adm1
+# adm2
+# aqu
+# exsecta
+# lug
+# paral
+# pol
+# prat
+# rufa
+
+cut -f4 $FULLSAMPLE | sort | uniq   #check which groups are possible (WITH geogr. information)
+# adm1_ceu
+# adm1_fi
+# adm2_ceu
+# adm2_fi
+# aqu_ceu
+# aqu_fi
+# exsecta
+# lug_fi
+# paral_ceu
+# pol_ceu
+# prat_fi
+# rufa_ceu
+# rufa_fi
+
+
+cut -f1 $FULLSAMPLE | grep -v 'vcf_id' > /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/adm_iter1.tmp
+# 
+
+##AN IDEA FROM CHATGPT ##
+# Your list of values
+value_list="rufa aqu1"
+
+# Filter the lines in the table file based on the list
+filtered_lines=$(grep -F -w -f <(echo "$value_list" | tr ' ' '\n') table.txt)
+
+# Preserve the original order using awk
+awk 'NR==FNR{a[$0];next}($1 in a)' <(echo "$filtered_lines") table.txt
+
+Here's how this script works:
+
+    The tr command is used to convert the space-separated list of values into a newline-separated list for grep to process.
+
+    grep -F -w -f is used to search for lines in "table.txt" that match the values in the list. -F treats the search patterns as fixed strings (no regex), -w matches whole words, and -f reads the patterns from the input file.
+
+    The result of the grep command is stored in the filtered_lines variable.
+
+    The awk command is used to preserve the original order. It compares each line of the original table file ("table.txt") with the lines in filtered_lines and prints the matching lines.
+
+This will give you the lines from "table.txt" that match the values in your list while preserving their original order.
+## THE CHATGPT IDEA ENDS HERE ##
+
+##MATERIAL FOR MAKING THE GROUPS FILES vv ##
+GROUPFILE=group_rufabyGeo_parentals_aqu_pol_rufa.tab
+cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu_fi" || \
+$2 == "aqu_ceu" || $2 == "rufa_fi" || $2 == "rufa_ceu" || $2 == "pol_ceu" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
+
+#From aquilonias, three Finnish and three non-Finnish individuals – 3 sets:
+OUTFILE=aqu_bal_6finf_sub1.DP8.hwe.AN10.mac2.noScaff0003.thin20kb
+LIST=aqu_bal_6finf_sub1.list
+
+OUTFILE=aqu_bal_6finf_sub2.DP8.hwe.AN10.mac2.noScaff0003.thin20kb
+LIST=aqu_bal_6finf_sub2.list
+
+OUTFILE=aqu_bal_6finf_sub3.DP8.hwe.AN10.mac2.noScaff0003.thin20kb
+LIST=aqu_bal_6finf_sub3.list
 
 [continue this asap - was interrupted because of full disk space in SCRATCH. include all samples BUT the extra amount of F. aqu]
 ...
