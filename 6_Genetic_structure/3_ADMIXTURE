@@ -1,3 +1,9 @@
+### ADMIXTURE analysis ###
+
+###
+### Create a b-file set from thinned SNP dataset (thinning for reducing LD) ###
+###
+
 cd $SCRATCH/vcf/filt
 
 #start sinteractive
@@ -18,6 +24,20 @@ cd $OUTPATH
 FILE=all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb
 awk '{$1=0;print $0}' $FILE.bim > $FILE.bim.tmp
 mv $FILE.bim.tmp $FILE.bim
+
+###
+### Subsample for balanced sample sizes ###
+###
+
+
+
+[continue this asap - was interrupted because of full disk space in SCRATCH. include all samples BUT the extra amount of F. aqu]
+...
+
+
+
+
+
 
 #created a nano sh for admixture, and ran it
 sbatch admixture.sh
