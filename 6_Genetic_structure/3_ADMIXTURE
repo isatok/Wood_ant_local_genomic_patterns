@@ -25,9 +25,20 @@ FILE=all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb
 awk '{$1=0;print $0}' $FILE.bim > $FILE.bim.tmp
 mv $FILE.bim.tmp $FILE.bim
 
+
 ###
-### Subsample for balanced sample sizes ###
+### Subsample for balanced sample sizes ### <<<<<<<<<<<< INA MODIFY THIS BIT NEXT. THE GROUPFILE FOR BALANCED ADMIXTURE IS NOW READY, BUT THE PLINK BIT NEEDS FORMATTING AND RUNNING >>>>>>>>>>>>>>>
 ###
+
+$PROJAPPL/PLINK/plink --threads 1 --bfile $OUTPATH/aqu_bal_pre.DP8.hwe.AN10.mac2.noScaff0003.thin20kb \
+--out $OUTPATH/$OUTFILE \
+--double-id --allow-extra-chr --set-missing-var-ids @:# \
+--keep /scratch/project_2001443/vcf/ind_lists/$LIST --make-bed
+
+# ADMIXTURE does not accept chromosome names that are not human chromosomes. We will thus just exchange the first column by 0
+cd $OUTPATH
+awk '{$1=0;print $0}' $OUTFILE.bim > $OUTFILE.bim.tmp
+mv $OUTFILE.bim.tmp $OUTFILE.bim
 
 FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/sample_table.tab
 
@@ -58,46 +69,14 @@ cut -f4 $FULLSAMPLE | sort | uniq   #check which groups are possible (WITH geogr
 # rufa_fi
 
 
-cut -f1 $FULLSAMPLE | grep -v 'vcf_id' > /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/adm_iter1.tmp
-# 
+cut -f1,3,4 $FULLSAMPLE | awk '$2 == "rufa" || $2 == "pol" || $2 == "lug" || $2 == "prat" || $2 == "paral" || $2 == "adm1" || $2 == "adm2" \
+|| $1 == "104-Faqu" || $2 == "114-FaquH" || $2 == "24-Faqu" || $2 == "CBAQ1_1w" || $2 == "CBAQ2_2w" || $2 == "Lai1_1w" {print $0}' > all_samples_balanced.list
 
-##AN IDEA FROM CHATGPT ##
-# Your list of values
-value_list="rufa aqu1"
 
-# Filter the lines in the table file based on the list
-filtered_lines=$(grep -F -w -f <(echo "$value_list" | tr ' ' '\n') table.txt)
 
-# Preserve the original order using awk
-awk 'NR==FNR{a[$0];next}($1 in a)' <(echo "$filtered_lines") table.txt
-
-Here's how this script works:
-
-    The tr command is used to convert the space-separated list of values into a newline-separated list for grep to process.
-
-    grep -F -w -f is used to search for lines in "table.txt" that match the values in the list. -F treats the search patterns as fixed strings (no regex), -w matches whole words, and -f reads the patterns from the input file.
-
-    The result of the grep command is stored in the filtered_lines variable.
-
-    The awk command is used to preserve the original order. It compares each line of the original table file ("table.txt") with the lines in filtered_lines and prints the matching lines.
-
-This will give you the lines from "table.txt" that match the values in your list while preserving their original order.
-## THE CHATGPT IDEA ENDS HERE ##
-
-##MATERIAL FOR MAKING THE GROUPS FILES vv ##
-GROUPFILE=group_rufabyGeo_parentals_aqu_pol_rufa.tab
-cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu_fi" || \
-$2 == "aqu_ceu" || $2 == "rufa_fi" || $2 == "rufa_ceu" || $2 == "pol_ceu" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
-
-#From aquilonias, three Finnish and three non-Finnish individuals – 3 sets:
 OUTFILE=aqu_bal_6finf_sub1.DP8.hwe.AN10.mac2.noScaff0003.thin20kb
-LIST=aqu_bal_6finf_sub1.list
+LIST=all_samples_balanced.list
 
-OUTFILE=aqu_bal_6finf_sub2.DP8.hwe.AN10.mac2.noScaff0003.thin20kb
-LIST=aqu_bal_6finf_sub2.list
-
-OUTFILE=aqu_bal_6finf_sub3.DP8.hwe.AN10.mac2.noScaff0003.thin20kb
-LIST=aqu_bal_6finf_sub3.list
 
 [continue this asap - was interrupted because of full disk space in SCRATCH. include all samples BUT the extra amount of F. aqu]
 ...
