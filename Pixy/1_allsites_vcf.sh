@@ -101,14 +101,17 @@ rm ${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc*
 
 # Combine VCFs
 cd /scratch/project_2001443/barriers_introgr_formica/gvfc/raw/
-for file in *allsamples_filtered.vcf.gz ; do tabix $file ; done
+#for file in *allsamples_filtered.vcf.gz ; do tabix $file ; done
 
 ls *allsamples_filtered.vcf.gz > all_filtered_vcfs.list
+
+sinteractive...
+module load biokit
 
 bcftools concat \
 --allow-overlaps \
 -f all_filtered_vcfs.list \
 -Oz > ../allsamples_filtered.vcf.gz
 
-tabix allFems_filtered.vcf.gz
+tabix allsamples_filtered.vcf.gz
 
