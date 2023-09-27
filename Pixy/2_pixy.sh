@@ -33,7 +33,7 @@ export PATH="/projappl/project_2001443/pixyenv/bin:$PATH"
 
 cd /scratch/project_2001443/barriers_introgr_formica/pixy/
 
-pixy --stats pi \
+pixy --stats pi dxy fst \
 --vcf /scratch/project_2001443/barriers_introgr_formica/gvfc/allsamples_filtered.vcf.gz \
 --populations groupfiles/group_parentals_all_pixy.tab \
 --window_size 20000 \
