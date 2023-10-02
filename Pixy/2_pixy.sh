@@ -61,6 +61,8 @@ rm tmp tmp2
 ###This is the end
 
 
+#get the results for plotting
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/pixy/*.txt' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Pixy'
 
 
 ###
