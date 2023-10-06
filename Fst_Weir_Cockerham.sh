@@ -1,7 +1,5 @@
 #### Prepare group files from the sample table (same logic as with TWISST group files) ####
 
-####NOT THE BEST OPTION (NO INVARIANT SITES AT LEAST YET), BUT STILL USED E.G. HERE: https://d197for5662m48.cloudfront.net/documents/publicationstatus/120529/preprint_pdf/cdef18babcbe3b34b8e020e6293bd445.pdf
-
 ###
 ### 0. Prep --------------------
 ###
