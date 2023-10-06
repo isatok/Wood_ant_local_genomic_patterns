@@ -127,14 +127,23 @@ shuf -n 3 aquilonia_fi.tab > aquilonia_all_6inds_iter2.tab; shuf -n 3 aquilonia_
 cut -f1 $FULLSAMPLE | grep -v 'vcf_id' | awk '$1 == "Lai_1w" || $1 == "Lai_2w" || $1 == "Loa_1w" {print $1}' > aquilonia_scot.tab #3 inds
 cut -f1 $FULLSAMPLE | grep -v 'vcf_id' | awk '$1 == "CBAQ1_1w" || $1 == "CBAQ2_2w" || $1 == "CBAQ3_1w" {print $1}' > aquilonia_swi.tab #3 inds
 
+#here sort Finnish aqu by latitude, take 3 largest and 3 smallest <<<< new
+cut -f1,4,5 $FULLSAMPLE | sort -k3 | awk '$2 == "aqu_fi" {print $0}' | head -n 6
+cut -f1,4,5 $FULLSAMPLE | sort -k3 | awk '$2 == "aqu_fi" {print $0}' | tail -n 6
+
 # F. polyctena
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "pol" {print $1}' > polyctena_ceu.tab #6 inds
+
+cut -f1 $FULLSAMPLE | grep -v 'vcf_id' | awk '$1 == "CBCH1_1w" || $1 == "CBCH2_2w" || $1 == "CBCH3_1w" {print $1}' > polyctena_esw.tab #3 inds, eastern switz (ca 3degr lat diff to wsw) <<<< new
+cut -f1 $FULLSAMPLE | grep -v 'vcf_id' | awk '$1 == "CAGa_1w" || $1 == "CAGa_1w" || $1 == "CAGa_1w" {print $1}' > polyctena_wsw.tab #3 inds, western switz <<<< new
 
 # F. pratensis
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "prat" {print $1}' > pratensis_fi.tab #7 inds
 
 # F. lugubris
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "lug" {print $1}' > lugubris_fi.tab #8 inds
+
+#here sort by latitude, take 3 largest and 3 smallest <<<< new
 
 # F. paralugubris
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "paral" {print $1}' > paralugubris_ceu.tab #2 inds
