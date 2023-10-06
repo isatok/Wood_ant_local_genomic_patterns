@@ -20,8 +20,15 @@ FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 
 cd /scratch/project_2001443/barriers_introgr_formica/fst_global
 
-#within species
-vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/rufa_ceu.tab --out rufafi_rufaceu                  #rufa_fi rufa_ceu
+### Within each species
+
+#rufa
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/rufa_ceu.tab --out rufafi_rufaceu #rufa_fi rufa_ceu
+
+#polyctena
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_esw.tab --weir-fst-pop ./groupfiles/polyctena_wsw.tab --out poleastsw_polwestsw #polyctena_swi east west # <<---- new
+
+#aquilonia
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out aqufi_aquceu    #aquilonia_fi aquilonia_ceu (balanced)
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_6inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out aqufi_aquceu_iter2    #aquilonia_fi aquilonia_ceu (balanced) #2nd iteration#
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_scot.tab --weir-fst-pop ./groupfiles/aquilonia_swi.tab --out aquscot_aquswi      #aquilonia_scotl aquilonia_switz
@@ -29,17 +36,86 @@ vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds.tab --w
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_scot.tab --out aqufi_aquscotl_iter2    #aquilonia_fi aquilonia_scotl (balanced) #2nd iteration#
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds.tab --weir-fst-pop ./groupfiles/aquilonia_swi.tab --out aqufi_aquswitz    #aquilonia_fi aquilonia_switz (balanced)
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_3inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_swi.tab --out aqufi_aquswitz_iter2    #aquilonia_fi aquilonia_switz (balanced) #2nd iteration#
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_6_northest_fi.tab --weir-fst-pop ./groupfiles/aquilonia_6_southest_fi.tab --out aqunorthfi_aqusouthfi #aquilonia_fi north south # <<---- new
 
-#between species
+#lugubris
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/lugubris_3_northest_fi.tab --weir-fst-pop ./groupfiles/lugubris_3_southest_fi.tab --out lugnorthfi_lugsouthfi #lugubris_fi north south # <<---- new
+
+#pratensis
+ #NA
+
+### Within rufa/pol and aqu/lug clades
+
+#rufa-pol
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-fst-pop ./groupfiles/polyctena_ceu.tab --out rufa_polyctenaceu   #rufa_all polyctena_ceu (balanced)
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_ceu.tab --weir-fst-pop ./groupfiles/polyctena_ceu.tab --out rufaceu_polyctenaceu      #rufa_ceu polyctena_ceu
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/polyctena_ceu.tab --out rufafi_polyctenaceu      #rufa_fi polyctena_ceu
 
-vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds.tab --out rufa_aquilonia   #rufa_all aquilonia_all (balanced)
-vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds_iter2.tab --out rufa_aquilonia_iter2.tab   #rufa_all aquilonia_all (balanced) #2nd iteration#
+### Between rufa/pol and aqu/lug clades
 
+#rufa-aqu
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds.tab --out rufa_aquilonia   #rufa_all aquilonia_all (balanced)
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds_iter2.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds_iter2.tab --out rufa_aquilonia_iter2   #rufa_all aquilonia_all (balanced) #2nd iteration#
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --out rufafi_aquiloniafi #rufa_fi - aqu_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_ceu.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out rufaceu_aquiloniaceu #rufa_ceu - aqu_ceu # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out rufafi_aquiloniaceu #rufa_fi - aqu_ceu # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --weir-fst-pop ./groupfiles/rufa_ceu.tab --out aquiloniafi_rufaceu #aqu_fi - rufa_ceu # <<---- new
+
+#pol-aqu
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds.tab --out polyctenaceu_aquilonia   #polyctena_ceu aquilonia_all (balanced)
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out polyctenaceu_aquiloniaceu   #polyctena_ceu aquilonia_ceu 
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --out  polyctenaceu_aquiloniafi #pol_ceu - aqu_fi # <<---- new
+
+#rufa-lug
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/lugubris_fi.tab --out  rufafi_lugubrisfi #rufa_fi lug_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_ceu.tab --weir-fst-pop ./groupfiles/lugubris_fi.tab --out  rufaceu_lugubrisfi #rufa_ceu lug_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-fst-pop ./groupfiles/lugubris_fi.tab --out rufa_lugubrisfi #rufa_all lug_fi # <<---- new
+ 
+#pol-lug
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/lugubris_fi.tab --out polyctenaceu_lugubrisfi #pol_ceu - lug_fi # <<---- new
+ 
+### All species compared to pratensis
+
+#aqu-prat
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out aquiloniafi_pratensisfi #aqu_fi - prat_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out aquiloniaceu_pratensisfi #aqu_ceu - prat_fi # <<---- new
+ 
+#lug-prat
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/lugubris_fi.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out lugubrisfi_pratensisfi #lug_fi prat_fi # <<---- new
+ 
+#pol-prat
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out polyctenaceu_pratensisfi #pol_ceu prat_fi # <<---- new
+ 
+#rufa-prat
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_ceu.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out rufaceu_pratensisfi #rufa_ceu - prat_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out rufafi_pratensisfi #rufa_fi - prat_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out rufa_pratensisfi #rufa_all - prat_fi # <<---- new
+
+#run these new ones
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_esw.tab --weir-fst-pop ./groupfiles/polyctena_wsw.tab --out poleastsw_polwestsw #polyctena_swi east west # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_6_northest_fi.tab --weir-fst-pop ./groupfiles/aquilonia_6_southest_fi.tab --out aqunorthfi_aqusouthfi #aquilonia_fi north south # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/lugubris_3_northest_fi.tab --weir-fst-pop ./groupfiles/lugubris_3_southest_fi.tab --out lugnorthfi_lugsouthfi #lugubris_fi north south # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --out rufafi_aquiloniafi #rufa_fi - aqu_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_ceu.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out rufaceu_aquiloniaceu #rufa_ceu - aqu_ceu # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out rufafi_aquiloniaceu #rufa_fi - aqu_ceu # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --weir-fst-pop ./groupfiles/rufa_ceu.tab --out aquiloniafi_rufaceu #aqu_fi - rufa_ceu # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --out  polyctenaceu_aquiloniafi #pol_ceu - aqu_fi # <<---- new
+poleastsw_polwestsw
+aqunorthfi_aqusouthfi
+
+
+# check the results this far first - is everything ok?
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/lugubris_fi.tab --out  rufafi_lugubrisfi #rufa_fi lug_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_ceu.tab --weir-fst-pop ./groupfiles/lugubris_fi.tab --out  rufaceu_lugubrisfi #rufa_ceu lug_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-fst-pop ./groupfiles/lugubris_fi.tab --out rufa_lugubrisfi #rufa_all lug_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/lugubris_fi.tab --out polyctenaceu_lugubrisfi #pol_ceu - lug_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out aquiloniafi_pratensisfi #aqu_fi - prat_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out aquiloniaceu_pratensisfi #aqu_ceu - prat_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/lugubris_fi.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out lugubrisfi_pratensisfi #lug_fi prat_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/polyctena_ceu.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out polyctenaceu_pratensisfi #pol_ceu prat_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_ceu.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out rufaceu_pratensisfi #rufa_ceu - prat_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out rufafi_pratensisfi #rufa_fi - prat_fi # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-fst-pop ./groupfiles/pratensis_fi.tab --out rufa_pratensisfi #rufa_all - prat_fi # <<---- new
 
 
 ###
@@ -127,15 +203,14 @@ shuf -n 3 aquilonia_fi.tab > aquilonia_all_6inds_iter2.tab; shuf -n 3 aquilonia_
 cut -f1 $FULLSAMPLE | grep -v 'vcf_id' | awk '$1 == "Lai_1w" || $1 == "Lai_2w" || $1 == "Loa_1w" {print $1}' > aquilonia_scot.tab #3 inds
 cut -f1 $FULLSAMPLE | grep -v 'vcf_id' | awk '$1 == "CBAQ1_1w" || $1 == "CBAQ2_2w" || $1 == "CBAQ3_1w" {print $1}' > aquilonia_swi.tab #3 inds
 
-#here sort Finnish aqu by latitude, take 3 largest and 3 smallest <<<< new
-cut -f1,4,5 $FULLSAMPLE | sort -k3 | awk '$2 == "aqu_fi" {print $0}' | head -n 6
-cut -f1,4,5 $FULLSAMPLE | sort -k3 | awk '$2 == "aqu_fi" {print $0}' | tail -n 6
+cut -f1,4,5 $FULLSAMPLE | sort -k3 | awk '$2 == "aqu_fi" {print $0}' | head -n 6 | awk '{print $1}' > aquilonia_6_southest_fi.tab #6 most southern Finnish aqu (>6degr lat diff to northest)
+cut -f1,4,5 $FULLSAMPLE | sort -k3 | awk '$2 == "aqu_fi" {print $0}' | tail -n 6 | awk '{print $1}' > aquilonia_6_northest_fi.tab #6 most northern Finnish aqu
 
 # F. polyctena
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "pol" {print $1}' > polyctena_ceu.tab #6 inds
 
-cut -f1 $FULLSAMPLE | grep -v 'vcf_id' | awk '$1 == "CBCH1_1w" || $1 == "CBCH2_2w" || $1 == "CBCH3_1w" {print $1}' > polyctena_esw.tab #3 inds, eastern switz (ca 3degr lat diff to wsw) <<<< new
-cut -f1 $FULLSAMPLE | grep -v 'vcf_id' | awk '$1 == "CAGa_1w" || $1 == "CAGa_1w" || $1 == "CAGa_1w" {print $1}' > polyctena_wsw.tab #3 inds, western switz <<<< new
+cut -f1 $FULLSAMPLE | grep -v 'vcf_id' | awk '$1 == "CBCH1_1w" || $1 == "CBCH2_2w" || $1 == "CBCH3_1w" {print $1}' > polyctena_esw.tab #3 inds, eastern switz (ca 3degr lon diff to wsw)
+cut -f1 $FULLSAMPLE | grep -v 'vcf_id' | awk '$1 == "CAGa_1w" || $1 == "NAZa_1w" || $1 == "VDa_1w" {print $1}' > polyctena_wsw.tab #3 inds, western switz
 
 # F. pratensis
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "prat" {print $1}' > pratensis_fi.tab #7 inds
@@ -143,7 +218,8 @@ cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "prat" {print $1}' > prate
 # F. lugubris
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "lug" {print $1}' > lugubris_fi.tab #8 inds
 
-#here sort by latitude, take 3 largest and 3 smallest <<<< new
+cut -f1,4,5 $FULLSAMPLE | sort -k3 | awk '$2 == "lug_fi" {print $0}' | head -n 3 | awk '{print $1}' > lugubris_3_southest_fi.tab #3 most southern Finnish lug (min >2degr lat diff to northest)
+cut -f1,4,5 $FULLSAMPLE | sort -k3 | awk '$2 == "lug_fi" {print $0}' | tail -n 3 | awk '{print $1}' > lugubris_3_northest_fi.tab #3 most northern Finnish lug
 
 # F. paralugubris
 cut -f1,3 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "paral" {print $1}' > paralugubris_ceu.tab #2 inds
