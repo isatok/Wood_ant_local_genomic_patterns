@@ -51,6 +51,12 @@ vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_all_6inds.tab --weir-
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_ceu.tab --weir-fst-pop ./groupfiles/polyctena_ceu.tab --out rufaceu_polyctenaceu      #rufa_ceu polyctena_ceu
 vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/rufa_fi.tab --weir-fst-pop ./groupfiles/polyctena_ceu.tab --out rufafi_polyctenaceu      #rufa_fi polyctena_ceu
 
+#aqu-lug
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/lugubris_fi.tab --weir-fst-pop ./groupfiles/aquilonia_all_6inds.tab --out lugubrisfi_aquilonia   #lugubris_fi aquilonia_all (balanced) # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/lugubris_fi.tab --weir-fst-pop ./groupfiles/aquilonia_ceu.tab --out lugubrisfi_aquiloniaceu   #lugubris_fi aquilonia_ceu # <<---- new
+vcftools --gzvcf ${VCFIN} --weir-fst-pop ./groupfiles/lugubris_fi.tab --weir-fst-pop ./groupfiles/aquilonia_fi_6inds.tab --out  lugubrisfi_aquiloniafi #lugubris_fi - aqu_fi # <<---- new
+
+
 ### Between rufa/pol and aqu/lug clades
 
 #rufa-aqu
