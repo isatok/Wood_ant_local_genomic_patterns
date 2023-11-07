@@ -82,6 +82,11 @@ GROUPFILE=all_samples_pops.txt
 cut -f1 $FULLSAMPLE | grep -v 'vcf_id' > /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/$GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
 
+### ADDED 7.11.2023 for PIXY comparisons: Finnish parentals for aqu, rufa, lug; Swiss parentals for pol; exsecta. No prat.
+GROUPFILE=group_parentals_aqu_lug_rufa_FI_pol_SWISS.tab
+cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu_fi" || \
+$2 == "rufa_fi" || $2 == "lug_fi" || $2 == "pol_ceu" || $2 == "exsecta" {print $0}' > $GROUPFILE.tmp
+GROUPTMP=$GROUPFILE.tmp
 
 ### 1. all rufa-aqu-pol parentals and exsecta; locations mixed #######ERROR - THE NEW SAMPLES ARE DEFINED BY SPECIES BY THE ORIGINAL EXPECTATION - POL WARNING#########
 GROUPFILE=group_mixedGeo_parentals_aqu_pol_rufa.tab
