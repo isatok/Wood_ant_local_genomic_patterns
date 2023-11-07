@@ -82,6 +82,12 @@ GROUPFILE=all_samples_pops.txt
 cut -f1 $FULLSAMPLE | grep -v 'vcf_id' > /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/$GROUPFILE.tmp
 GROUPTMP=$GROUPFILE.tmp
 
+### ADDED 7.11.2023 for PIXY comparisons: PIXY Finnish parentals (6ind per species; but no prat!) for aqu, rufa, lug; Swiss parentals for pol; exsecta. No prat.
+GROUPFILE=group_parentals_6perSp_aqu_lug_rufa_FI_pol_SWISS.tab
+grep -v "pratensis_fi" /scratch/project_2001443/barriers_introgr_formica/pixy/groupfiles/group_parentals_FI_pixy.tab > $GROUPFILE.tmp2
+cat $GROUPFILE.tmp2 group_exsecta.tab > $GROUPFILE.tmp
+GROUPTMP=$GROUPFILE.tmp
+
 ### ADDED 7.11.2023 for PIXY comparisons: Finnish parentals for aqu, rufa, lug; Swiss parentals for pol; exsecta. No prat.
 GROUPFILE=group_parentals_aqu_lug_rufa_FI_pol_SWISS.tab
 cut -f1,4 $FULLSAMPLE | grep -v 'vcf_id' | awk '$2 == "aqu_fi" || \
