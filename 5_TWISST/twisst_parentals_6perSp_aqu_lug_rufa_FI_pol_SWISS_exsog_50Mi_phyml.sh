@@ -23,10 +23,10 @@ echo "Running Twisst for window size $x"
 python3.6 /projappl/project_2001443/twisst/twisst.py \
 -t "$DATADIR/phased_exs_out_max50percMi.phyml_bionj.w"$x".trees.gz" \
 -w "$RESDIR/parentals_6perSp_aqu_lug_rufa_FI_pol_SWISS_exs_og_max50percMi.w"$x".weights.csv.gz" \
--g aqu_fi \
--g rufa_fi \
--g lug_fi \
--g pol_ceu \
+-g aquilonia \
+-g rufa \
+-g lugubris_fi \
+-g polyctena_ceu \
 -g exsecta \
 --outgroup exsecta \
 --groupsFile $GROUPDIR/group_parentals_6perSp_aqu_lug_rufa_FI_pol_SWISS.tab
