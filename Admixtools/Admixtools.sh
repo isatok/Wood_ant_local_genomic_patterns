@@ -45,8 +45,26 @@ sh convertVCFtoEigenstrat.sh all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS
 # #of SNPs left: numsnps output: 695502
 
 #Then, in R:
+#Create a directory for this analysis (in terminal):
+mkdir /users/satokan1/privatemodules/admixr
+
+#edit the .Renviron file as guided in https://bodkan.net/admixr/articles/tutorial.html (in console):
+usethis::edit_r_environ()
+PATH="/projappl/project_2001443/admixtools_env/bin:$PATH" 
+
+#download admixr (in terminal):
+cd /projappl/project_2001443
+mkdir project_rpackages_4.2.1 
+
+.libPaths(c("/projappl/project_2001443/project_rpackages_4.2.1", .libPaths()))
+libpath <- .libPaths()[1]
+#install.packages("admixr", lib = libpath) #does not work - says the admixr is not compatible with my R version, but the reason may be more complicated (googling)
+library(devtools)
+
 
 library(admixr)
+library(tidyverse)
+
 # set data prefix
 data_prefix <- "./admixtools/sparrows"
 # read in data
