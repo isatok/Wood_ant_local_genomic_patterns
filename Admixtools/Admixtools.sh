@@ -1,3 +1,5 @@
+### 1. Install AdmixTools
+
 ##env.yml
 #name: admixtools_env
 #channels:
@@ -9,14 +11,12 @@
 
 #Use Admixtools:
   export PATH="/projappl/project_2001443/admixtools_env/bin:$PATH" 
-
-# Is this important?
-#  "([ INFO ] Creating wrappers 
-#FATAL:   exec /usr/bin/test failed: input/output error)"
-
+      # or use admixtools2_env if the above doesn't work; the first one had the error message below
+      #  "([ INFO ] Creating wrappers 
+      #FATAL:   exec /usr/bin/test failed: input/output error)"
 
 
-#Filter out Scaffold00
+### 2. Filter VCF: filter out Scaffold00 & collaborative/ poor quality samples
 sinteractive --account project_2001443 --mem 4000
 
 VCFIN=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
@@ -32,7 +32,8 @@ bcftools index -n $VCFOUT #708783 SNPs.
 
 #So now we have a VCF file for Admixtools that has all SNPs in all "proper" chromosomes. No thinning, no MAC filtering. Samples 105-FaquH and 110-FaquH filtered out.
 
-#Convert the VCF to eigenstrat format using Joana Meier's script
+
+### 3. Convert the VCF to eigenstrat format using Joana Meier's script
 
 cd /scratch/project_2001443/barriers_introgr_formica/admixtools
 mv $VCFPATH/$VCFOUT .
@@ -45,23 +46,34 @@ sh convertVCFtoEigenstrat.sh all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS
 # #of SNPs left: numsnps output: 695502
 
 #Then, in R:
-#Create a directory for this analysis (in terminal):
-mkdir /users/satokan1/privatemodules/admixr
+#Create a directory for this analysis (in terminal):  ###IS this step needed?
+mkdir /users/satokan1/privatemodules/admixr ###?
 
-#edit the .Renviron file as guided in https://bodkan.net/admixr/articles/tutorial.html (in console):
+
+### 4. Install Admixr and make it work together with AdmixTools
+
+# a) Edit the .Renviron file as guided in https://bodkan.net/admixr/articles/tutorial.html (in console),
+#    to provide R information on where to find AdmixTools:
 usethis::edit_r_environ()
+PATH="/projappl/project_2001443/admixtools_env/bin" # Does not work, or is sufficient by itself?
+
+# b) Needed to fix the PATH issue by giving (also?) a "PATH" variable in R (console):
 PATH="/projappl/project_2001443/admixtools_env/bin:$PATH" 
 
-#download admixr (in terminal):
+# c) Download admixr (in terminal):
 cd /projappl/project_2001443
-mkdir project_rpackages_4.2.1 
+mkdir project_rpackages_4.3.0 #need this R version to make it work; 4.2 does not work.
 
-.libPaths(c("/projappl/project_2001443/project_rpackages_4.2.1", .libPaths()))
+# d) In R, add the path to Admixr package to libPath:
+.libPaths(c("/projappl/project_2001443/project_rpackages_4.3.0", .libPaths()))
 libpath <- .libPaths()[1]
-#install.packages("admixr", lib = libpath) #does not work - says the admixr is not compatible with my R version, but the reason may be more complicated (googling)
-library(devtools)
 
+# e) install Admixr
+install.packages("admixr", lib = libpath) 
 
+### 5. Run Admixr! 
+
+# Load libraries. Need to give at least the PATH variable again when starting a new session.
 library(admixr)
 library(tidyverse)
 
@@ -73,5 +85,5 @@ snps <- eigenstrat(data_prefix)
 snp_info <- count_snps(snps)
 
 
-#... look more from https://speciationgenomics.github.io/ADMIXTOOLS_admixr/. Need to modify the pop names at least! And download & make the program work in Puhti R.
+#... look more from https://speciationgenomics.github.io/ADMIXTOOLS_admixr/. Need to modify the pop names at least!
 
