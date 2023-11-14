@@ -32,13 +32,14 @@ bcftools index -n $VCFOUT #708783 SNPs.
 
 #So now we have a VCF file for Admixtools that has all SNPs in all "proper" chromosomes. No thinning, no MAC filtering. Samples 105-FaquH and 110-FaquH filtered out.
 
+### REORDER THE SCRIPTS. INSERT HERE THE ADDING OF F. exsecta. THE VCF TO BE ANALYSED IS CURRENTLY allsamples_DP8_wFexs.vcf.gz, BUT THIS HAS DUPLICATE SITES AND FEXS AS HAPLOID; THESE MAY NEED FIXING. ###
+VCFADMTOOLS=/scratch/project_2001443/barriers_introgr_formica/admixtools/allsamples_DP8_wFexs.vcf.gz
 
 ### 3. Convert the VCF to eigenstrat format using Joana Meier's script
 
 cd /scratch/project_2001443/barriers_introgr_formica/admixtools
-mv $VCFPATH/$VCFOUT .
 
-sh convertVCFtoEigenstrat.sh all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff00.vcf.gz
+sh convertVCFtoEigenstrat.sh $VCFADMTOOLS
 
 #I set the recombination rate to 5 (cM/Mb), since the average rho from Nouhaud 2022 is 0.0049 (I assume cM/bp??),
 #which is in line with known eusocial Hymenopteran recombination rates (5-7; https://doi.org/10.1073/pnas.1208094109),
