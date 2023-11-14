@@ -76,7 +76,8 @@ usethis::edit_r_environ()
 PATH="/projappl/project_2001443/admixtools_env/bin" # Does not work, or is sufficient by itself?
 
 # b) Needed to fix the PATH issue by giving (also?) a "PATH" variable in R (console):
-PATH="/projappl/project_2001443/admixtools_env/bin:$PATH" 
+#PATH="/projappl/project_2001443/admixtools_env/bin:$PATH" #this did not work
+PATH="/projappl/project_2001443/admixtools_env/bin
 
 # c) Download admixr (in terminal):
 cd /projappl/project_2001443
@@ -96,7 +97,10 @@ library(admixr)
 library(tidyverse)
 
 # set data prefix
-data_prefix <- "./admixtools/sparrows"
+data_prefix <- "all_samples_DP8_wFexs"
+
+###CHANGE THE .eigenstratgeno file into .geno FILE!! Wrong name!
+
 # read in data
 snps <- eigenstrat(data_prefix)
 # count SNPs
