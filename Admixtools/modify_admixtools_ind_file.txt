@@ -3,7 +3,8 @@ FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 
 cd /scratch/project_2001443/barriers_introgr_formica/admixtools
 
-IND=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff00.ind
+#IND=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff00.ind
+IND=all_samples_DP8_wFexs.ind
 cp $IND $IND.tmp
 
 # paste the first column of admixtools' .ind.tmp file (=vcf sample id's) and the fourth column of $FULLSAMPLE (species by geo) by the first column in both (vcf sample id)
