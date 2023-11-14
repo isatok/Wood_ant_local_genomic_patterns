@@ -9,4 +9,3 @@ cp $IND $IND.tmp
 
 # paste the first column of admixtools' .ind.tmp file (=vcf sample id's) and the fourth column of $FULLSAMPLE (species by geo) by the first column in both (vcf sample id)
 awk 'NR==FNR{a[$1]=$2; next} {print $1, a[$1], $4}' $IND.tmp $FULLSAMPLE | grep -v "vcf_id" > $IND
-#then manually add "U" for F. exsecta as the middle column value
