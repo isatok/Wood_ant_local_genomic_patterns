@@ -33,18 +33,24 @@ bcftools index -n $VCFOUT #708783 SNPs.
 #So now we have a VCF file for Admixtools that has all SNPs in all "proper" chromosomes. No thinning, no MAC filtering. Samples 105-FaquH and 110-FaquH filtered out.
 
 ### REORDER THE SCRIPTS. INSERT HERE THE ADDING OF F. exsecta. THE VCF TO BE ANALYSED IS CURRENTLY allsamples_DP8_wFexs.vcf.gz, BUT THIS HAS DUPLICATE SITES AND FEXS AS HAPLOID; THESE MAY NEED FIXING. ###
-VCFADMTOOLS=/scratch/project_2001443/barriers_introgr_formica/admixtools/allsamples_DP8_wFexs.vcf.gz
+### ALSO NOTE THAT THE FEXS VCF HAS ALL POSSIBLE INDIVIDUALS ###
+
+VCFADMTOOLS=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs.vcf.gz
 
 ### 3. Convert the VCF to eigenstrat format using Joana Meier's script
 
 cd /scratch/project_2001443/barriers_introgr_formica/admixtools
 
+#here remember to load biokit module, and keep the VCF and the script in the same folder. Also do not include in the VCF variable path because the script
+#extracts the beginning of the variable name and would use it to recognise file names.
+
+module load biokit
 sh convertVCFtoEigenstrat.sh $VCFADMTOOLS
 
 #I set the recombination rate to 5 (cM/Mb), since the average rho from Nouhaud 2022 is 0.0049 (I assume cM/bp??),
 #which is in line with known eusocial Hymenopteran recombination rates (5-7; https://doi.org/10.1073/pnas.1208094109),
 #and changed renameScaff="TRUE", and added Admixtools PATH to the shell script.
-# #of SNPs left: numsnps output: 695502
+# #of SNPs left: numsnps output: 695502; for the file with F. exsecta (but no unique-only filtering): "kept 696588 out of a possible 709690 Sites" 
 
 #Then, in R:
 #Create a directory for this analysis (in terminal):  ###IS this step needed?
