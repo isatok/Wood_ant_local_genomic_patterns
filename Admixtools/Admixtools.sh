@@ -35,7 +35,16 @@ bcftools index -n $VCFOUT #708783 SNPs.
 ### REORDER THE SCRIPTS. INSERT HERE THE ADDING OF F. exsecta. THE VCF TO BE ANALYSED IS CURRENTLY allsamples_DP8_wFexs.vcf.gz, BUT THIS HAS DUPLICATE SITES AND FEXS AS HAPLOID; THESE MAY NEED FIXING. ###
 ### ALSO NOTE THAT THE FEXS VCF HAS ALL POSSIBLE INDIVIDUALS ###
 
-VCFADMTOOLS=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs.vcf.gz
+VCFADMTOOLS=all_samples_DP8_wFexs.vcf.gz
+cp $VCFADMTOOLS $VCFADMTOOLS.tmp
+
+#Filter the VCFADMTOOLS to exclude 105 and 110
+
+vcftools --gzvcf $VCFADMTOOLS.tmp --remove-indv 105-FaquH --remove-indv 110-FaquH --recode --stdout | bgzip > $VCFADMTOOLS.tmp2 #Filtering out Scaff00 is unnecessary; it's not been SNP-called
+mv $VCFADMTOOLS.tmp2 $VCFADMTOOLS #709690 SNPs.
+bcftools index -t $VCFADMTOOLS
+bcftools index -n $VCFADMTOOLS
+
 
 ### 3. Convert the VCF to eigenstrat format using Joana Meier's script
 
@@ -45,12 +54,14 @@ cd /scratch/project_2001443/barriers_introgr_formica/admixtools
 #extracts the beginning of the variable name and would use it to recognise file names.
 
 module load biokit
-sh convertVCFtoEigenstrat.sh $VCFADMTOOLS
+sh convertVCFtoEigenstrat.sh $VCFADMTOOLS #numsnps output: 692861, when using the F. exsecta containing vcf & no duplicate site filtering
 
 #I set the recombination rate to 5 (cM/Mb), since the average rho from Nouhaud 2022 is 0.0049 (I assume cM/bp??),
 #which is in line with known eusocial Hymenopteran recombination rates (5-7; https://doi.org/10.1073/pnas.1208094109),
 #and changed renameScaff="TRUE", and added Admixtools PATH to the shell script.
 # #of SNPs left: numsnps output: 695502; for the file with F. exsecta (but no unique-only filtering): "kept 696588 out of a possible 709690 Sites" 
+
+### IN THIS STEP, remember to modify the .ind file
 
 #Then, in R:
 #Create a directory for this analysis (in terminal):  ###IS this step needed?
