@@ -43,7 +43,7 @@ bcftools reheader -s out.name Fexs_nodupl_sites_tmp.vcf.gz -o $vcfexs
 rm out.name Fexs_nodupl_sites_tmp.vcf.gz
 
 # Combine outgroup + sample VCFs
-VCFOUT=/scratch/project_2001443/barriers_introgr_formica/admixtools/allsamples_DP8_wFexs.vcf.gz
+VCFOUT=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs.vcf.gz
 
 bcftools index -t $vcfexs
 
