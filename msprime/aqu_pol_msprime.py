@@ -49,7 +49,6 @@ pop_Ne_resize_P2_0, t_parents, t_outgroup, t_resize, mig_P2P1_ancestral, mig_P2P
     demography.add_population(name="P1", initial_size=pop_Ne_resize_P1_0)
     demography.add_population(name="P2", initial_size=pop_Ne_resize_P2_0)
     demography.add_population(name="OG", initial_size=pop_Ne_OG)
-    demography.add_population(name="H12_Anc", initial_size=pop_Ne_H12_Anc)
     demography.add_population(name="Anc", initial_size=pop_Ne_Anc)
     demography.add_population(name="P12_Anc", initial_size=pop_Ne_P12_Anc)
     
@@ -85,8 +84,7 @@ pop_Ne_resize_P2_0, t_parents, t_outgroup, t_resize, mig_P2P1_ancestral, mig_P2P
 
 ts_shared_blocks = [sim_hybrids_shared(
 
-pop_n, 
-pop_Ne=1e4, 
+pop_n,  
 pop_Ne_Anc=pop_Ne_Anc, 
 pop_Ne_P12_Anc=pop_Ne_P12_Anc,  
 pop_Ne_resize_P1=pop_Ne_resize_P1, 
