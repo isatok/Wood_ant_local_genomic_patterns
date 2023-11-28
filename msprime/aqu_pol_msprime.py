@@ -1,8 +1,6 @@
-test script
 
 import numpy as np
 import msprime
-import twisst
 import gzip
 import sys
 
