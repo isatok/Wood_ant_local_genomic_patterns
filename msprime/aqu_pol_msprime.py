@@ -40,7 +40,7 @@ block_length=1e4 #Length of genomic "blocks"; recombination within each 10 000 b
 
 # One parent population splits into two populations, which continue to diverge with gene flow
 
-def sim_hybrids_shared(pop_n, pop_Ne, pop_Ne_OG, pop_Ne_Anc, pop_Ne_P12_Anc, pop_Ne_resize_P1, pop_Ne_resize_P2, pop_Ne_resize_P1_0, 
+def sim_hybrids_shared(pop_n, pop_Ne_OG, pop_Ne_Anc, pop_Ne_P12_Anc, pop_Ne_resize_P1, pop_Ne_resize_P2, pop_Ne_resize_P1_0, 
 pop_Ne_resize_P2_0, t_parents, t_outgroup, t_resize, mig_P2P1_ancestral, mig_P2P1_recent, mig_P1P2_recent, l, r):
     demography = msprime.Demography()
     
@@ -114,7 +114,7 @@ for i in range(n_blocks)]
 
 ts_shared_blocks_mutated = [None]*n_blocks
 for i in range(n_blocks):
-    ts_shared_blocks_mutated[i] = msprime.sim_mutations(ts_shared_blocks[i], rate=3.5e-9) ##OK
+    ts_shared_blocks_mutated[i] = msprime.sim_mutations(ts_shared_blocks[i], rate=3.5e-9)
     
 # write VCF file
 
