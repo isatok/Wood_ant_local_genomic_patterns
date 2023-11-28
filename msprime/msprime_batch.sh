@@ -8,6 +8,8 @@
 #SBATCH --ntasks 1
 #SBATCH --mem=2G
 
+export PATH="/projappl/project_2001443/msprime-env/bin:$PATH"
+
 mkdir /scratch/project_2001443/barriers_introgr_formica/msprime/sim_$SLURM_ARRAY_TASK_ID
 cd  /scratch/project_2001443/barriers_introgr_formica/msprime/sim_$SLURM_ARRAY_TASK_ID
 
