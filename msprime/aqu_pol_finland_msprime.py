@@ -128,15 +128,15 @@ for i in range(n_blocks)]
 
 # add mutations
 
-ts_blocks_mutated = [None]*n_blocks
+ts_blocks_mutated = [None]*n_blocks         ## Here create an empty list of "None"s, length of n_blocks
 for i in range(n_blocks):
-    ts_blocks_mutated[i] = msprime.sim_mutations(ts_blocks[i], rate=3.5e-9)
+    ts_blocks_mutated[i] = msprime.sim_mutations(ts_blocks[i], rate=3.5e-9)    ## Here add mutations to each of the ts_blocks
     
-# write VCF file ##########MIKÄ WT?????#########
+# write VCF file
 
-with gzip.open("../output.vcf.gz", "wt") as vcf_file:
+with gzip.open("../output.vcf.gz", "wt") as vcf_file:         ## "wt" mode: write (not e.g. read only) & in a text mode (not binary)
     for i in range(n_blocks):
-        ts_blocks_mutated[i].write_vcf(vcf_file)
+        ts_blocks_mutated[i].write_vcf(vcf_file)     ## COULD I ADD? "write_vcf(vcf_file, contig_id=[i])" to get different id:s for the different blocks? In case needed for downstream stuff.
 
 
 
