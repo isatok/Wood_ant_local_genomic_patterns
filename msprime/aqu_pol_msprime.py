@@ -9,7 +9,7 @@ import sys
 
 # An ancestral population splits into two populations ("F. aquilonia" (P1 "aqu"), and "F. polyctena" (P2 "pol")), which continue to diverge with gene flow
 
-def aqu_pol(
+def aqu_pol(                          ## Define a function called "aqu-pol" which has the following parameters...
     pop_n,                 #number of analysed diploid samples per group (in this case each group is a species)  #####<-----IS THIS CORRECT?
     pop_Ne_OG,             #outgroup Ne
     pop_Ne_Anc,            #outgroup & aqu/pol common ancestor Ne
@@ -27,11 +27,12 @@ def aqu_pol(
     l,                     #length of genomic blocks for which window-based stats will be calculated (each block = one window) #####<-----IS THIS CORRECT?
     r                      #recombination rate
 ):
-    demography = msprime.Demography()
+    demography = msprime.Demography() ## The function executes msprime.Demography(), which is assigned to a variable "demography". 
+                                      ## So the function can be called using "demography" variable. 
     
     # be sure the first 5 pops are P1 P2 H1 H2 OG in this order! #####<-----What is the meaning of this? Can I take H pops off from the middle without changing things elsewhere?
     
-    demography.add_population(name="P1", initial_size=pop_Ne_P1)
+    demography.add_population(name="P1", initial_size=pop_Ne_P1)    ## Here we pass different demographic history events to our msprime.Demography object.
     demography.add_population(name="P2", initial_size=pop_Ne_P2)
     demography.add_population(name="OG", initial_size=pop_Ne_OG)
     demography.add_population(name="Anc", initial_size=pop_Ne_Anc)
@@ -54,11 +55,13 @@ def aqu_pol(
     demography.add_population_split(time=t_outgroup, derived=["P12_Anc", "OG"], ancestral="Anc")
     
     # sort events
-    demography.sort_events()
-    # Simulate a tree sequence
+    demography.sort_events()       ## We have now created a msprime.Demography object that "can be passed to msprime.sim_ancestry() via the demography argument".
+   
+    # Simulate a tree sequence     ## Here we simulate pop_n individuals from populations P1 and P2 (and 1 from outgroup), passing indeed the msprime.Demography object to it. 
     ts = msprime.sim_ancestry(samples={"P1":pop_n, "P2":pop_n, "OG":1},
                               demography=demography, ploidy = 2, sequence_length = l, recombination_rate = r)
-    return(ts)
+    return(ts)                     ## "return" ends the function. So this is the end of the whole "aqu-pol" function that contains simulation of selected number of individuals given the demography, seq length, and r.
+                                   ## We get out the tree sequence for one sequence of given length.
 
 
 #### Parameters #### ---------------------------------------------------------------------------------
@@ -95,9 +98,9 @@ block_length=1e4               #length of genomic blocks for which window-based 
 #### Simulation #### ---------------------------------------------------------------------------------
 
 
-# run simulations to create tree sequence objects
+# Run simulations to create tree sequence objects
 
-ts_blocks = [aqu_pol(
+ts_blocks = [aqu_pol(        ## Here we loop the "aqu_pol" function as many times as how many genomic blocks we wish to simulate.
 
 pop_n,  
 pop_Ne_Anc=pop_Ne_Anc, 
