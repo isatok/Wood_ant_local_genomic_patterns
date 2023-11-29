@@ -1,53 +1,38 @@
-
 import numpy as np
 import msprime
 import gzip
 import sys
 
-###
-### PARAMETERS ------------------------------------------------------------------------------------
-###
 
-# One parent population splits into two populations, which continue to diverge with gene flow
+#### Model #### ---------------------------------------------------------------------------------
 
-pop_Ne_Anc=500000/2 #Ne for the common ancestor of aqu, pol, and the outgroup
-pop_Ne_OG=200000/2 #Ne for the outgroup
-pop_Ne_P12_Anc=430000/2 #Ne for aqu and pol common ancestor (backw in time: before outgroup merge); 467,232 for WSwi pol, Swi aqu
 
-pop_Ne_resize_P1=310000/2 #New Ne for aqu when the population was resized (backw in time: before clade merge); 369,890 for WSwi pol, Swi aqu
-pop_Ne_resize_P2=210000/2 #New Ne for pol when the population was resized (backw in time: before clade merge); 215,763 for WSwi pol, Swi aqu
+# An ancestral population splits into two populations ("F. aquilonia" (P1 "aqu"), and "F. polyctena" (P2 "pol")), which continue to diverge with gene flow
 
-pop_Ne_resize_P1_0=52000/2 #Ne for aqu from present to first resize (backw in time); 23,245 for WSwi pol, Swi aqu
-pop_Ne_resize_P2_0=280000/2 #Ne for pol from present to first resize (backw in time); 32,522 for WSwi pol, Swi aqu
-
-t_parents=225000 #Timing of aqu/pol lineage merge; 212,802 for WSwi pol, Swi aqu
-t_outgroup=2000000 #Timing of outgroup lineage merge to aqu/pol ancestor. In theory, around 2e6 gens: 5Mya (Goropash. 2012) / 2.5 years per generation
-
-t_resize=7500 #Timing of aqu and pol pop resize (after this, backw in time, e.g. Ne pol = pop_Ne_resize_P2) ; 6,540 for WSwi pol, Swi aqu
-
-mig_P2P1_ancestral=5.99e-6 #0.000 005 99 Migration from aqu to pol after resize (i.e. before aqu & pol merge backw in time)
-mig_P2P1_recent=1.14e-5    #0.000 011 4 Migration from aqu to pol recently (i.e. before aqu & pol pop resize back in time)
-mig_P1P2_recent=4.02e-6 #Migration from pol to aqu recently (i.e. before aqu & pol pop resize back in time)
-
-pop_n=10 #Number of analysed "populations"
-r=1e-6 #Recombination rate
-n_blocks=100 #Number of "blocks" that do not recombine with each other, within every replicate
-block_length=1e4 #Length of genomic "blocks"; recombination within each 10 000 bp block is allowed
-
-###
-### MODEL -----------------------------------------------------------------------------------------
-###
-
-# One parent population splits into two populations, which continue to diverge with gene flow
-
-def sim_hybrids_shared(pop_n, pop_Ne_OG, pop_Ne_Anc, pop_Ne_P12_Anc, pop_Ne_resize_P1, pop_Ne_resize_P2, pop_Ne_resize_P1_0, 
-pop_Ne_resize_P2_0, t_parents, t_outgroup, t_resize, mig_P2P1_ancestral, mig_P2P1_recent, mig_P1P2_recent, l, r):
+def aqu_pol(
+    pop_n,                 #number of analysed diploid samples per group (in this case each group is a species)  #####<-----IS THIS CORRECT?
+    pop_Ne_OG,             #outgroup Ne
+    pop_Ne_Anc,            #outgroup & aqu/pol common ancestor Ne
+    pop_Ne_P12_Anc,        #aqu & pol common ancestor Ne
+    pop_Ne_resize_P1,      #aqu Ne after resize (backw in time)
+    pop_Ne_resize_P2,      #pol Ne after resize (backw in time)
+    pop_Ne_P1,             #the initial aqu Ne
+    pop_Ne_P2,             #the initial pol Ne
+    t_parents,             #timing of aqu & pol split
+    t_outgroup,            #timing of outgroup & aqu/pol split
+    t_resize,              #timing of aqu & pol resize
+    mig_P2P1_ancestral,    #ancestral migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu)
+    mig_P2P1_recent,       #recent migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu)
+    mig_P1P2_recent,       #recent migration rate from pol to aqu (in msprime's backwards-world the migrating lineages go from aqu to pol)
+    l,                     #length of genomic blocks for which window-based stats will be calculated (each block = one window) #####<-----IS THIS CORRECT?
+    r                      #recombination rate
+):
     demography = msprime.Demography()
     
-    # be sure the first 5 pops are P1 P2 H1 H2 OG in this order! ##What is the meaning of this? Can I take pops off from the middle; 
-    # does it affect the order of the other pops?
-    demography.add_population(name="P1", initial_size=pop_Ne_resize_P1_0)
-    demography.add_population(name="P2", initial_size=pop_Ne_resize_P2_0)
+    # be sure the first 5 pops are P1 P2 H1 H2 OG in this order! #####<-----What is the meaning of this? Can I take H pops off from the middle without changing things elsewhere?
+    
+    demography.add_population(name="P1", initial_size=pop_Ne_P1)
+    demography.add_population(name="P2", initial_size=pop_Ne_P2)
     demography.add_population(name="OG", initial_size=pop_Ne_OG)
     demography.add_population(name="Anc", initial_size=pop_Ne_Anc)
     demography.add_population(name="P12_Anc", initial_size=pop_Ne_P12_Anc)
@@ -76,21 +61,51 @@ pop_Ne_resize_P2_0, t_parents, t_outgroup, t_resize, mig_P2P1_ancestral, mig_P2P
     return(ts)
 
 
-###
-### SIMULATE --------------------------------------------------------------------------------------
-###
+#### Parameters #### ---------------------------------------------------------------------------------
 
-# run simulations to produce tree sequence objects
 
-ts_shared_blocks = [sim_hybrids_shared(
+# An ancestral population splits into two populations ("F. aquilonia" (P1 "aqu"), and "F. polyctena" (P2 "pol")), which continue to diverge with gene flow
+
+pop_Ne_Anc=500000/2            #outgroup & aqu/pol common ancestor Ne
+pop_Ne_OG=200000/2             #outgroup Ne
+pop_Ne_P12_Anc=430000/2        #aqu & pol common ancestor Ne (backw in time: before outgroup merge); 467,232 for WSwi pol, Swi aqu
+
+pop_Ne_resize_P1=310000/2      #aqu Ne, after resize/before clade merge (backw in time); 369,890 for WSwi pol, Swi aqu
+pop_Ne_resize_P2=210000/2      #pol Ne, after resize/before clade merge (backw in time); 215,763 for WSwi pol, Swi aqu
+
+pop_Ne_P1=52000/2              #the initial aqu Ne; 23,245 for WSwi pol, Swi aqu
+pop_Ne_P2=280000/2             #the initial pol Ne; 32,522 for WSwi pol, Swi aqu
+
+t_parents=225000               #timing of aqu & pol split (i.e. merge backw in time); 212,802 for WSwi pol, Swi aqu
+t_outgroup=2000000             #timing of outgroup & aqu/pol ancestor split (i.e. merge backw in time). In theory, around 2e6 gens: 5Mya (Goropash. 2012) / 2.5 years per generation
+
+t_resize=7500                  #timing of aqu & pol resize; 6,540 for WSwi pol, Swi aqu
+
+mig_P2P1_ancestral=5.99e-6     #ancestral migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu)
+mig_P2P1_recent=1.14e-5        #recent migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu)
+mig_P1P2_recent=4.02e-6        #recent migration rate from pol to aqu (in msprime's backwards-world the migrating lineages go from aqu to pol)
+
+pop_n=10                       #number of analysed diploid samples per group (in this case each group is a species)
+r=1e-6                         #recombination rate in centimorgans per basepair (equals to 1cM/Mb)
+n_blocks=100                   #number of genomic blocks for which window-based stats will be calculated (each block = one window)
+block_length=1e4               #length of genomic blocks for which window-based stats will be calculated (each block = one window)
+
+
+
+#### Simulation #### ---------------------------------------------------------------------------------
+
+
+# run simulations to create tree sequence objects
+
+ts_blocks = [aqu_pol(
 
 pop_n,  
 pop_Ne_Anc=pop_Ne_Anc, 
 pop_Ne_P12_Anc=pop_Ne_P12_Anc,  
 pop_Ne_resize_P1=pop_Ne_resize_P1, 
 pop_Ne_resize_P2=pop_Ne_resize_P2, 
-pop_Ne_resize_P1_0=pop_Ne_resize_P1_0, 
-pop_Ne_resize_P2_0=pop_Ne_resize_P2_0, 
+pop_Ne_P1=pop_Ne_P1, 
+pop_Ne_P2=pop_Ne_P2, 
 pop_Ne_OG=pop_Ne_OG, 
 t_parents=t_parents, 
 t_outgroup=t_outgroup, 
@@ -104,21 +119,21 @@ for i in range(n_blocks)]
 
 
 
-###
-### VCF -------------------------------------------------------------------------------------------
-###
+
+#### VCF #### ---------------------------------------------------------------------------------
+
 
 # add mutations
 
-ts_shared_blocks_mutated = [None]*n_blocks
+ts_blocks_mutated = [None]*n_blocks
 for i in range(n_blocks):
-    ts_shared_blocks_mutated[i] = msprime.sim_mutations(ts_shared_blocks[i], rate=3.5e-9)
+    ts_blocks_mutated[i] = msprime.sim_mutations(ts_blocks[i], rate=3.5e-9)
     
-# write VCF file
+# write VCF file ##########MIKÄ WT?????#########
 
 with gzip.open("../output.vcf.gz", "wt") as vcf_file:
     for i in range(n_blocks):
-        ts_shared_blocks_mutated[i].write_vcf(vcf_file)
+        ts_blocks_mutated[i].write_vcf(vcf_file)
 
 
 
