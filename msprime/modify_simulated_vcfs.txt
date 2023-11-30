@@ -1,0 +1,20 @@
+###Modify the msprime VCF files such that compression and indexing become possible
+
+#remove all additional headers, except for the first one (6 first lines)
+
+cd /scratch/project_2001443/barriers_introgr_formica/msprime/chr_test/sim_2
+
+#remove the additional headers
+gunzip -c output.vcf.gz | awk 'NR <= 6 || (NR > 6 && !/^#/)' > output_only1stHeader.vcf.gz
+
+#compress the file
+bgzip output_only1stHeader.vcf.gz #also this works. but could integrate in the above; otherwise need to remove manually the extra .gz from the end
+
+#index the file.
+#now still getting error with indexing. although I do:
+[satokan1@puhti-login15 sim_2]$ tabix --zero-based -f -p vcf output_only1stHeader.vcf.gz
+#still get error:
+[W::tbx_parse1] Coordinate <= 0 detected. Did you forget to use the -0 option?
+
+#So maybe I should initially run simulations by adding +1 to the chr indices.
+#then also consider if I need to add all scaffold names to the header
