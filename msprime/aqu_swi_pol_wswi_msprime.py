@@ -1,5 +1,3 @@
-#REMEMBER TO CHANGE THE PARAMETERS IN THIS SCRIPT##
-
 import numpy as np
 import msprime
 import gzip
@@ -80,6 +78,7 @@ pop_Ne_resize_P2=216000/2      #pol Ne, after resize/before clade merge (backw i
 
 pop_Ne_P1=23000/2              #the initial aqu Ne
 pop_Ne_P2=33000/2              #the initial pol Ne
+
 t_parents=213000               #timing of aqu & pol split (i.e. merge backw in time)
 t_outgroup=2000000             #timing of outgroup & aqu/pol ancestor split (i.e. merge backw in time). In theory, around 2e6 gens: 5Mya (Goropash. 2012) / 2.5 years per generation
 
@@ -92,6 +91,7 @@ pop_n=10                       #number of analysed diploid samples per group (in
 r=1e-6                         #recombination rate in centimorgans per basepair (equals to 1cM/Mb)
 n_blocks=100                   #number of genomic blocks for which window-based stats will be calculated (each block = one window)
 block_length=1e4               #length of genomic blocks for which window-based stats will be calculated (each block = one window)
+
 
 
 
@@ -136,7 +136,7 @@ for i in range(n_blocks):
 
 with gzip.open("../output.vcf.gz", "wt") as vcf_file:         ## "wt" mode: write (not e.g. read only) & in a text mode (not binary)
     for i in range(n_blocks):
-        ts_blocks_mutated[i].write_vcf(vcf_file)     ## COULD I ADD? "write_vcf(vcf_file, contig_id=[i])" to get different id:s for the different blocks? In case needed for downstream stuff.
+        ts_blocks_mutated[i].write_vcf(vcf_file, contig_id="Scaffold" + str(i+1))     ## COULD I ADD? "write_vcf(vcf_file, contig_id=[i])" to get different id:s for the different blocks? In case needed for downstream stuff.
 
 
 
