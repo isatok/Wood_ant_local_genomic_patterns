@@ -71,18 +71,18 @@ def aqu_pol(                          ## Define a function called "aqu-pol" whic
 
 pop_Ne_Anc=500000/2            #outgroup & aqu/pol common ancestor Ne
 pop_Ne_OG=200000/2             #outgroup Ne
-pop_Ne_P12_Anc=430000/2        #aqu & pol common ancestor Ne (backw in time: before outgroup merge); 467,232 for WSwi pol, Swi aqu
+pop_Ne_P12_Anc=430000/2        #aqu & pol common ancestor Ne (backw in time: before outgroup merge)
 
-pop_Ne_resize_P1=310000/2      #aqu Ne, after resize/before clade merge (backw in time); 369,890 for WSwi pol, Swi aqu
-pop_Ne_resize_P2=210000/2      #pol Ne, after resize/before clade merge (backw in time); 215,763 for WSwi pol, Swi aqu
+pop_Ne_resize_P1=310000/2      #aqu Ne, after resize/before clade merge (backw in time)
+pop_Ne_resize_P2=210000/2      #pol Ne, after resize/before clade merge (backw in time)
 
 pop_Ne_P1=52000/2              #the initial aqu Ne; 23,245 for WSwi pol, Swi aqu
 pop_Ne_P2=280000/2             #the initial pol Ne; 32,522 for WSwi pol, Swi aqu
 
-t_parents=225000               #timing of aqu & pol split (i.e. merge backw in time); 212,802 for WSwi pol, Swi aqu
+t_parents=225000               #timing of aqu & pol split (i.e. merge backw in time)
 t_outgroup=2000000             #timing of outgroup & aqu/pol ancestor split (i.e. merge backw in time). In theory, around 2e6 gens: 5Mya (Goropash. 2012) / 2.5 years per generation
 
-t_resize=7500                  #timing of aqu & pol resize; 6,540 for WSwi pol, Swi aqu
+t_resize=7500                  #timing of aqu & pol resize
 
 mig_P2P1_ancestral=5.99e-6     #ancestral migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu)
 mig_P2P1_recent=1.14e-5        #recent migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu)
@@ -136,7 +136,7 @@ for i in range(n_blocks):
 
 with gzip.open("../output.vcf.gz", "wt") as vcf_file:         ## "wt" mode: write (not e.g. read only) & in a text mode (not binary)
     for i in range(n_blocks):
-        ts_blocks_mutated[i].write_vcf(vcf_file)     ## COULD I ADD? "write_vcf(vcf_file, contig_id=[i])" to get different id:s for the different blocks? In case needed for downstream stuff.
+        ts_blocks_mutated[i].write_vcf(vcf_file, contig_id="Scaffold" + str(i+1))     ## COULD I ADD? "write_vcf(vcf_file, contig_id=[i])" to get different id:s for the different blocks? In case needed for downstream stuff.
 
 
 
