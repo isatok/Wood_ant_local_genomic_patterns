@@ -58,8 +58,9 @@ invar_sites=$(cat inject_tmp/invar_sites.tmp)
 
 ### Create a VCF with all invariant sites
 
-### the start of a blank row
-row=".\t0\t1\t.\tPASS\t.\tGT"
+### the start of a blank row  ##############HERE MUST REPLACE 0 WITH ANY BASE (E.G. A) AND 1 WITH "." - OTHERWISE PIXY DOESN'T LIKE
+#row=".\t0\t1\t.\tPASS\t.\tGT"
+row=".\tA\t.\t.\tPASS\t.\tGT" #####TRY THIS OUT
 
 while read site
 do
