@@ -85,8 +85,8 @@ cat inject_tmp/vcf_blank.vcf inject_tmp/vcf_variants.vcf > inject_tmp/test_tmp.v
 
 cat inject_tmp/test_tmp.vcf | sort -k1V,1 -k2n,2 > inject_tmp/test.vcf
 
-cat inject_tmp/vcf_header.vcf inject_tmp/test.vcf | grep . | gzip -c > $outfile 
-
+cat inject_tmp/vcf_header.vcf inject_tmp/test.vcf | grep . | bgzip -c > $outfile 
+tabix $outfile 
 rm inject_tmp/vcf_header.vcf inject_tmp/vcf_blank_spaces.vcf inject_tmp/vcf_variants.vcf inject_tmp/test_tmp.vcf inject_tmp/test.vcf
 
 echo "wrote to $outfile"
