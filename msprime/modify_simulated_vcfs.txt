@@ -9,7 +9,7 @@ gunzip -c output.vcf.gz | grep "##contig" > scaffolds.txt
 gunzip -c output.vcf.gz | awk 'NR <= 6 || (NR > 6 && !/^#/)' > output_only1stHeader.vcf.gz
 
 #replace the "Scaffold" line of the first header that was kept, with info on all headers
-sed -i '/##contig=<ID=Scaffold1,length=10000>/r scaffolds.txt' output_only1stHeader.vcf.gz
+sed -e '/##contig=<ID=Scaffold1,length=10000>/r scaffolds.txt' -e '/##contig=<ID=Scaffold1,length=10000>/d' -i output_only1stHeader.vcf.gz
 
 #compress the file
 bgzip output_only1stHeader.vcf.gz
