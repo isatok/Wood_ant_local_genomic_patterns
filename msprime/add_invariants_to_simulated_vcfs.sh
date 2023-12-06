@@ -6,9 +6,9 @@ vcf=output_only1stHeader.vcf.gz
 ### https://github.com/ksamuk/pixy_analysis/blob/main/data_generation/01_simulating-test-data/scripts/inject_invariant_sites.sh ###
 
 vcfdir=/scratch/project_2001443/barriers_introgr_formica/msprime/chr_test/sim_1
-outdir=/scratch/project_2001443/barriers_introgr_formica/msprime/chr_test/sim_1/invariants
+outdir=/scratch/project_2001443/barriers_introgr_formica/msprime/chr_test/sim_1/invariants_2
 
-mkdir inject_tmp
+mkdir inject_tmp_2
 mkdir $outdir
 
 ### list the vcf files
@@ -16,8 +16,6 @@ ls $vcfdir/*.vcf.gz > inject_tmp/vcf_files.tmp
 
 ### exemplar vcf file for building a fake invariants sites vcf; extract the first vcf from the list we created
 vcfex=$(cat inject_tmp/vcf_files.tmp | head -n 1) 
-
-####INCORRECT INFO IN THE VCF HEADER - HAS 2*SCAFFOLD01 - CORRECT LATER #####
 
 ### declare the total length of simulated data and block number and length: block_length * n(contig)
 block_length=$(gunzip -c $vcfex | grep length | sed 's/.*length=//g' | sed 's/>//g' | head -1) #10 000
@@ -38,8 +36,8 @@ done
 
 ###
 
-while read vcf
-do
+#while read vcf
+#do
 
 ### takes a msprime vcf as input. give the outfile a name
 outfile=$(echo $vcf| sed 's/.vcf.gz$/_invar.vcf.gz/g')
@@ -64,7 +62,6 @@ row=".\tA\t.\t.\tPASS\t.\tGT" #####TRY THIS OUT
 
 while read site
 do
-
 	gt=$(printf '0|0\t%.0s' $(eval echo "{1..$n_samples}"))
 
 	newline="$site\t$row\t$gt"
