@@ -134,7 +134,7 @@ for i in range(n_blocks):
     
 # write VCF file
 
-with gzip.open("../output.vcf.gz", "wt") as vcf_file:         ## "wt" mode: write (not e.g. read only) & in a text mode (not binary)
+with gzip.open("output.vcf.gz", "wt") as vcf_file:         ## "wt" mode: write (not e.g. read only) & in a text mode (not binary)
     for i in range(n_blocks):
         ts_blocks_mutated[i].write_vcf(vcf_file, contig_id="Scaffold" + str(i+1))
 
