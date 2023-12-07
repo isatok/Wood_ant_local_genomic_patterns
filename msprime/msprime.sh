@@ -20,7 +20,7 @@ export PATH="/projappl/project_2001443/msprime-env/bin:$PATH"
 mkdir /scratch/project_2001443/barriers_introgr_formica/msprime/aquFI_polFI_sim_$SLURM_ARRAY_TASK_ID
 cd  /scratch/project_2001443/barriers_introgr_formica/msprime/aquFI_polFI_sim_$SLURM_ARRAY_TASK_ID
 
-python /scratch/project_2001443/barriers_introgr_formica/msprime/aquFI_polFI_msprime.py
+python /scratch/project_2001443/barriers_introgr_formica/msprime/msprime_aquFI_polFI.py
 
 ###END.
 
@@ -47,6 +47,6 @@ export PATH="/projappl/project_2001443/msprime-env/bin:$PATH"
 mkdir /scratch/project_2001443/barriers_introgr_formica/msprime/aquSWI_polWSWI_sim_$SLURM_ARRAY_TASK_ID
 cd  /scratch/project_2001443/barriers_introgr_formica/msprime/aquSWI_polWSWI_sim_$SLURM_ARRAY_TASK_ID
 
-python /scratch/project_2001443/barriers_introgr_formica/msprime/aquSWI_polWSWI_msprime.py
+python /scratch/project_2001443/barriers_introgr_formica/msprime/msprime_aquSWI_polWSWI.py
 
 ###END.
