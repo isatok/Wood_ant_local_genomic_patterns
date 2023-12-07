@@ -1,3 +1,36 @@
+
+###
+### Neighbour-joining tree
+###
+
+#Either create the tree using dataset *with missing data*
+njs(X, fs = 15)
+#https://rdrr.io/cran/ape/man/njs.html
+#X: a distance matrix.
+#fs: argument s of the agglomerative criterion: it is coerced as an integer and must at least equal to one.
+
+#Or create the tree with *no missing data*
+nj(X)
+#X: a distance matrix; may be an object of class “dist”.
+
+## Follow Sean's recent NJ pipeline in 
+https://github.com/seanstankowski/Littorina_reproductive_mode/blob/main/3_genomeWide_relationships/NJtree_phylonet/buildTrees.ipynb
+
+#the data seems to be needed to be in phylip format "variants_only_108_VCF_MAC2_minQ30_maxmiss1.0.recode.min4.phy"
+#converted from VCF. apply mac2 filtering, and they did this with no missing data. BUT WHAT IS THE MIN4 FILTERING?
+
+#The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
+#convert a VCF matrix into several matrix formats for phylogenetic analysis (2019; https://zenodo.org/record/2540861).
+
+
+
+
+
+
+###
+### ASTRAL - maybe not to be used after all?
+###
+
 Does it go like this:
 
 # 1) Take the genome annotation file (& scp it to Puhti)
