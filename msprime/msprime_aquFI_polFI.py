@@ -10,7 +10,7 @@ import sys
 # An ancestral population splits into two populations ("F. aquilonia" (P1 "aqu"), and "F. polyctena" (P2 "pol")), which continue to diverge with gene flow
 
 def aqu_pol(                          ## Define a function called "aqu-pol" which has the following parameters...
-    pop_n,                 #number of analysed diploid samples per group (in this case each group is a species)  #####<-----IS THIS CORRECT?
+    pop_n,                 #number of analysed diploid samples per group (in this case each group is a species)
     pop_Ne_OG,             #outgroup Ne
     pop_Ne_Anc,            #outgroup & aqu/pol common ancestor Ne
     pop_Ne_P12_Anc,        #aqu & pol common ancestor Ne
@@ -24,13 +24,13 @@ def aqu_pol(                          ## Define a function called "aqu-pol" whic
     mig_P2P1_ancestral,    #ancestral migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu)
     mig_P2P1_recent,       #recent migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu)
     mig_P1P2_recent,       #recent migration rate from pol to aqu (in msprime's backwards-world the migrating lineages go from aqu to pol)
-    l,                     #length of genomic blocks for which window-based stats will be calculated (each block = one window) #####<-----IS THIS CORRECT?
+    l,                     #length of genomic blocks for which window-based stats will be calculated (each block = one window)
     r                      #recombination rate
 ):
     demography = msprime.Demography() ## The function executes msprime.Demography(), which is assigned to a variable "demography". 
                                       ## So the function can be called using "demography" variable. 
     
-    # be sure the first 5 pops are P1 P2 H1 H2 OG in this order! #####<-----What is the meaning of this? Can I take H pops off from the middle without changing things elsewhere?
+    # Maintain the pop order
     
     demography.add_population(name="P1", initial_size=pop_Ne_P1)    ## Here we pass different demographic history events to our msprime.Demography object.
     demography.add_population(name="P2", initial_size=pop_Ne_P2)
@@ -136,7 +136,7 @@ for i in range(n_blocks):
 
 with gzip.open("../output.vcf.gz", "wt") as vcf_file:         ## "wt" mode: write (not e.g. read only) & in a text mode (not binary)
     for i in range(n_blocks):
-        ts_blocks_mutated[i].write_vcf(vcf_file, contig_id="Scaffold" + str(i+1))     ## COULD I ADD? "write_vcf(vcf_file, contig_id=[i])" to get different id:s for the different blocks? In case needed for downstream stuff.
+        ts_blocks_mutated[i].write_vcf(vcf_file, contig_id="Scaffold" + str(i+1))
 
 
 
