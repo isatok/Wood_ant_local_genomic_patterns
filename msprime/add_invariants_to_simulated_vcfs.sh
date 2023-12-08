@@ -1,18 +1,23 @@
-
-cd /scratch/project_2001443/barriers_introgr_formica/msprime/chr_test/sim_1
-vcf=output_only1stHeader.vcf.gz
-
-### Make a gvcf from msprime vcf, modified from Kieran Samuk's scripts at ###
+### Add invariants to the msprime-simulated vcf files in order to achieve correct PIXY Dxy & Pi estimates for the simulated data. ###
+### modified from Kieran Samuk's scripts at ###
 ### https://github.com/ksamuk/pixy_analysis/blob/main/data_generation/01_simulating-test-data/scripts/inject_invariant_sites.sh ###
 
-vcfdir=/scratch/project_2001443/barriers_introgr_formica/msprime/chr_test/sim_1
-outdir=/scratch/project_2001443/barriers_introgr_formica/msprime/chr_test/sim_1/invariants_2
+### Choose the right working directory based on the simulation
+simdir=/scratch/project_2001443/barriers_introgr_formica/msprime/aquFI_polFI_sim_1
+#simdir=/scratch/project_2001443/barriers_introgr_formica/msprime/aquSWI_polWSWI_sim_1
 
-mkdir inject_tmp_2
+vcf=output_corrHead.vcf.gz
+
+vcfdir=$simdir
+outdir=$simdir/invariants
+
+cd $simdir
+
+mkdir inject_tmp
 mkdir $outdir
 
 ### list the vcf files
-ls $vcfdir/*.vcf.gz > inject_tmp/vcf_files.tmp
+ls $vcfdir/output_corrHeadPos.vcf.gz > inject_tmp/vcf_files.tmp
 
 ### exemplar vcf file for building a fake invariants sites vcf; extract the first vcf from the list we created
 vcfex=$(cat inject_tmp/vcf_files.tmp | head -n 1) 
@@ -27,6 +32,8 @@ n_samples=$(gunzip -c $vcfex | grep "#CHROM" | awk '{print NF; exit}')
 let n_samples=n_samples-9 # there are 9 non-genotype columns
 
 ### all the possible sites (containing both chr and position info)
+rm inject_tmp/all_sites.tmp #remove if it exists
+
 for ((scaffold=1; scaffold<=$seq_number; scaffold++)); do
   for ((number=1; number<=$block_length; number++)); do
     echo "Scaffold$scaffold $number" >> inject_tmp/all_sites.tmp
@@ -56,9 +63,9 @@ invar_sites=$(cat inject_tmp/invar_sites.tmp)
 
 ### Create a VCF with all invariant sites
 
-### the start of a blank row  ##############HERE MUST REPLACE 0 WITH ANY BASE (E.G. A) AND 1 WITH "." - OTHERWISE PIXY DOESN'T LIKE
-#row=".\t0\t1\t.\tPASS\t.\tGT"
-row=".\tA\t.\t.\tPASS\t.\tGT" #####TRY THIS OUT
+### the start of a blank row
+row=".\tA\t.\t.\tPASS\t.\tGT" #Use "A" for the REF base in invariant sites (must be A/T/C/G for PIXY to accept it) and "." for the ALT base.
+rm inject_tmp/vcf_blank_spaces.vcf #remove if it exists
 
 while read site
 do
