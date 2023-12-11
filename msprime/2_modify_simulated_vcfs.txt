@@ -16,8 +16,9 @@ gunzip -c output.vcf.gz | awk 'NR <= 6 || (NR > 6 && !/^#/)' > output_corrHead.v
 sed -e '/##contig=<ID=Scaffold1,length=10000>/r scaffolds.txt' -e '/##contig=<ID=Scaffold1,length=10000>/d' -i output_corrHead.vcf.gz
 
 #msprime files are 0-based. Hence, add +1 to all values in the POS column
-gunzip -c  output_corrHead.vcf.gz | grep "#" > header.vcf    #grep header from the original vcf
-gunzip -c  output_corrHead.vcf.gz | grep -v "#" | awk '{$2 = $2 + 1}1' > output_corrHead_tmp.vcf     #add +1 to POS values (zero-based; warning w tabix)
+grep "#" output_corrHead.vcf.gz > header.vcf     #grep header from the vcf
+grep -v "#" output_corrHead.vcf.gz | awk '{$2 = $2 + 1}1' > output_corrHead_tmp.vcf      #add +1 to POS values (zero-based; warning w tabix)
+
 sed 's/\s/\t/g' output_corrHead_tmp.vcf | sed 's/^[ \t]*//;s/[ \t]*$//' > output_corrHead_tmp2.vcf   #change spaces to tabs & remove leading & trailing spaces
 
 cat header.vcf output_corrHead_tmp2.vcf | grep . | bgzip -c > output_corrHeadPos.vcf.gz 
