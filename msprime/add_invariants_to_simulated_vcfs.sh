@@ -103,7 +103,9 @@ echo "wrote to $outfile"
 
 #clean up
 cp $vcfdir/*_invar.vcf.gz $outdir
+cp $vcfdir/*_invar.vcf.gz.tbi $outdir
 
 rm $vcfdir/*_invar.vcf.gz 
+rm $vcfdir/*_invar.vcf.gz.tbi
 
 rm -r inject_tmp
