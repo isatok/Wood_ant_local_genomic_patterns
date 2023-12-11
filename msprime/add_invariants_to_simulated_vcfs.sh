@@ -2,6 +2,9 @@
 ### modified from Kieran Samuk's scripts at ###
 ### https://github.com/ksamuk/pixy_analysis/blob/main/data_generation/01_simulating-test-data/scripts/inject_invariant_sites.sh ###
 
+#This script produces an output file "output_corrHeadPos_invar.vcf.gz". For input, it takes "output_corrHeadPos.vcf.gz" from the "modify_simulated_vcfs" script.
+#The all-sites vcf from this script is ready to be used in PIXY.
+
 ### Choose the right working directory based on the simulation
 simdir=/scratch/project_2001443/barriers_introgr_formica/msprime/aquFI_polFI_sim_1
 #simdir=/scratch/project_2001443/barriers_introgr_formica/msprime/aquSWI_polWSWI_sim_1
