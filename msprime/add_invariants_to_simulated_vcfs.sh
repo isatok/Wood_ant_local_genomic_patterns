@@ -46,7 +46,7 @@ done
 
 ###
 
-#while read vcf
+#while read vcf #not running this currently as a loop, since have only 1 simulation.
 #do
 
 ### takes a msprime vcf as input. give the outfile a name
@@ -99,7 +99,7 @@ rm inject_tmp/vcf_header.vcf inject_tmp/vcf_blank_spaces.vcf inject_tmp/vcf_vari
 
 echo "wrote to $outfile"
 
-done < inject_tmp/vcf_files.tmp
+#done < inject_tmp/vcf_files.tmp #use if running multiple simulations
 
 #clean up
 cp $vcfdir/*_invar.vcf.gz $outdir
