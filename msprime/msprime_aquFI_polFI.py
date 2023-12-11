@@ -3,6 +3,7 @@ import msprime
 import gzip
 import sys
 
+## The model parameter values are from Portinha et. al 2022 (https://doi.org/10.1111/mec.16481), Table S6, "Sympatry (asymmetrical mig.)".
 
 #### Model #### ---------------------------------------------------------------------------------
 
