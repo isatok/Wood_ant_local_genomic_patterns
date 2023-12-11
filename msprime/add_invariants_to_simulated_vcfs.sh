@@ -46,7 +46,7 @@ done
 
 ###
 
-#while read vcf #not running this currently as a loop, since have only 1 simulation.
+#while read vcf #not running this currently as a loop, since have run only 1 simulation per demographic scenario.
 #do
 
 ### takes a msprime vcf as input. give the outfile a name
