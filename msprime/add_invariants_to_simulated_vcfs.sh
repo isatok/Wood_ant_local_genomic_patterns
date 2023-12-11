@@ -9,7 +9,7 @@
 simdir=/scratch/project_2001443/barriers_introgr_formica/msprime/aquFI_polFI_sim_1
 #simdir=/scratch/project_2001443/barriers_introgr_formica/msprime/aquSWI_polWSWI_sim_1
 
-vcf=output_corrHead.vcf.gz
+vcf=output_corrHeadPos.vcf.gz
 
 vcfdir=$simdir
 outdir=$simdir/invariants
