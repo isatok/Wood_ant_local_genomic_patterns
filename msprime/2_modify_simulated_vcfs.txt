@@ -1,5 +1,7 @@
 ###Modify the msprime VCF files: Correct headers, change POS into 1-based system, compress & index.
 
+#This script outputs a "output_corrHeadPos.vcf.gz" file. For input, "output.vcf.gz" file from the msprime simulation is needed.
+
 ###Choose a working directory according to the simulation
 cd /scratch/project_2001443/barriers_introgr_formica/msprime/aquFI_polFI_sim_1
 #cd /scratch/project_2001443/barriers_introgr_formica/msprime/aquSWI_polWSWI_sim_1
