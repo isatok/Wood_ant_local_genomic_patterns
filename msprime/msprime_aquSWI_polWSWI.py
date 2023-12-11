@@ -3,6 +3,7 @@ import msprime
 import gzip
 import sys
 
+## The model parameter values are from Portinha et. al 2022 (https://doi.org/10.1111/mec.16481), Table S5, "Sympatry (asymmetrical mig.)".
 
 #### Model #### ---------------------------------------------------------------------------------
 
@@ -23,6 +24,7 @@ def aqu_pol(                          ## Define a function called "aqu-pol" whic
     t_resize,              #timing of aqu & pol resize
     mig_P2P1_ancestral,    #ancestral migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu)
     mig_P2P1_recent,       #recent migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu)
+    mig_P1P2_recent,       #recent migration rate from pol to aqu (in msprime's backwards-world the migrating lineages go from aqu to pol)
     l,                     #length of genomic blocks for which window-based stats will be calculated (each block = one window)
     r                      #recombination rate
 ):
@@ -39,10 +41,12 @@ def aqu_pol(                          ## Define a function called "aqu-pol" whic
     
     # Add recent, 2-way migration between ancestral parental populations
     demography.set_migration_rate(source="P2", dest="P1", rate=mig_P2P1_recent)
-    
+    demography.set_migration_rate(source="P1", dest="P2", rate=mig_P1P2_recent)
+
     # Reset ancestral migration from ancestral aq to ancestral pol populations
     demography.add_migration_rate_change(time=t_resize, source = "P2", dest = "P1", rate = mig_P2P1_ancestral)
-    
+    demography.add_migration_rate_change(time=t_resize, source = "P1", dest = "P2", rate = 0)
+
     # Resize parental populations
     demography.add_population_parameters_change(time=t_resize, initial_size=pop_Ne_resize_P1, population="P1")
     demography.add_population_parameters_change(time=t_resize, initial_size=pop_Ne_resize_P2, population="P2")
@@ -68,9 +72,9 @@ def aqu_pol(                          ## Define a function called "aqu-pol" whic
 
 pop_Ne_Anc=500000/2            #outgroup & aqu/pol common ancestor Ne
 pop_Ne_OG=200000/2             #outgroup Ne
-pop_Ne_P12_Anc=470000/2        #aqu & pol common ancestor Ne (backw in time: before outgroup merge)
+pop_Ne_P12_Anc=467000/2        #aqu & pol common ancestor Ne (backw in time: before outgroup merge)
 
-pop_Ne_resize_P1=367000/2      #aqu Ne, after resize/before clade merge (backw in time)
+pop_Ne_resize_P1=370000/2      #aqu Ne, after resize/before clade merge (backw in time)
 pop_Ne_resize_P2=216000/2      #pol Ne, after resize/before clade merge (backw in time)
 
 pop_Ne_P1=23000/2              #the initial aqu Ne
@@ -81,8 +85,10 @@ t_outgroup=2000000             #timing of outgroup & aqu/pol ancestor split (i.e
 
 t_resize=6500                  #timing of aqu & pol resize
 
-mig_P2P1_ancestral=2.36e-6     #ancestral migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu). Ne(pol)/m = 0.51/215,763=0.0000023637 
-mig_P2P1_recent=3.69e-6        #recent migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu). Ne(pol)/m = 0.12/32,522=0.0000036898
+mig_P2P1_ancestral=2.36e-6     #ancestral migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu).
+mig_P2P1_recent=3.81e-6        #recent migration rate from aqu to pol (in msprime's backwards-world the migrating lineages go from pol to aqu).
+mig_P1P2_recent=3.35e-12       #recent migration rate from pol to aqu (in msprime's backwards-world the migrating lineages go from aqu to pol).
+
 
 pop_n=10                       #number of analysed diploid samples per group (in this case each group is a species)
 r=1e-6                         #recombination rate in centimorgans per basepair (equals to 1cM/Mb)
@@ -111,7 +117,8 @@ t_parents=t_parents,
 t_outgroup=t_outgroup, 
 t_resize=t_resize, 
 mig_P2P1_ancestral=mig_P2P1_ancestral, 
-mig_P2P1_recent=mig_P2P1_recent, 
+mig_P2P1_recent=mig_P2P1_recent,
+mig_P1P2_recent=mig_P1P2_recent,
 l=block_length, r=r) 
 
 for i in range(n_blocks)]
