@@ -1,3 +1,5 @@
+#This msprime simulation outputs an "output.vcf.gz" file. For input, information on demographic history of the species is needed.
+
 #---------------------------------------
 # FINNISH AQU, FINNISH POL
 #---------------------------------------
