@@ -1,3 +1,46 @@
+#Why are my Fst estimates so much lower than Pierre's & Beatrize's? Let's try without mac2 filtering and without Scaffold03.
+## ---> OK this is about weighted and unweighted Fst estimates.
+
+cd /scratch/project_2001443/barriers_introgr_formica/fst_global
+sinteractive ...
+mkdir filter_effect
+cd filter_effect
+module load biokit
+
+VCFDIR=/scratch/project_2001443/barriers_introgr_formica/vcf/filt
+GROUPDIR=/scratch/project_2001443/barriers_introgr_formica/fst_global/groupfiles
+/scratch/project_2001443/barriers_introgr_formica/fst_global/groupfiles/polyctena_ceu.tab
+
+VCF_noMac=$VCFDIR/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff00.vcf.gz
+VCF_mac2=$VCFDIR/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
+VCF_noMacNoScaff03=$VCFDIR/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff0003.vcf.gz
+
+vcftools --gzvcf ${VCF_noMac} --not-chr Scaffold03 --recode --stdout | bgzip > $VCF_noMacNoScaff03
+bcftools index -t $VCF_noMacNoScaff03
+
+VCF_thinned_noScaff0003_mac2=$VCFDIR/all_samples_BS.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+
+vcftools --gzvcf ${VCF_noMac} --weir-fst-pop $GROUPDIR/polyctena_ceu.tab --weir-fst-pop $GROUPDIR/aquilonia_ceu.tab --out polyctenaceu_aquiloniaceu_noMac
+vcftools --gzvcf ${VCF_mac2} --weir-fst-pop $GROUPDIR/polyctena_ceu.tab --weir-fst-pop $GROUPDIR/aquilonia_ceu.tab --out polyctenaceu_aquiloniaceu_mac2   
+vcftools --gzvcf ${VCF_noMacNoScaff03} --weir-fst-pop $GROUPDIR/polyctena_ceu.tab --weir-fst-pop $GROUPDIR/aquilonia_ceu.tab --out polyctenaceu_aquiloniaceu_noMacNoScaff03   
+vcftools --gzvcf ${VCF_thinned_noScaff0003_mac2} --weir-fst-pop $GROUPDIR/polyctena_ceu.tab --weir-fst-pop $GROUPDIR/aquilonia_ceu.tab --out polyctenaceu_aquiloniaceu_thinned_noScaff0003_mac2   
+
+#noMac
+ #Weir and Cockerham mean Fst estimate: 0.21808
+ #Weir and Cockerham weighted Fst estimate: 0.38355
+
+#noMacNoScaff03
+ #Weir and Cockerham mean Fst estimate: 0.22081
+ #Weir and Cockerham weighted Fst estimate: 0.39139
+
+#mac2
+ #Weir and Cockerham mean Fst estimate: 0.22949
+ #Weir and Cockerham weighted Fst estimate: 0.38822
+
+#thinned_noScaff0003_mac2
+ #Weir and Cockerham mean Fst estimate: 0.24395
+ #Weir and Cockerham weighted Fst estimate: 0.4214
+
 #### Prepare group files from the sample table (same logic as with TWISST group files) ####
 
 ###
