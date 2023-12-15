@@ -1,3 +1,50 @@
+#This is to calculate Fst in 20kb windows with vcftools weighted W&C estimate. If this works, I will need to do it to all species pairs. ANd/ or for the 1000 genomic blocks simulations!
+
+cd /scratch/project_2001443/barriers_introgr_formica/fst_vcftools_windowed
+sinteractive ...
+module load biokit
+
+GROUPDIR=/scratch/project_2001443/barriers_introgr_formica/fst_global/groupfiles
+VCF=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
+
+#Empirical aqu-pol for samples for which we have demographic models, *20kb* non-sliding windows
+vcftools --gzvcf ${VCF} --weir-fst-pop $GROUPDIR/polyctena_ceu.tab --weir-fst-pop $GROUPDIR/aquilonia_ceu.tab --fst-window-size 20000 --out polceu_aquceu_mac2_20kbW_weighted
+vcftools --gzvcf ${VCF} --weir-fst-pop $GROUPDIR/polyctena_fi_4inds.tab --weir-fst-pop $GROUPDIR/aquilonia_fi_4inds.tab --fst-window-size 20000 --out polfi_aqufi_mac2_20kbW_weighted
+
+VCFSIMFI=/scratch/project_2001443/barriers_introgr_formica/msprime/aquFI_polFI_sim_1/output_corrHeadPos.vcf.gz
+VCFSIMSWI=/scratch/project_2001443/barriers_introgr_formica/msprime/aquSWI_polWSWI_sim_1/output_corrHeadPos.vcf.gz
+
+#Simulated aqu-pol, *10kb* non-sliding windows
+cd /scratch/project_2001443/barriers_introgr_formica/msprime/fst_vcftools_windowed_sim
+vcftools --gzvcf ${VCFSIMFI} --weir-fst-pop group_sim_aqu.tab --weir-fst-pop group_sim_pol.tab --fst-window-size 10000 --out polfi_aqufi_10kbW_weighted_sim
+vcftools --gzvcf ${VCFSIMSWI} --weir-fst-pop group_sim_aqu.tab --weir-fst-pop group_sim_pol.tab --fst-window-size 10000 --out polswi_aquswi_10kbW_weighted_sim
+
+
+#Finnish polyctena samples
+polyctena_fi_4inds.tab:
+Att1_1w
+Fis2_1w
+Jar6_1w
+Lok3_1w
+
+#Finnish aquilonia samples
+aquilonia_fi_4inds.tab:
+CF14a_1w
+CF4b_1w
+CF8b_1w
+Pus2_1w
+
+
+#Get the data
+#Empirical
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/fst_vcftools_windowed/*' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Local_Fst_vcftools'
+#Simulated
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/msprime/fst_vcftools_windowed_sim/*' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Local_Fst_vcftools'
+
+
+--------------------------------------------
 #Why are my Fst estimates so much lower than Pierre's & Beatrize's? Let's try without mac2 filtering and without Scaffold03.
 ## ---> OK this is about weighted and unweighted Fst estimates.
 
@@ -9,7 +56,6 @@ module load biokit
 
 VCFDIR=/scratch/project_2001443/barriers_introgr_formica/vcf/filt
 GROUPDIR=/scratch/project_2001443/barriers_introgr_formica/fst_global/groupfiles
-/scratch/project_2001443/barriers_introgr_formica/fst_global/groupfiles/polyctena_ceu.tab
 
 VCF_noMac=$VCFDIR/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff00.vcf.gz
 VCF_mac2=$VCFDIR/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
@@ -56,6 +102,7 @@ module load biokit
 
 VCFIN=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz #101 individuals (excluded 110, RN417, 105), singletons filtered out
 FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/sample_table.tab               #101 individuals + F.exsecta + header line
+
 
 ###
 ### 1. Compute pairwise Fst estimates --------------------
