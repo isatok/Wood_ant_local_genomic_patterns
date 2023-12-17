@@ -22,8 +22,20 @@ https://github.com/seanstankowski/Littorina_reproductive_mode/blob/main/3_genome
 #The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
 #convert a VCF matrix into several matrix formats for phylogenetic analysis (2019; https://zenodo.org/record/2540861).
 
+###
+### Try this out with the phased dataset since it has no missing data (imputed) and it has the outgroup.
+###
+
+cd /scratch/project_2001443/barriers_introgr_formica/nj_tree
+VCFIN=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/phased_with_outgroup_gtfix.vcf.gz
+
+#See if I can find duplicates:
+sinteractive...
+module load biokit
+gunzip -c $VCFIN | grep "Scaffold27" | cut -f2 | uniq -D
 
 
+########OK SO EXSECTA HAS DUPLICATES. NEED TO FILTER ONLY BIALLELIC SNPS... NO, NEED ONLY ONE ALLELE PER SITE. HOW TO DO BETTER GENOTYPING?
 
 
 
