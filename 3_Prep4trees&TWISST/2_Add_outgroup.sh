@@ -54,3 +54,14 @@ bcftools merge -Ou \
 
   #Set missing genotypes (which are only in exsecta) to . instead of ./.
 zcat phased_with_outgroup.vcf.gz | awk '{gsub(/\.\/\./,"."); print $0}' | bgzip > phased_with_outgroup_gtfix.vcf.gz
+
+
+#### Duplicate records?
+
+#It seems that adding the outgroup, duplicate records are created because the number of SNPs in the original VCF and the one 
+#with outgroup merged do not equal to each other. Maybe this could be because of MNPs that are created when the outgroup is merged
+#(and possibly first not all SNPs are found in the outgroup which can cause difference already between original and outgroup VCFs)?
+#At least it's confirmed that the original input VCF does not contain duplicat records;
+#cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
+#VCF=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz
+#gunzip -c $VCF | grep "Scaffold27" | cut -f2 | uniq -D; for all scaffolds - no records printed
