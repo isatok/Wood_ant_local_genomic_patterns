@@ -127,10 +127,27 @@ Scaffold01	2442227	.	C	.	30.2381	P
 Scaffold01	2442227	.	CA	.	29.
 the info field has "INDEL" written but should get a tool that understands that...
 
+bcftools norm --rm-dup all --threads 8 -Oz Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz > Fexs_nodupl_phased_sites_noindels_hardfilt_3_rmdup.vcf.gz
+
+bcftools index -n Fexs_nodupl_phased_sites_noindels_hardfilt_3_rmdup.vcf.gz #524206
+# now all remaining duplicates are removed
+
+#now merge original and exsecta vcfs
+PHASEDVCF=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/all_samples.DP8.hwe.AN10.noScaff00.mac2.whap.shapeit.allScafs.vcf.gz 
+
+bcftools merge -Ou \
+  $PHASEDVCF \
+  Fexs_nodupl_phased_sites_noindels_hardfilt_3_rmdup.vcf.gz -Oz -o phased_with_outgroup_dedupl.vcf.gz
+
+bcftools index -n phased_with_outgroup_dedupl.vcf.gz #534202
 ########
 ####### CONTINUE FROM HERE ###############
 ########
 
+# 1. correct how missing data is represented in tthe new dedupl vcf
+# 2. filter on max miss 0 and check the number of snps remaining
+# 3. consider making an unphased (unimputed) outgroup vcf for comparison
+# 4. convert to phylip
 
 ###
 ### ASTRAL - maybe not to be used after all?
