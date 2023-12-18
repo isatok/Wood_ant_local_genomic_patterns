@@ -100,8 +100,8 @@ bcftools index -n Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz  #524313
 
 #Alright, this is quite close to 524873 SNPs in Fexs_nodupl_phased_sites.vcf.gz (SNPs of the bed list found from exsecta)
 #Now do we have duplicates?
-gunzip -c Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz | cut -f2 | uniq -D | wc -l #214
-#yes, still 214. WHAT THE F ARE THEY???
+gunzip -c Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz | cut -f2 | uniq -D | wc -l #214 /2 =107
+#yes, still 107. WHAT THE F ARE THEY???
 
 ########
 ####### CONTINUE FROM HERE ###############
