@@ -12,8 +12,7 @@ https://github.com/seanstankowski/Littorina_reproductive_mode/blob/main/3_genome
 #the data seems to be needed to be in phylip format "variants_only_108_VCF_MAC2_minQ30_maxmiss1.0.recode.min4.phy"
 #converted from VCF. apply mac2 filtering, and they did this with no missing data. BUT WHAT IS THE MIN4 FILTERING?
 
-#The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
-#convert a VCF matrix into several matrix formats for phylogenetic analysis (2019; https://zenodo.org/record/2540861).
+
 
 ###
 ### Prepare data
@@ -59,16 +58,33 @@ bcftools merge -Ou \
   Fexs_nodupl_phased_sites_noindels_hardfilt_3_rmdup.vcf.gz -Oz -o phased_with_outgroup_dedupl.vcf.gz
 
 bcftools index -n phased_with_outgroup_dedupl.vcf.gz # 534202 - the same amount as in the original vcf dataset. Ready to continue!
+#IF WANT TO USE THIS, NEED TO DO THE SAME GT TRICK AS BELOW FOR UNPHASED DATA
+
+# 4. Prepare the ***unphased*** vcf 
+
+# Merge F. exsecta outgroup
+VCFIN=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
+bcftools index -n $VCFIN  #534202 variants; just a double check
+
+bcftools merge -Ou \
+  $VCFIN \
+  Fexs_nodupl_phased_sites_noindels_hardfilt_3_rmdup.vcf.gz -Oz -o unphased_with_outgroup_dedupl.vcf.gz
+
+bcftools index -t unphased_with_outgroup_dedupl.vcf.gz
+bcftools index -n unphased_with_outgroup_dedupl.vcf.gz #534202 variants, 102 samples; all good
+
+# Change GTs in haploid Fexs sample from ./. into . ### NOTE THAT IF THE NUMBER OF SAMPLES CHANGES THIS NEEDS TO CHANGE. NOW ALTOGETHER 111 COLS (9 + 102); FEXS IS THE LAST ONE. ###
+zcat unphased_with_outgroup_dedupl.vcf.gz | awk 'BEGIN {OFS=FS="\t"} {gsub(/\.\/\./,".", $111); print $0}' | bgzip >  unphased_with_outgroup_dedupl_gtfix.vcf.gz
+
+# Select samples to be used in the NJ tree
+# Filter max miss 0 and check the number of snps remaining
+# Convert to phylip
+#The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
+#convert a VCF matrix into several matrix formats for phylogenetic analysis (2019; https://zenodo.org/record/2540861).
 
 
 
-
-# 1. correct how missing data is represented in the new dedupl vcf
-# 2. filter on max miss 0 and check the number of snps remaining
-# 3. consider making an unphased (unimputed) outgroup vcf for comparison
-# 4. convert to phylip
-
-
+-----------------------------------------------------------------------------
 
 ###
 ### ASTRAL - maybe not to be used after all?
