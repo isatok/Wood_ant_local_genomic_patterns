@@ -76,7 +76,20 @@ bcftools index -n unphased_with_outgroup_dedupl.vcf.gz #534202 variants, 102 sam
 # Change GTs in haploid Fexs sample from ./. into . ### NOTE THAT IF THE NUMBER OF SAMPLES CHANGES THIS NEEDS TO CHANGE. NOW ALTOGETHER 111 COLS (9 + 102); FEXS IS THE LAST ONE. ###
 zcat unphased_with_outgroup_dedupl.vcf.gz | awk 'BEGIN {OFS=FS="\t"} {gsub(/\.\/\./,".", $111); print $0}' | bgzip >  unphased_with_outgroup_dedupl_gtfix.vcf.gz
 
-# Select samples to be used in the NJ tree
+# Select samples to be used in the NJ tree; the same individuals that are used in PIXY.
+
+FSTDIR=/scratch/project_2001443/barriers_introgr_formica/fst_global/groupfiles
+$FSTDIR/rufa_fi.tab #6 inds
+$FSTDIR/aquilonia_fi_6inds.tab #6 random inds
+$FSTDIR/aquilonia_scot.tab #3 inds
+$FSTDIR/aquilonia_swi.tab #3 inds
+$FSTDIR/polyctena_ceu.tab #6 inds
+
+PIXYDIR=/scratch/project_2001443/barriers_introgr_formica/pixy/groupfiles
+$PIXYDIR/lugubris_fi_6inds_pixy.tab #6 inds
+$PIXYDIR/pratensis_fi_6inds_pixy.tab #6 inds
+
+
 # Filter max miss 0 and check the number of snps remaining
 # Convert to phylip
 #The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
