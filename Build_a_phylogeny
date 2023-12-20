@@ -10,7 +10,7 @@ nj(X)    #X: a distance matrix; may be an object of class “dist”.
 https://github.com/seanstankowski/Littorina_reproductive_mode/blob/main/3_genomeWide_relationships/NJtree_phylonet/buildTrees.ipynb
 
 #the data seems to be needed to be in phylip format "variants_only_108_VCF_MAC2_minQ30_maxmiss1.0.recode.min4.phy"
-#converted from VCF. apply mac2 filtering, and they did this with no missing data. BUT WHAT IS THE MIN4 FILTERING?
+#converted from VCF. apply mac2 filtering, and they did this with no missing data.
 
 
 
@@ -76,24 +76,151 @@ bcftools index -n unphased_with_outgroup_dedupl.vcf.gz #534202 variants, 102 sam
 # Change GTs in haploid Fexs sample from ./. into . ### NOTE THAT IF THE NUMBER OF SAMPLES CHANGES THIS NEEDS TO CHANGE. NOW ALTOGETHER 111 COLS (9 + 102); FEXS IS THE LAST ONE. ###
 zcat unphased_with_outgroup_dedupl.vcf.gz | awk 'BEGIN {OFS=FS="\t"} {gsub(/\.\/\./,".", $111); print $0}' | bgzip >  unphased_with_outgroup_dedupl_gtfix.vcf.gz
 
-# Select samples to be used in the NJ tree; the same individuals that are used in PIXY.
+# Select samples to be used in the NJ tree; should be same individuals that are used in PIXY.
+# Selected individuals that are a) included in demographic modelling b) otherwise random c) mostly in sympatric region in Finland d) from all wider geographic locations
+# e) non-admixed
 
-FSTDIR=/scratch/project_2001443/barriers_introgr_formica/fst_global/groupfiles
-$FSTDIR/rufa_fi.tab #6 inds
-$FSTDIR/aquilonia_fi_6inds.tab #6 random inds
-$FSTDIR/aquilonia_scot.tab #3 inds
-$FSTDIR/aquilonia_swi.tab #3 inds
-$FSTDIR/polyctena_ceu.tab #6 inds
+cat nj_sample_list.txt #43 inds
 
-PIXYDIR=/scratch/project_2001443/barriers_introgr_formica/pixy/groupfiles
-$PIXYDIR/lugubris_fi_6inds_pixy.tab #6 inds
-$PIXYDIR/pratensis_fi_6inds_pixy.tab #6 inds
+CBAQ2_2w
+CBAQ3_1w
+CBAQ1_1w
+NAZa_1w
+VDa_1w
+CAGa_1w
+CF8b_1w
+CF4b_1w
+Pus2_1w
+CF14a_1w
+67-Faqu
+103-Faqu
+Lai_1w
+Loa_1w
+Lai_2w
+1-Fprat
+11-Flug
+88-Flug
+113-Flug
+124-Flug
+115-Flug
+CBCH1_1w
+CBCH2_2w
+CBCH3_1w
+2-Fprat
+3-Fprat
+6-Fprat
+117-Fprat
+120-Fprat
+123-Fprat
+12-Frufa
+16-Frufa
+26-Frufa
+37-Frufa
+72-Frufa
+102-Frufa
+RN424
+RN421
+RN422
+RN419
+RN420
+RN426
+Fexs
+
+#Keep only selected individuals
+zcat unphased_with_outgroup_dedupl_gtfix.vcf.gz | bcftools view -S nj_sample_list.txt | bgzip > unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz 
+bcftools query -l unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz | wc -l #43 inds; all good
+
+#How much missing data per ind?
+vcftools --gzvcf unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz --missing-indv --out unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz.MISSING_DATA
+sort -k 5 unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz.MISSING_DATA.imiss | column -t
+
+# Keep only loci with no missing data and check the number of snps remaining
+zcat unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz | bcftools view -e 'F_MISSING > 0.0' | bgzip > unphased_with_outgroup_dedupl_gtfix_NJ_tree_maxmiss0.vcf.gz
+bcftools index -t unphased_with_outgroup_dedupl_gtfix_NJ_tree_maxmiss0.vcf.gz
+bcftools index -n unphased_with_outgroup_dedupl_gtfix_NJ_tree_maxmiss0.vcf.gz #31.683 SNPs
+
+#Too few SNPs. Exclude individuals with more than 10% missing data and re-filter the previous step
+
+cat nj_sample_list_maxmiss10.txt #37 inds
+CBAQ2_2w
+CBAQ3_1w
+CBAQ1_1w
+NAZa_1w
+VDa_1w
+CAGa_1w
+CF8b_1w
+CF4b_1w
+Pus2_1w
+CF14a_1w
+Att1_1w
+Jar6_1w
+Fis2_1w
+Lok3_1w
+67-Faqu
+103-Faqu
+Lai_1w
+Loa_1w
+Lai_2w
+1-Fprat
+11-Flug
+88-Flug
+113-Flug
+124-Flug
+115-Flug
+CBCH1_1w
+CBCH2_2w
+CBCH3_1w
+2-Fprat
+3-Fprat
+6-Fprat
+117-Fprat
+120-Fprat
+123-Fprat
+16-Frufa
+26-Frufa
+37-Frufa
+72-Frufa
+102-Frufa
+RN419
+Fexs
+
+#Keep only selected individuals when 
+zcat unphased_with_outgroup_dedupl_gtfix.vcf.gz | bcftools view -S nj_sample_list_maxmiss10.txt | bgzip > unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10.vcf.gz 
+bcftools query -l unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10.vcf.gz | wc -l #37 inds; all good
+
+# Keep again only loci with no missing data and check the number of snps remaining
+zcat unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10.vcf.gz | bcftools view -e 'F_MISSING > 0.0' | bgzip > unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz
+bcftools index -t unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz
+bcftools index -n unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz #205.503 SNPs - better, let's continue with this.
 
 
-# Filter max miss 0 and check the number of snps remaining
-# Convert to phylip
+### Convert to phylip
 #The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
 #convert a VCF matrix into several matrix formats for phylogenetic analysis (2019; https://zenodo.org/record/2540861).
+
+wget https://github.com/edgardomortiz/vcf2phylip/archive/refs/tags/v2.8.zip 
+unzip v2.8.zip
+
+module load python-data
+python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz -o Fexs -w
+
+#Number of samples in VCF: 37
+#Total of genotypes processed: 205503
+#Genotypes excluded because they exceeded the amount of missing data allowed: 0
+#Genotypes that passed missing data filter but were excluded for being MNPs: 0
+#SNPs that passed the filters: 205503
+#Used sites saved to: 'unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.min4.used_sites.tsv'
+
+### NEXT MOVE TO R ! ###
+
+
+
+
+
+
+
+
+
 
 
 
