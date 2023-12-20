@@ -213,8 +213,12 @@ python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_NJ_
 
 ### NEXT MOVE TO R ! ###
 
+#Get files to local 
 
-
+scp ...
+/scratch/project_2001443/barriers_introgr_formica/nj_tree
+unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.min4.phy
+nj_sample_list_maxmiss10.txt
 
 
 
