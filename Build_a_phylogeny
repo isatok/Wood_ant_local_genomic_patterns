@@ -24,9 +24,9 @@ cd /scratch/project_2001443/barriers_introgr_formica/nj_tree
 sinteractive...
 module load biokit
 
-# 1. Imputed (no missing data) and mac2-filtered dataset - all SNPs available for phylogeny
-PHASEDVCF=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/all_samples.DP8.hwe.AN10.noScaff00.mac2.whap.shapeit.allScafs.vcf.gz 
-bcftools index -n $PHASEDVCF    #534202 sites
+## 1. Imputed (no missing data) and mac2-filtered dataset - all SNPs available for phylogeny
+#PHASEDVCF=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/all_samples.DP8.hwe.AN10.noScaff00.mac2.whap.shapeit.allScafs.vcf.gz 
+#bcftools index -n $PHASEDVCF    #534202 sites
 
 # 2. Mac2-filtered dataset that contains missing data - only SNPs with no missing data will be used for phylogeny
 
