@@ -193,7 +193,7 @@ zcat unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10.vcf.gz | bcftools 
 bcftools index -t unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz
 bcftools index -n unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz #205.503 SNPs - better, let's continue with this.
 
-
+###Let's test if we took all nonadmixed individuals, 
 ### Convert to phylip
 #The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
 #convert a VCF matrix into several matrix formats for phylogenetic analysis (2019; https://zenodo.org/record/2540861).
@@ -215,10 +215,11 @@ python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_NJ_
 
 #Get files to local 
 
-scp ...
-/scratch/project_2001443/barriers_introgr_formica/nj_tree
-unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.min4.phy
-nj_sample_list_maxmiss10.txt
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.min4.phy' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/nj_sample_list_maxmiss10.txt' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
 
 
 
