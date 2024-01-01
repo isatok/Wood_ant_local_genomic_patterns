@@ -36,6 +36,10 @@ zcat unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10.vcf.gz 
 bcftools index -t unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0.vcf.gz
 bcftools index -n unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0.vcf.gz #534.202 SNPs i.e. all SNPs can be used!
 
+#3rd dataset: check that the phylogeny holds even when Scaffold03 is filtered out:
+vcftools --gzvcf unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0.vcf.gz --not-chr Scaffold03 --recode --stdout | bgzip > unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0_noScaff03.vcf.gz
+bcftools index -t unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0_noScaff03.vcf.gz
+bcftools index -n unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0_noScaff03.vcf.gz #495055 SNPs
 
 ### Convert to phylip
 #The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
@@ -47,6 +51,7 @@ unzip v2.8.zip
 module load python-data
 python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz -o Fexs -w
 python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0.vcf.gz -o Fexs -w
+python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0_noScaff03.vcf.gz -o Fexs -w
 
 ### NEXT MOVE TO R ! ###
 
@@ -61,4 +66,5 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/nonadmixed_nj_sample_list_INDmaxmiss10.txt' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
 
-
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0_noScaff03.min4.phy' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
