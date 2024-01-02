@@ -1,0 +1,23 @@
+# This script is to investigate introgression in the F. rufa group with Fbranch method from the Dsuite package.
+
+# Install Dsuite
+  # https://github.com/millanek/Dsuite
+  # Malinsky, M., Matschiner, M. and Svardal, H. (2021) Dsuite ‐ fast D‐statistics and related admixture evidence from VCF files. 
+  # Molecular Ecology Resources 21, 584–595. doi: https://doi.org/10.1111/1755-0998.13265
+
+# The needed files
+  # x.vcf.gz: genetic data
+  # formica_sets.txt: file specifying sample -> species relationship; 1st col individual vcf_id, 2nd col species (for outgroup "Outgroup"); in the tutorial 2-4 inds per species
+  # formica_tree.txt: the tree topology hypothesis. In the tutorial: Outgroup,((((((neobri,(neooli,neopul)),neohel),neosav),neogra),(neocra,neomar)),(neochi,neowal)));
+    # make two hypotheses: one with country-level species grouping, one that follows the F. polyctena split from the nj-tree, (and one with aqu/rufa samples grouped(?)).
+    # Outgroup, (pratfi,(lugfi,((aquswi,aqusco),aqufi)),((rufafi,rufager),(polwswi,poleswi))); #locality-level grouping
+    # Outgroup, (pratfi,(lugfi,((aquswi,aqusco),aqufi)),(polxx((rufafi,rufager),polyy))); #following nj-tree with weird polyctena/rufa splits
+
+# Run the analysis for all possible trios. Use two datasets: balanced and unbalanced. If this has no impact, continue with unbalanced and vary the tree files
+Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_balanced.txt
+Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_all.txt
+
+# The Dtrios output formica_sets_tree.txt will be used for the Fbranch:
+Dsuite Fbranch formica_tree.txt formica_sets_tree.txt > formica_Fbranch.txt
+python3 dtools.py formica_Fbranch.txt formica_tree.txt
+
