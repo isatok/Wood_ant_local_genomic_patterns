@@ -5,15 +5,78 @@
   # Malinsky, M., Matschiner, M. and Svardal, H. (2021) Dsuite ‐ fast D‐statistics and related admixture evidence from VCF files. 
   # Molecular Ecology Resources 21, 584–595. doi: https://doi.org/10.1111/1755-0998.13265
 
+cd /scratch/project_2001443/barriers_introgr_formica/
+mkdir dsuite && cd dsuite
+git clone https://github.com/millanek/Dsuite.git #note - does not work with sinteractive
+cd Dsuite && make
+
+./Build/Dsuite #list commands
+
+# Install python3 Fbranch plotting script
+cd utils
+module load python-data
+python3 setup.py install --user --prefix=
+
 # The needed files
-  # x.vcf.gz: genetic data
+
+  # genetic data (no mac-filtering or thinning, outgroup merged; 708783 sites)
+VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
+
+  # check the amount of missing data to plan used samples
+vcftools --gzvcf $VCF  --missing-indv --out $VCF
+sort -k 5 $VCF.imiss | column -t
+
+# create a sample list from the vcf, where 1st col are vcf_id's and 2nd col "xxx" for all samples:
+gunzip -c $VCF | grep '^#CHROM' | cut -f 10- | tr '\t' '\n' > sample.list.csv.tmp
+awk '{print $0 "\txxx"}' sample.list.csv.tmp > sample.list.csv
+rm sample.list.csv.tmp #clean up
+
   # formica_sets.txt: file specifying sample -> species relationship; 1st col individual vcf_id, 2nd col species (for outgroup "Outgroup"); in the tutorial 2-4 inds per species
+TEST_SET_1=sample.list_test1.csv #3 inds for all geographic regions, 2 inds for German rufa (high missingness), 1 for outgroup
+
+BALANCED_SET=
+UNBALANCED_SET=
+
+  # note that unused individuals indicated by "xxx" in the 2nd col (not by not listing them), or subsetting the vcf!!
   # formica_tree.txt: the tree topology hypothesis. In the tutorial: Outgroup,((((((neobri,(neooli,neopul)),neohel),neosav),neogra),(neocra,neomar)),(neochi,neowal)));
     # make two hypotheses: one with country-level species grouping, one that follows the F. polyctena split from the nj-tree, (and one with aqu/rufa samples grouped(?)).
-    # Outgroup, (pratfi,(lugfi,((aquswi,aqusco),aqufi)),((rufafi,rufager),(polwswi,poleswi))); #locality-level grouping
-    # Outgroup, (pratfi,(lugfi,((aquswi,aqusco),aqufi)),(polxx((rufafi,rufager),polyy))); #following nj-tree with weird polyctena/rufa splits
+    # Outgroup, (prat_fi,(lug_fi,((aqu_swi,aqu_sco),aqu_fi)),((rufa_fi,rufa_ger),(pol_wswi,pol_eswi))); #locality-level grouping
+    # Outgroup, (prat_fi,(lug_fi,((aqu_swi,aqu_sco),aqu_fi)),(pol_wswi((rufa_fi,rufa_ger),pol_eswi))); #following nj-tree with weird polyctena/rufa splits
+TEST_TREE_1=formica_tree_test1.txt #following nj-tree with weird polyctena/rufa splits
+
+TREE1=
+TREE2=
 
 # Run the analysis for all possible trios. Use two datasets: balanced and unbalanced. If this has no impact, continue with unbalanced and vary the tree files
+
+#TEST 1 
+
+###ftrios_test1.sh
+
+----
+#!/bin/bash -l
+#SBATCH -J ftrios_test1
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/dsuite/ftrios_test1.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/dsuite/ftrios_test1.err
+#SBATCH --account=project_2001443
+#SBATCH -t 24:00:00
+#SBATCH -p small
+#SBATCH --ntasks 8
+#SBATCH --mem=4G
+
+module load biokit
+cd /scratch/project_2001443/barriers_introgr_formica/dsuite
+
+TEST_TREE_1=formica_tree_test1.txt
+VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
+TEST_SET_1=sample.list_test1.csv
+
+./Dsuite/Build/Dsuite Dtrios -c -t $TEST_TREE_1 $VCF $TEST_SET_1
+
+
+#END.
+----
+
 Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_balanced.txt
 Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_all.txt
 
