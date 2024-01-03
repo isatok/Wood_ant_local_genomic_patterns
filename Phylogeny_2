@@ -1,7 +1,7 @@
 #Continue the work with a phylogeny
 
-#Here starting with a vcf file /scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz that, in addition,
-#has F. exsecta as the outgroup:
+#Here the basis is the vcf file /scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz to which
+#F. exsecta has been added as the outgroup:
 
 cd /scratch/project_2001443/barriers_introgr_formica/nj_tree    
 sinteractive...
