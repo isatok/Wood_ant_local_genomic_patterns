@@ -42,13 +42,49 @@ bcftools reheader -s out.name Fexs_nodupl_sites_tmp.vcf.gz -o $vcfexs
 
 rm out.name Fexs_nodupl_sites_tmp.vcf.gz
 
-# Combine outgroup + sample VCFs
-VCFOUT=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs.vcf.gz
+###REMOVE EXSECTA DUPLICATE SITES, START FROM HERE###
 
-bcftools index -t $vcfexs
+#How many sites to begin with?
+bcftools index -n $VCFIN #708783 in the original vcf; also wc -l $phbed 708783 is in line
+bcftools index -n $vcfexs #696424 in the exsecta vcf
+
+# Filter out duplicate sites (achieve this by filtering out all that are mnp's and not homozygous "ref" or "snp" type)
+
+gunzip -c $vcfexs | cut -f2 | uniq -D | wc -l #Altogether 1814/2 = 907 duplicates in the unfiltered exsecta file
+
+#Keep only sites hom for reference allele or snps
+bcftools filter --threads 8 -Oz -e 'TYPE!="ref" && TYPE!="snp"' -m+ $vcfexs > Fexs_nodupl_sites_noindels.vcf.gz
+bcftools index -t Fexs_nodupl_sites_noindels.vcf.gz 
+bcftools index -n Fexs_nodupl_sites_noindels.vcf.gz  #695657 -> 767 sites removed
+
+gunzip -c Fexs_nodupl_sites_noindels.vcf.gz | cut -f2 | uniq -D | wc -l #280 /2 =140 #We still have 140 duplicates
+gunzip -c Fexs_nodupl_sites_noindels.vcf.gz | grep "Scaffold01" | cut -f2 | uniq -D     # e.g. 2442227, 5047119, 5422749
+bcftools view -H -r Scaffold01:5047119 Fexs_nodupl_sites_noindels.vcf.gz #They are mnps
+
+#Always the first one is the snp and the second one mnp. Remove all second instances
+bcftools norm --rm-dup all --threads 8 -Oz Fexs_nodupl_sites_noindels.vcf.gz > Fexs_nodupl_sites_noindels_rmdup.vcf.gz
+bcftools index -t Fexs_nodupl_sites_noindels_rmdup.vcf.gz
+bcftools index -n Fexs_nodupl_sites_noindels_rmdup.vcf.gz #695517 snps remain
+gunzip -c Fexs_nodupl_sites_noindels_rmdup.vcf.gz | cut -f2 | uniq -D | wc -l #no duplicates left; 695517(remaining)+907(duplicates)=696424 sites, equals to original amount of sites in $vcfex
+
+#Merge the actual dataset and exsecta vcfs
+
+VCFOUT=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl.vcf.gz
+
+#bcftools index -t $vcfexs
 
 bcftools merge -Ou \
   $VCFIN \
-  $vcfexs -Oz -o $VCFOUT
+  Fexs_nodupl_sites_noindels_rmdup.vcf.gz -Oz -o $VCFOUT
 
 bcftools index -t $VCFOUT
+bcftools index -n $VCFOUT # 708783 variants; all good
+bcftools query -l $VCFOUT | wc -l # 104 samples -> remember to remove low-q inds
+
+# Change GTs in haploid Fexs sample from ./. into . ### NOTE THAT IF THE NUMBER OF SAMPLES CHANGES THIS NEEDS TO CHANGE. NOW ALTOGETHER 113 COLS (9 + 104); FEXS IS THE LAST ONE. ###
+zcat all_samples_DP8_wFexs_dedupl.vcf.gz | awk 'BEGIN {OFS=FS="\t"} {gsub(/\.\/\./,".", $113); print $0}' | bgzip >  all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
+bcftools index -t all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
+
+# The vcf file originating from all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.vcf.gz., i.e. unphased and
+# no mac-filtering, but outgroup merged and duplicates taken care of, is
+# all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz at /scratch/project_2001443/barriers_introgr_formica/admixtools. This should be used for ADMIXTOOLS and Fbranch.
