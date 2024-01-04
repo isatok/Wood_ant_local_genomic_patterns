@@ -40,8 +40,8 @@ UNBALANCED_SET=
   # note that unused individuals indicated by "xxx" in the 2nd col (not by not listing them), or subsetting the vcf!!
   # formica_tree.txt: the tree topology hypothesis. In the tutorial: Outgroup,((((((neobri,(neooli,neopul)),neohel),neosav),neogra),(neocra,neomar)),(neochi,neowal)));
     # make two hypotheses: one with country-level species grouping, one that follows the F. polyctena split from the nj-tree, (and one with aqu/rufa samples grouped(?)).
-    # Outgroup, (prat_fi,(lug_fi,((aqu_swi,aqu_sco),aqu_fi)),((rufa_fi,rufa_ger),(pol_wswi,pol_eswi))); #locality-level grouping
-    # Outgroup, (prat_fi,(lug_fi,((aqu_swi,aqu_sco),aqu_fi)),(pol_wswi((rufa_fi,rufa_ger),pol_eswi))); #following nj-tree with weird polyctena/rufa splits
+    # Outgroup, (prat_fi,(lug_fi,((aqu_swi,aqu_sco),aqu_fi)),((rufa_fi,rufa_ger),(pol_wswi,pol_eswi))); #locality-level grouping ##MODIFY THIS IS NOT CORRECT
+    # (((((aqu_swi,aqu_sco),aqu_fi),(((rufa_fi,rufa_ger),pol_eswi),pol_wswi)),prat_fi),Outgroup); #following nj-tree with weird polyctena/rufa splits
 TEST_TREE_1=formica_tree_test1.txt #following nj-tree with weird polyctena/rufa splits
 
 TREE1=
@@ -81,6 +81,16 @@ Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_balanced.txt
 Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_all.txt
 
 # The Dtrios output formica_sets_tree.txt will be used for the Fbranch:
-Dsuite Fbranch formica_tree.txt formica_sets_tree.txt > formica_Fbranch.txt
-python3 dtools.py formica_Fbranch.txt formica_tree.txt
+
+./Dsuite/Build/Dsuite Fbranch formica_tree_test1.txt sample.list_test1_tree.txt > formica_Fbranch.txt
+module load python-data
+python3 ./Dsuite/utils/dtools.py formica_Fbranch.txt formica_tree_test1.txt
+
+# Get the Fbranch results
+scp
+""
+""
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/fbranch.*' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
 
