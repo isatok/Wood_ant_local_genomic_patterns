@@ -2,7 +2,72 @@
 #The input is a distance matrix and the algorithm works by agglomerating clusters, and it is run using SplitsTree with default parameters.
 #The script follows the pipeline in SH Martin et al. 2019 (https://doi.org/10.1371/journal.pbio.2006288).
 
-cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbournet
+#--------------------------------------------------------
+### FOR THESIS VERSION 6.1.2024 ### 
+
+#REMOVE SCAFFOLD03, do MAC2 (to replicate Satokangas et al 2023), inspect amount of missing data.
+VCFPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/
+VCFIN=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff0003.vcf.gz #101 samples; 105, 110 and RN417 excluded
+
+vcftools --gzvcf $VCFPATH/$VCFIN --mac 2 --recode --stdout | bgzip > $VCFPATH/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff0003.mac2.vcf.gz &&
+bcftools index -t $VCFPATH/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff0003.mac2.vcf.gz
+VCFMAC2=$VCFPATH/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff0003.mac2.vcf.gz   #495.055 SNPs
+
+#Remove RN418, s353 and s354: inspecting missing data shows these have >50% missing.
+vcftools --gzvcf $VCFMAC2  --missing-indv --out $VCFMAC2
+sort -k 5 $VCFMAC2.imiss | column -t
+
+vcftools --gzvcf $VCFMAC2 --remove-indv s353 --remove-indv s354 --remove-indv RN418 --recode --stdout | bgzip > $VCFPATH/DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.vcf.gz &&
+bcftools index -t $VCFPATH/DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.vcf.gz
+
+#BATCH JOB
+#----
+
+#!/bin/bash -l
+#SBATCH -J geno_thesis
+#SBATCH --account=project_2001443
+#SBATCH -t 04:00:00
+#SBATCH -p small
+#SBATCH --mem=50G
+#SBATCH --mail-type=END
+
+module load biokit
+module load python-data
+
+cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet
+
+VCFPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/
+FILTVCF=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.vcf.gz
+GENO=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.geno.gz
+DISTMAT=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.dist
+
+# do it
+
+python ./genomics_general/VCF_processing/parseVCF.py -i $VCFPATH/$FILTVCF | bgzip > $GENO &&
+python ./genomics_general/distMat.py -g $GENO -f phased --windType cat -o $DISTMAT
+
+# THIS IS THE END.
+#----
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet/*.dist' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/gen_str/neighbornet/'
+
+# (If needed: Modify the sample names so that Finnish ones have only the number and from Pierre's samples
+#  only "Lai" has the 1/2w extension: done manually; find&replace in Atom)
+
+# Open SplitsTree, and draw the tree with default settings.
+# Works in a few seconds; just import the file and the tree will appear.
+
+# In splitstree:
+# node shape: circle, size 5
+
+
+### THESIS VERSION ENDS HERE ###
+#--------------------------------------------------------
+
+
+### THE INITIAL EXPLORATION BEGINS HERE
+
+cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet
 
 ### 1. Update the code
 
