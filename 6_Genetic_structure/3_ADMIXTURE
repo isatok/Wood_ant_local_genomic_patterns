@@ -1,92 +1,36 @@
 ### ADMIXTURE analysis ###
 
-###
-### Create a b-file set from thinned SNP dataset (thinning for reducing LD) ###
-###
 
-cd $SCRATCH/vcf/filt
-
-#start sinteractive
 sinteractive --account project_2001443 --mem 2000
-
 module load biokit
-VCF=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
-OUTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples
 
-#count the number of variants (-> 9846)
-bcftools index -n $VCF
+VCF=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.vcf.gz
+OUTVCF=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb.vcf.gz
 
-#convert vcf into PLINK format for admixture analysis
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF --make-bed --out $OUTPATH/all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb --allow-extra-chr
+#Thin the VCF with 20kb distances to reduce linkage
 
-# ADMIXTURE does not accept chromosome names that are not human chromosomes. We will thus just exchange the first column by 0
-cd $OUTPATH
-FILE=all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb
-awk '{$1=0;print $0}' $FILE.bim > $FILE.bim.tmp
-mv $FILE.bim.tmp $FILE.bim
+vcftools --gzvcf $VCF --thin 20000 --recode --stdout | bgzip > $OUTVCF
+bcftools index -t $OUTVCF
+bcftools index -n $OUTVCF #9279 SNPs
 
+# Convert the VCF ("OUTVCF") into PLINK format for ADMIXTURE analysis and keep only the desired individuals (in "LIST")
 
-###
-### Subsample for balanced sample sizes ### <<<<<<<<<<<< INA MODIFY THIS BIT NEXT. THE GROUPFILE FOR BALANCED ADMIXTURE IS NOW READY, BUT THE PLINK BIT NEEDS FORMATTING AND RUNNING >>>>>>>>>>>>>>>
-###
+LIST=balanced_sample_list.list
+OUTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/balanced
+OUTFILE=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb
 
-$PROJAPPL/PLINK/plink --threads 1 --bfile $OUTPATH/aqu_bal_pre.DP8.hwe.AN10.mac2.noScaff0003.thin20kb \
---out $OUTPATH/$OUTFILE \
+$PROJAPPL/PLINK/plink --threads 1 --vcf $OUTVCF --make-bed \
 --double-id --allow-extra-chr --set-missing-var-ids @:# \
---keep /scratch/project_2001443/vcf/ind_lists/$LIST --make-bed
+--keep $OUTPATH/$LIST \
+--out $OUTPATH/$OUTFILE
 
-# ADMIXTURE does not accept chromosome names that are not human chromosomes. We will thus just exchange the first column by 0
+# ADMIXTURE doesn't accept non-human chromosome names. Replace the first column by 0.
+
 cd $OUTPATH
 awk '{$1=0;print $0}' $OUTFILE.bim > $OUTFILE.bim.tmp
 mv $OUTFILE.bim.tmp $OUTFILE.bim
 
-FULLSAMPLE=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/sample_table.tab
 
-cut -f3 $FULLSAMPLE | sort | uniq   #check which groups are possible (w-out geogr. information)
-# adm1
-# adm2
-# aqu
-# exsecta
-# lug
-# paral
-# pol
-# prat
-# rufa
-
-cut -f4 $FULLSAMPLE | sort | uniq   #check which groups are possible (WITH geogr. information)
-# adm1_ceu
-# adm1_fi
-# adm2_ceu
-# adm2_fi
-# aqu_ceu
-# aqu_fi
-# exsecta
-# lug_fi
-# paral_ceu
-# pol_ceu
-# prat_fi
-# rufa_ceu
-# rufa_fi
-
-
-cut -f1,3,4 $FULLSAMPLE | awk '$2 == "rufa" || $2 == "pol" || $2 == "lug" || $2 == "prat" || $2 == "paral" || $2 == "adm1" || $2 == "adm2" \
-|| $1 == "104-Faqu" || $2 == "114-FaquH" || $2 == "24-Faqu" || $2 == "CBAQ1_1w" || $2 == "CBAQ2_2w" || $2 == "Lai1_1w" {print $0}' > all_samples_balanced.list
-
-
-
-OUTFILE=aqu_bal_6finf_sub1.DP8.hwe.AN10.mac2.noScaff0003.thin20kb
-LIST=all_samples_balanced.list
-
-
-[continue this asap - was interrupted because of full disk space in SCRATCH. include all samples BUT the extra amount of F. aqu]
-...
-
-
-
-
-
-
-#created a nano sh for admixture, and ran it
 sbatch admixture.sh
 
 ####For record the admixture.sh:
@@ -95,8 +39,8 @@ sbatch admixture.sh
 
 #!/bin/bash -l
 #SBATCH -J admixture
-#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples/logs/admixture.out
-#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples/logs/admixture.err
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/balanced/logs/admixture.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/balanced/logs/admixture.err
 #SBATCH --account=project_2001443
 #SBATCH -t 00:30:00
 #SBATCH -p small
@@ -105,16 +49,14 @@ sbatch admixture.sh
 
 # Load modules
 module load biokit
-module load bioconda/3
-
 export PATH="/projappl/project_2001443/admixture_1122_env/bin:$PATH"
 
-cd /scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples
+cd /scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/balanced
 
-OUTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples
-FILE=all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb
+OUTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/balanced
+FILE=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb
 
-for i in {2..10}
+for i in {2..7}
 do
 admixture --cv $OUTPATH/$FILE.bed $i > log${i}.out
 
@@ -124,13 +66,37 @@ grep "CV" *out | awk '{print $3,$4}' | cut -c 4,7-20 > $FILE.cv.error
 
 ### END
 
-### 3. Download the .dist file to local
+###############
 
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/allsamples/*.thin20kb.*' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/gen_str/admixture/'
 
-######INA CONTINUE FROM HERE - CHECK HOW NEED TO MODIFY THE SAMPLE LIST TO DO SUCCESSFUL PLOTTING #########
+#Download the .dist file to local
 
-#Plot
-Rscript plotADMIXTURE.R -p all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb \
--i all_samples.list -m 2 -k 7 -l Faqu,Faqu_nf,Flug,FlugH,FaquXpolrufa,Fpol_nf,Frufa,Fprat \
--o all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen_str/admixture/balanced/*thin20kb.*' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/gen_str/admixture/balanced'
+
+#in R
+setwd('/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/gen_str/admixture/balanced')
+fam <- read.csv("./DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb.fam", sep=" ", header=F)
+samples <- read.csv("/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Scripts_WhatsHap&ShapeIt4/sample_table.tab", sep="\t")
+
+fam1_1 <- as.data.frame(fam1[,1])
+colnames(fam1_1) <- c("vcfID")
+fam1_2 <- left_join(fam1_1, samples, by="vcfID")
+fam1_3 <- fam1_2[,c(1,3)]
+
+write.table(fam1_3, "./DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb.plotting.list", quote=FALSE, row.names=F, col.names=F)
+#subsequently, add species information for new samples and modify vcf id's to numbers only
+
+
+
+#Plot (pdf for publication quality)
+
+cd /Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/gen_str/admixture/balanced
+ADMFILE=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb
+ADMLIST=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb.plotting.list
+
+###FIX THE COLORS###
+Rscript "/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/1_FormicaWGS&hybrids/ADMIXTURE/admixture071122_20kbthin_mac2_all/admixture071122_20kbthin_mac2/plotADMIXTURE_aqubal_0003_pdf.R" \
+-p $ADMFILE \
+-i $ADMLIST -m 2 -k 5 -l \
+aquilonia_fi,aquilonia_swsc,lugubris_fi,lugubris_hybrids_fi,aqupolrufa_hybrids_fi,polyctena_sw,rufa_fi,pratensis_fi,lugubris_hybrids_ceu,aqupolrufa_hybrids_ceu,rufa_ger \
+-o ${ADMFILE}
