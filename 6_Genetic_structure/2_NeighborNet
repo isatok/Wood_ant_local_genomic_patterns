@@ -59,7 +59,7 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen
 # Works in a few seconds; just import the file and the tree will appear.
 
 # In splitstree:
-# node shape: circle, size 5
+# node shape: circle, size 5 (Edit -> select labeled nodes; View -> Format nodes and edges.
 
 
 ### THESIS VERSION ENDS HERE ###
