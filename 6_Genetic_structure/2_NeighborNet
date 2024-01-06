@@ -53,6 +53,7 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen
 
 # (If needed: Modify the sample names so that Finnish ones have only the number and from Pierre's samples
 #  only "Lai" has the 1/2w extension: done manually; find&replace in Atom)
+# -> done; see file DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_numonly.dist
 
 # Open SplitsTree, and draw the tree with default settings.
 # Works in a few seconds; just import the file and the tree will appear.
