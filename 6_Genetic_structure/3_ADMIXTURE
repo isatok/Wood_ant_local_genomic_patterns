@@ -94,7 +94,6 @@ cd /Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_form
 ADMFILE=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb
 ADMLIST=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb.plotting.list
 
-###FIX THE COLORS###
 Rscript "./plotADMIXTURE_localpatterns_pdf.R" \
 -p $ADMFILE \
 -i $ADMLIST -m 2 -k 5 -l \
