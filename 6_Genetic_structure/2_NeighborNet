@@ -37,7 +37,7 @@ module load python-data
 cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet
 
 VCFPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/
-FILTVCF=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.vcf.gz
+FILTVCF=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.vcf.gz #98 inds
 GENO=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.geno.gz
 DISTMAT=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.dist
 
