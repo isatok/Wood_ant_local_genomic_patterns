@@ -95,7 +95,7 @@ ADMFILE=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb
 ADMLIST=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354_thin20kb.plotting.list
 
 ###FIX THE COLORS###
-Rscript "/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/1_FormicaWGS&hybrids/ADMIXTURE/admixture071122_20kbthin_mac2_all/admixture071122_20kbthin_mac2/plotADMIXTURE_aqubal_0003_pdf.R" \
+Rscript "./plotADMIXTURE_localpatterns_pdf.R" \
 -p $ADMFILE \
 -i $ADMLIST -m 2 -k 5 -l \
 aquilonia_fi,aquilonia_swsc,lugubris_fi,lugubris_hybrids_fi,aqupolrufa_hybrids_fi,polyctena_sw,rufa_fi,pratensis_fi,lugubris_hybrids_ceu,aqupolrufa_hybrids_ceu,rufa_ger \
