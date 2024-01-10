@@ -27,7 +27,15 @@ python3 setup.py install --user --prefix=
 ### a) GENETIC DATA:
 
 #(no mac-filtering or thinning, outgroup merged; 708783 sites)
-VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
+#VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
+
+#no mac-filtering or thinning, outgroup merged, but Scaff03 excluded so that it does not drive the analysis
+VCFTMP=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
+VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz
+vcftools --gzvcf $VCFTMP --not-chr Scaffold03 --recode --stdout | bgzip > $VCF
+bcftools index -t $VCF
+bcftools index -n $VCF #658462 SNPs
+
 
 # check the amount of missing data to plan used samples
 vcftools --gzvcf $VCF  --missing-indv --out $VCF
@@ -43,6 +51,7 @@ rm sample.list.csv.tmp #clean up
 formica_sets.txt: file specifying sample -> species relationship; 1st col individual vcf_id, 2nd col species (for outgroup "Outgroup"); in the tutorial 2-4 inds per species
 
 TEST_SET_1=sample.list_test1.csv #3 inds for all geographic regions, 2 inds for German rufa (high missingness), 1 for outgroup
+TEST_SET_2=sample.list.minMiss.fineResolRufa.csv ##3 inds for all geographic regions, 2 inds for German rufa & 2+3 for Finnish rufa, 1 for outgroup
 
 BALANCED_SET=
 UNBALANCED_SET=
@@ -55,11 +64,13 @@ UNBALANCED_SET=
 #formica_tree.txt: the tree topology hypothesis. In the tutorial: Outgroup,((((((neobri,(neooli,neopul)),neohel),neosav),neogra),(neocra,neomar)),(neochi,neowal)));
     # make two hypotheses: one with country-level species grouping, one that follows the F. polyctena split from the nj-tree, (and one with aqu/rufa samples grouped(?)).
     # Outgroup, (prat_fi,(lug_fi,((aqu_swi,aqu_sco),aqu_fi)),((rufa_fi,rufa_ger),(pol_wswi,pol_eswi))); #locality-level grouping ##MODIFY THIS IS NOT CORRECT
-    # (((((aqu_swi,aqu_sco),aqu_fi),(((rufa_fi,rufa_ger),pol_eswi),pol_wswi)),prat_fi),Outgroup); #following nj-tree with weird polyctena/rufa splits
-TEST_TREE_1=formica_tree_test1.txt #following nj-tree with weird polyctena/rufa splits
+    # ((((((aqu_swi,aqu_sco),aqu_fi),lug_fi),(((rufa_fi,rufa_ger),pol_eswi),pol_wswi)),prat_fi),Outgroup); #following nj-tree with weird polyctena/rufa splits
 
-TREE1=
-TREE2=
+     # ((((((aqu_swi,aqu_sco),aqu_fi),lug_fi),((((rufa_fi_1,rufa_ger),rufa_fi_2),pol_eswi),pol_wswi)),prat_fi),Outgroup); #following nj-tree with all polyctena/rufa splits
+
+TEST_TREE_1=formica_tree_test1.txt #following nj-tree with weird polyctena/rufa splits
+TEST_TREE_2=formica_tree_fineResolRufa.txt #following nj-tree with all polyctena/rufa splits
+
 
 ###
 ### 2. Dtrios run ------------------------------------------------
@@ -94,6 +105,37 @@ TEST_SET_1=sample.list_test1.csv
 
 #END.
 ----
+
+#TEST 2
+
+###ftrios_test2.sh
+
+----
+#!/bin/bash -l
+#SBATCH -J ftrios_test2
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/dsuite/ftrios_test2.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/dsuite/ftrios_test2.err
+#SBATCH --account=project_2001443
+#SBATCH -t 24:00:00
+#SBATCH -p small
+#SBATCH --ntasks 8
+#SBATCH --mem=4G
+
+module load biokit
+cd /scratch/project_2001443/barriers_introgr_formica/dsuite
+
+TEST_TREE_2=formica_tree_fineResolRufa.txt
+VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz
+TEST_SET_2=sample.list.minMiss.fineResolRufa.csv
+
+./Dsuite/Build/Dsuite Dtrios -c -t $TEST_TREE_2 $VCF $TEST_SET_2
+
+
+#END.
+----
+
+
+
 
 Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_balanced.txt
 Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_all.txt
