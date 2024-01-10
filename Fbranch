@@ -57,7 +57,9 @@ BALANCED_SET=
 UNBALANCED_SET=
 
   # note that unused individuals indicated by "xxx" in the 2nd col (not by not listing them), or subsetting the vcf!!
-  
+
+
+#######NEXT GROUP RUFA SOMEHOW AND RUN THE ANALYSIS AND CONTINUE ON##########
 
 ### c) TREE TOPOLOGY HYPOTHESIS
 
@@ -137,8 +139,8 @@ TEST_SET_2=sample.list.minMiss.fineResolRufa.csv
 
 
 
-Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_balanced.txt
-Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_all.txt
+#Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_balanced.txt
+#Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_all.txt
 
 
 ###
@@ -151,6 +153,14 @@ Dsuite Dtrios -c -t formica_tree.txt x.vcf.gz formica_sets_all.txt
 module load python-data
 python3 ./Dsuite/utils/dtools.py formica_Fbranch.txt formica_tree_test1.txt
 
+#No scaff03, finescale rufa, Z-scores added
+./Dsuite/Build/Dsuite Fbranch -Z formica_tree_fineResolRufa.txt sample.list.minMiss.fineResolRufa_tree.txt > formica_Fbranch_noScaff03_fineScaleRufa_zscore.txt
+./Dsuite/Build/Dsuite Fbranch formica_tree_fineResolRufa.txt sample.list.minMiss.fineResolRufa_tree.txt > formica_Fbranch_noScaff03_fineScaleRufa.txt
+
+module load python-data
+python3 ./Dsuite/utils/dtools.py formica_Fbranch_noScaff03_fineScaleRufa.txt formica_tree_fineResolRufa.txt
+
+
 # Get the Fbranch results
 scp
 ""
@@ -158,6 +168,11 @@ scp
 
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/fbranch.*' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/*zscore.txt' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
+
+
 
 ###
 ### 3. Dinsvestigate run ------------------------------------------------
