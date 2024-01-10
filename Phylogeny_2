@@ -41,6 +41,36 @@ vcftools --gzvcf unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmi
 bcftools index -t unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0_noScaff03.vcf.gz
 bcftools index -n unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss10_SNPmaxmiss1.0_noScaff03.vcf.gz #495055 SNPs
 
+
+
+### THESIS VERSION: ###
+
+#Keep only individuals with less than 15% missing data ***TO INCLUDE RN420** and so that we'll have enough SNPs in the non-missing data SNP set
+awk '$5 < 0.15 {print $1}' unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree.vcf.gz.MISSING_DATA.imiss > nonadmixed_nj_sample_list_INDmaxmiss15.txt #74 inds; all good
+zcat unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree.vcf.gz | bcftools view -S nonadmixed_nj_sample_list_INDmaxmiss15.txt | bgzip > unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15.vcf.gz 
+
+#keep loci with 1% missing data; following Stankowski pipeline
+zcat unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15.vcf.gz | bcftools view -e 'F_MISSING > 1.0' | bgzip > unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.vcf.gz
+bcftools index -t unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.vcf.gz
+bcftools index -n unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.vcf.gz #534202 SNPs i.e. all SNPs can be used!
+python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.vcf.gz -o Fexs -w #convert to phylip
+
+vcftools --gzvcf unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.vcf.gz --not-chr Scaffold03 --recode --stdout | bgzip > unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0_noScaff03.vcf.gz
+bcftools index -t unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0_noScaff03.vcf.gz
+bcftools index -n unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0_noScaff03.vcf.gz #495055 SNPs
+python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0_noScaff03.vcf.gz -o Fexs -w #convert to phylip
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.min4.phy' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0_noScaff03.min4.phy' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/nonadmixed_nj_sample_list_INDmaxmiss15.txt' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
+
+### THESIS VERSION ENDS HERE ###
+
+
+
 ### Convert to phylip
 #The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
 #convert a VCF matrix into several matrix formats for phylogenetic analysis (2019; https://zenodo.org/record/2540861).
