@@ -218,3 +218,44 @@ $OUTPATH/lugubris_fi_6inds_pixy.tab $OUTPATH/pratensis_fi_6inds_pixy.tab > $OUTP
 # Iteration 2, if needed a replicate
 # ... do with the iter2 files and new shuffling for lugubris and pratensis
 
+
+### FOR THESIS PURPOSES ###
+
+#Performed after constructing the NJ-tree and computing Fbranch. For Fbranch, 6 individuals with least missing data were selected
+#per species. Use these same individuals for Pixy, as we are interested in combinations with strongest evidence of introgression.
+#Below six individuals with least missing data per species (identical to simple.minMiss.aqufi.csv list).
+#groupfiles/group_nonadmixed_minmiss_fbranch_pixy.tab
+
+104-Faqu	aqu
+106-Faqu	aqu
+107-Faqu	aqu
+109-Faqu	aqu
+114-FaquH	aqu
+44-FaquH	aqu
+108-Flug	lug
+113-Flug	lug
+115-Flug	lug
+11-Flug	lug
+124-Flug	lug
+56-Flug	lug
+Fexs	Outgroup
+CAGa_1w	pol
+CBCH1_1w	pol
+CBCH2_2w	pol
+CBCH3_1w	pol
+NAZa_1w	pol
+VDa_1w	pol
+117-Fprat	prat
+120-Fprat	prat
+122-Fprat	prat
+123-Fprat	prat
+3-Fprat	prat
+6-Fprat	prat
+102-Frufa	rufa
+16-Frufa	rufa
+26-Frufa	rufa
+37-Frufa	rufa
+72-Frufa	rufa
+RN419	rufa
+
+
