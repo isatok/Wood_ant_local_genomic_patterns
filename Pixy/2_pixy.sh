@@ -111,6 +111,33 @@ rm tmp tmp2
 ###This is the end
 
 
+### For THESIS, using the Fbranch groups, pixy_split.sh
+
+#!/bin/bash -l
+#SBATCH -J pixy_split
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/pixy/logs/pixy_split.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/pixy/logs/pixy_split.err
+#SBATCH --account=project_2001443
+#SBATCH -t 24:00:00
+#SBATCH -p small
+#SBATCH --ntasks 8
+#SBATCH --mem=4G
+
+module load biokit
+export PATH="/projappl/project_2001443/pixyenv/bin:$PATH"
+
+cd /scratch/project_2001443/barriers_introgr_formica/pixy/
+
+pixy --stats pi dxy fst \
+--vcf /scratch/project_2001443/barriers_introgr_formica/gvfc/allsamples_filtered.vcf.gz \
+--populations groupfiles/group_nonadmixed_minmiss_fbranch_pixy.tab \
+--window_size 20000 \
+--output_prefix pixy_split \
+--n_cores 8
+
+#END.
+
+
 #get the results for plotting
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/pixy/*.txt' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Pixy'
 
