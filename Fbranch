@@ -268,5 +268,28 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsu
 
 
 ###
-### 3. Dinsvestigate run ------------------------------------------------
+### 3. Dinvestigate run ------------------------------------------------
 ###
+
+#Dsuite Dinvestigate -w 50,25 scaffold_18.vcf.gz MalawiSetsFile.txt MalawiTestTriosForInvestigate.txt
+The strongest signals of introgression are between F. aquilonia and F. polyctena, and 
+F. polyctena and F. rufa. We hence selected the groups with strongest signals of introgression:
+F. pol from Western Switzerland vs. F. rufa "1", and
+F. pol from Western Switzerland vs. F. aquilonia from Finland,
+
+i.e. the trios (A, B, C)
+#FormicaTestTriosForInvestigate.txt
+rufa_2    rufa_1    pol_wswi #regions rufa1 & pol share but rufa2 & pol don't
+rufa_1    pol_wswi  aqu_fi   #regions pol & aqu share but rufa1 & aqu don't
+#The ones above make a potentially interesting chain of introgression between rufa <-> pol <-> aqu but not rufa <-> aqu
+#Combine this with information on diverged regions between rufa/pol and pol/aqu!!
+
+rufa_1    pol_eswi  aqu_ss   #regions pol & aqu share but rufa1 & aqu don't
+#This can be also checked
+
+#Use with this setsfile: 
+split.minMiss.csv
+
+cd /scratch/project_2001443/barriers_introgr_formica/admixtools/
+./Dsuite/Build/Dsuite Dinvestigate -w 20,10 all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz split.minMiss.csv FormicaTestTriosForInvestigate.txt
+NEED TO DUPLICATE AND MODIIFY THE SETS FILE - CANNOT SEEMINGLY CONTAIN EXTRA INDS LABELED
