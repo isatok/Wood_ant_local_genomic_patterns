@@ -288,8 +288,13 @@ rufa_1    pol_eswi  aqu_ss   #regions pol & aqu share but rufa1 & aqu don't
 #This can be also checked
 
 #Use with this setsfile: 
-split.minMiss.csv
+cp split.minMiss.csv split.minMiss.dinvestigate.csv #modify to contain only analysed sets
 
-cd /scratch/project_2001443/barriers_introgr_formica/admixtools/
-./Dsuite/Build/Dsuite Dinvestigate -w 20,10 all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz split.minMiss.csv FormicaTestTriosForInvestigate.txt
-NEED TO DUPLICATE AND MODIIFY THE SETS FILE - CANNOT SEEMINGLY CONTAIN EXTRA INDS LABELED
+VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz
+./Dsuite/Build/Dsuite Dinvestigate -w 20,10 $VCF split.minMiss.dinvestigate.csv FormicaTestTriosForInvestigate.txt
+
+#Get the Dinvestigate results to local
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/*localFstats*' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/dinvestigate'
+
