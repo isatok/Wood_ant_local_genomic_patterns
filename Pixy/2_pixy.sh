@@ -139,7 +139,7 @@ pixy --stats pi dxy fst \
 
 
 #get the results for plotting
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/pixy/*.txt' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Pixy'
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/pixy/pixy_split*.txt' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Pixy'
 
 
 ###
