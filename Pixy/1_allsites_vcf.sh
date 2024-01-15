@@ -115,3 +115,32 @@ bcftools concat \
 
 tabix allsamples_filtered.vcf.gz
 
+
+
+### Filter out duplicate sites from the all-sites vcf ### TO BE DONE
+### FOLLOW THIS PIPELINE MADE FOR EXSECTA (MODIFY AS NEEDED) ###
+
+#How many sites to begin with?
+bcftools index -n $VCFIN #708783 in the original vcf; also wc -l $phbed 708783 is in line
+bcftools index -n $vcfexs #696424 in the exsecta vcf
+
+# Filter out duplicate sites (achieve this by filtering out all that are mnp's and not homozygous "ref" or "snp" type)
+
+gunzip -c $vcfexs | cut -f2 | uniq -D | wc -l #Altogether 1814/2 = 907 duplicates in the unfiltered exsecta file
+
+#Keep only sites hom for reference allele or snps
+bcftools filter --threads 8 -Oz -e 'TYPE!="ref" && TYPE!="snp"' -m+ $vcfexs > Fexs_nodupl_sites_noindels.vcf.gz
+bcftools index -t Fexs_nodupl_sites_noindels.vcf.gz 
+bcftools index -n Fexs_nodupl_sites_noindels.vcf.gz  #695657 -> 767 sites removed
+
+gunzip -c Fexs_nodupl_sites_noindels.vcf.gz | cut -f2 | uniq -D | wc -l #280 /2 =140 #We still have 140 duplicates
+gunzip -c Fexs_nodupl_sites_noindels.vcf.gz | grep "Scaffold01" | cut -f2 | uniq -D     # e.g. 2442227, 5047119, 5422749
+bcftools view -H -r Scaffold01:5047119 Fexs_nodupl_sites_noindels.vcf.gz #They are mnps
+
+#Always the first one is the snp and the second one mnp. Remove all second instances
+bcftools norm --rm-dup all --threads 8 -Oz Fexs_nodupl_sites_noindels.vcf.gz > Fexs_nodupl_sites_noindels_rmdup.vcf.gz
+bcftools index -t Fexs_nodupl_sites_noindels_rmdup.vcf.gz
+bcftools index -n Fexs_nodupl_sites_noindels_rmdup.vcf.gz #695517 snps remain
+gunzip -c Fexs_nodupl_sites_noindels_rmdup.vcf.gz | cut -f2 | uniq -D | wc -l #no duplicates left; 695517(remaining)+907(duplicates)=696424 sites, equals to original amount of sites in $vcfex
+
+
