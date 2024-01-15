@@ -9,12 +9,12 @@ ls *bam > ../bam.list ; cd ..
 #Bam list is the PIXY sample list
 cd /scratch/project_2001443/barriers_introgr_formica/pixy/depth
 INDS=/scratch/project_2001443/barriers_introgr_formica/pixy/groupfiles/group_nonadmixed_minmiss_fbranch_pixy.tab
-cut -f1 $INDS > nodupl_pixy_name.list
+cut -f1 $INDS > nodupl_pixy_name.list #THIS LIST HAS ONLY SAMPLE NAMES
 #wc -l nodupl_pixy_name.list #30 inds
 
-cd /scratch/project_2001443/barriers_introgr_formica/pixy/depth
-REPLACE - WITH _ in pixylist
-grep -f /scratch/project_2001443/barriers_introgr_formica/pixy/depth/nodupl_pixy_name.list /scratch/project_2001443/barriers_introgr_formica/bam/bam_all/bam.list > bam.pixy.list
+cp /scratch/project_2001443/barriers_introgr_formica/bam/bam_all/bam.list /scratch/project_2001443/barriers_introgr_formica/pixy/depth/bam.pixy.list
+nano bam.pixy.list #select manually desired individuals based on the nodupl_pixy_name.list
+
 
 ###
 ### Compute sequencing depth per sample (after duplicate removal) ------------------------------------------------------------------------
@@ -35,43 +35,54 @@ grep -f /scratch/project_2001443/barriers_introgr_formica/pixy/depth/nodupl_pixy
 
 export PATH="/projappl/project_2001443/bioinfo_1222_env/bin:$PATH"
 
+BAMDIR=/scratch/project_2001443/barriers_introgr_formica/bam/bam_all
 FINALDIR=/scratch/project_2001443/barriers_introgr_formica/pixy/depth
-NAMELIST=/scratch/project_2001443/barriers_introgr_formica/pixy/depth/nodupl_pixy_name.list
+FILELIST=/scratch/project_2001443/barriers_introgr_formica/pixy/depth/bam.pixy.list
+NAMELIST=/scratch/project_2001443/barriers_introgr_formica/pixy/depth/nodupl_pixy_name_numonly.list
 
 cd /scratch/project_2001443/barriers_introgr_formica/bam/nodupl
 
 # Get file
-file=$(sed -n "$SLURM_ARRAY_TASK_ID"p $NAMELIST
+file=$(sed -n "$SLURM_ARRAY_TASK_ID"p $FILELIST)
 
 # Get sample ID
-sample=${file%_nodupl*}
+sample=$(sed -n "$SLURM_ARRAY_TASK_ID"p $NAMELIST)
 
-mosdepth -t 1 -b 10000 -n $FINALDIR/${sample}_overlap_correction $FINALDIR/$sample"_nodupl_wRG_clip.bam"
-mosdepth -t 1 -b 10000 -n $FINALDIR/${sample}_overlap_correction $FINALDIR/$sample"_nodupl_wRG.bam"
+mosdepth -t 1 -b 20000 -n $FINALDIR/${sample}_overlap_correction $FINALDIR/$sample"_nodupl_wRG_clip.bam"
+mosdepth -t 1 -b 20000 -n $FINALDIR/${sample}_overlap_correction $FINALDIR/$sample"_nodupl_wRG.bam"
 
 ### END
 
-
-### Get coverage for overlap corrected data  --------------------
-
-cd /scratch/project_2001443/paralugubris/bam/stats/coverage
-rm -rf *global*
-
-for i in *overlap_correction.mosdepth.summary.txt
- do echo $i ; grep 'Scaffold' $i | awk '{sum+=$4;} END{print sum/NR;}'
-done > paralugubris.overlap_correction.mosdepth.summary.tmp
-
-grep -v 'txt' paralugubris.overlap_correction.mosdepth.summary.tmp > tmp1
-grep 'txt' paralugubris.overlap_correction.mosdepth.summary.tmp | perl -npe 's/_overlap_correction.mosdepth.summary.txt//' > tmp2
-paste tmp2 tmp1 > paralugubris.overlap_correction.mosdepth.summary.txt ; rm *tmp*
-
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/paralugubris/bam/stats/coverage/paralugubris.overlap_correction.mosdepth.summary.txt' \
-'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/mapping_and_insert_stats/'
+### ------------------------------------------------------------------------
 
 
+### Get average coverage per each window ----------------
+
+cd /scratch/project_2001443/barriers_introgr_formica/pixy/depth
+
+#paste per region coverage data for all pixy samples
+touch output.txt
+for i in *regions.bed.gz; do
+    zcat "$i" | awk -v OFS='\t' '{print $4}' | paste - output.txt > temp_output.txt
+    mv temp_output.txt output.txt
+    echo "Processed $i"
+done
+
+#paste region info as the first column
+zcat 108_overlap_correction.regions.bed.gz | awk -v OFS='\t' '{print $1, $2, $3}' > 1stcol.txt #extract region info
+paste 1stcol.txt output.txt > mosdepth_pixy_20kb_regions_depth.txt
+rm 1stcol.txt output.txt
+
+#remove regions that are not used: mitchondria (mtDNA), Wolbachia (wFhyb*), and Spiroplasma (Spiroplasma*), as well as Scaffold00 
+grep -v -e mtDNA -e wFhyb -e Spiroplasma -e Scaffold00 mosdepth_pixy_20kb_regions_depth.txt > mosdepth_pixy_20kb_regions_depth_coreregions.txt ; rm mosdepth_pixy_20kb_regions_depth.txt
 
 
-###################################################
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/pixy/depth/mosdepth_pixy_20kb_regions_depth_coreregions.txt' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Pixy/depth'
+
+
+
+################################################### TRIED TO GET THE DEPTH FROM VCF BUT WAS NOT A GOOD IDEA
 
 
 #This is to compute depth in 20kb windows from the allsites vcf to control for collapsed paralogues when detecting co-elevated Fst/Dxy regions
