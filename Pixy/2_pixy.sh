@@ -110,8 +110,38 @@ rm tmp tmp2
 
 ###This is the end
 
+### For THESIS (NEW 100KB/ 5 INDS), pixy_100kb_5inds.sh; update Fbranch accordingly.
 
-### For THESIS, using the Fbranch groups, pixy_split.sh
+#!/bin/bash -l
+#SBATCH -J pixy_100kb_5inds
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/pixy/logs/pixy_100kb_5inds.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/pixy/logs/pixy_100kb_5inds.err
+#SBATCH --account=project_2001443
+#SBATCH -t 24:00:00
+#SBATCH -p small
+#SBATCH --ntasks 8
+#SBATCH --mem=4G
+
+module load biokit
+export PATH="/projappl/project_2001443/pixyenv/bin:$PATH"
+
+cd /scratch/project_2001443/barriers_introgr_formica/pixy/
+
+pixy --stats pi dxy fst \
+--vcf /scratch/project_2001443/barriers_introgr_formica/gvfc/allsamples_filtered.vcf.gz \
+--populations groupfiles/group_pixy_100kb_5inds.tab \
+--window_size 100000 \
+--output_prefix pixy_100kb_5inds \
+--n_cores 8
+
+#END.
+
+
+#get the results for plotting
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/pixy/pixy_100kb_5inds*.txt' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Pixy'
+
+
+### For THESIS (old), using the Fbranch groups, pixy_split.sh
 
 #!/bin/bash -l
 #SBATCH -J pixy_split
