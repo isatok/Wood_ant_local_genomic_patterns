@@ -117,43 +117,24 @@ tabix allsamples_filtered.vcf.gz
 
 
 
-### Filter out duplicate sites from the all-sites vcf ### TO BE DONE
-### FOLLOW THIS PIPELINE MADE FOR EXSECTA (MODIFY AS NEEDED) ###
+### Filter out duplicate sites from the all-sites vcf ### 
+### FOLLOW THIS PIPELINE MADE FOR EXSECTA ###
 
 VCFIN=/scratch/project_2001443/barriers_introgr_formica/gvcf/allsamples_filtered.vcf.gz
 
 #How many sites to begin with?
 bcftools index -n $VCFIN #208.029.582
-
-# Filter out duplicate sites (achieve this by filtering out all that are mnp's and not homozygous "ref" or "snp" type)
-
-gunzip -c $VCFIN | cut -f2 | uniq -D | wc -l #Altogether 268.064 /2 = 134.032 duplicates in the unfiltered file
-
-#Keep only sites hom for reference allele or snps
-bcftools filter --threads 8 -Oz -e 'TYPE!="ref" && TYPE!="snp"' -m+ $VCFIN > allsamples_filtered_noindels.vcf.gz
-bcftools index -t allsamples_filtered_noindels.vcf.gz
-bcftools index -n allsamples_filtered_noindels.vcf.gz  #xx -> yy sites removed
-
-#gunzip -c allsamples_filtered_noindels.vcf.gz | cut -f2 | uniq -D | wc -l #xx /2 =yy #We still have yy duplicates
-#gunzip -c allsamples_filtered_noindels.vcf.gz | grep "Scaffold01" | cut -f2 | uniq -D     # e.g. xx, yy, zz
-#bcftools view -H -r Scaffold01:5047119 allsamples_filtered_noindels.vcf.gz #They are mnps
-
-#Always the first one is the snp and the second one mnp. Remove all second instances
-bcftools norm --rm-dup all --threads 8 -Oz allsamples_filtered_noindels.vcf.gz > allsamples_filtered_noindels_rmdup.vcf.gz
-bcftools index -t allsamples_filtered_noindels_rmdup.vcf.gz
-bcftools index -n allsamples_filtered_noindels_rmdup.vcf.gz #xx snps remain
-gunzip -c allsamples_filtered_noindels_rmdup.vcf.gz | cut -f2 | uniq -D | wc -l #no duplicates left; xx(remaining)+yy(duplicates)=zz sites, equals to original amount of sites in $vcfex
+#How many duplicate sites to begin with?
+gunzip -c $VCFIN | cut -f2 | uniq -D | wc -l #Altogether 268.064 /2 = 134.032 duplicates
 
 
-
-### Try to do this as a batch job as the invariant file is so huge, if needed; remove_duplicates.sh ### MODIFY THIS BATCH JOB IF NEEDED
-
+### remove_duplicates.sh ### 
 #!/bin/bash -l
 #SBATCH -J remove_duplicates
 #SBATCH -o /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/remove_duplicates.out
 #SBATCH -e /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/remove_duplicates.err
 #SBATCH --account=project_2001443
-#SBATCH -t 72:00:00
+#SBATCH -t 24:00:00
 #SBATCH -p small
 #SBATCH --ntasks 1
 #SBATCH --mem=8G
@@ -164,24 +145,33 @@ cd /scratch/project_2001443/barriers_introgr_formica/gvcf
 VCFIN=/scratch/project_2001443/barriers_introgr_formica/gvcf/allsamples_filtered.vcf.gz
 
 #How many sites to begin with?
-bcftools index -n $VCFIN #208.029.582
+#bcftools index -n $VCFIN #208.029.582
 
 # Filter out duplicate sites (achieve this by filtering out all that are mnp's and not homozygous "ref" or "snp" type)
 
-gunzip -c $VCFIN | cut -f2 | uniq -D | wc -l #Altogether xx/2 = yy duplicates in the unfiltered exsecta file
+#gunzip -c $VCFIN | cut -f2 | uniq -D | wc -l #Altogether 268.064 /2 = 134.032 duplicates in the unfiltered file
 
 #Keep only sites hom for reference allele or snps
 bcftools filter --threads 8 -Oz -e 'TYPE!="ref" && TYPE!="snp"' -m+ $VCFIN > allsamples_filtered_noindels.vcf.gz
 bcftools index -t allsamples_filtered_noindels.vcf.gz
+
+echo "counting how many sites remain after TYPEref and TYPEsnp filtering..."
 bcftools index -n allsamples_filtered_noindels.vcf.gz  #xx -> yy sites removed
 
+echo "counting how many duplicates are left (divide the number by two)..."
 gunzip -c allsamples_filtered_noindels.vcf.gz | cut -f2 | uniq -D | wc -l #xx /2 =yy #We still have yy duplicates
-gunzip -c allsamples_filtered_noindels.vcf.gz | grep "Scaffold01" | cut -f2 | uniq -D     # e.g. xx, yy, zz
-bcftools view -H -r Scaffold01:5047119 allsamples_filtered_noindels.vcf.gz #They are mnps
+
+echo "checking examples of what kind of variants they are - mnps? look at these coordinates in the allsamples_filtered_noindels.vcf.gz file..."
+gunzip -c allsamples_filtered_noindels.vcf.gz | grep "Scaffold01" | cut -f2 | uniq -D | head     # e.g. xx, yy, zz
+#bcftools view -H -r Scaffold01:5047119 allsamples_filtered_noindels.vcf.gz #They are mnps
 
 #Always the first one is the snp and the second one mnp. Remove all second instances
+echo "removing all second instances of duplicate sites (expecting the first ones to be the real snps..."
 bcftools norm --rm-dup all --threads 8 -Oz allsamples_filtered_noindels.vcf.gz > allsamples_filtered_noindels_rmdup.vcf.gz
 bcftools index -t allsamples_filtered_noindels_rmdup.vcf.gz
+echo "counting how many snps remain..."
 bcftools index -n allsamples_filtered_noindels_rmdup.vcf.gz #xx snps remain
+echo "counting how many duplicates remain..."
 gunzip -c allsamples_filtered_noindels_rmdup.vcf.gz | cut -f2 | uniq -D | wc -l #no duplicates left; xx(remaining)+yy(duplicates)=zz sites, equals to original amount of sites in $vcfex
 
+### END.
