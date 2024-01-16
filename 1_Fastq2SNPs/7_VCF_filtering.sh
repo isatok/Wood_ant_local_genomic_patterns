@@ -280,7 +280,81 @@ done
 
 
 
-######################################################## Beginning script 4
+############################## Filter again AN after dropping out individuals ### Begin script 4 ########################
+
+#After filtering for depth (DP), we excluded individuals with more than 50% missing data before we continued to filtering by allelic number. 
+
+#We identified seven individuals with more than 50% missing data (RN418:74%, 105-FaquH:81%, 54-Frufa:63%, RN421:63%, RN425:61%, RN426:56%, RN422:56%)
+#We excluded these alongside with three individual F. rufa group genomes that were collaborative samples processed alongside our pipeline (s353:76%, s354:47%, 110-FaquH:3%)
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
+
+VCF=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.vcf.gz
+VCFOUT=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.93inds.AN10percMiss.vcf.gz
+
+#Number of individuals 103
+bcftools query -l $VCF | wc -l
+#Number of sites 3662669
+bcftools index -n $VCF
+
+##Exclude individuals with nearly or more than 50% data ##
+#check amount of missing data
+vcftools --gzvcf $VCF --missing-indv --out ${VCF%.vcf.gz}.missing
+less ${VCF%.vcf.gz}.missing.imiss | sort -k5
+#filter out individuals RN418, 105-FaquH, 54-Frufa, s353, s354, 110-FaquH, RN421, RN425, RN426, RN422
+vcftools --gzvcf $VCF --remove-indv 110-FaquH  --remove-indv RN418 --remove-indv 105-FaquH --remove-indv 54-Frufa --remove-indv s353 \
+--remove-indv s354 --remove-indv RN421 --remove-indv RN425 --remove-indv RN426 --remove-indv RN422 --recode --stdout | bgzip > ${VCF%.vcf.gz}.93inds.vcf.gz
+
+bcftools query -l ${VCF%.vcf.gz}.93inds.vcf.gz | wc -l # 93 inds - OK!
+bcftools index -t ${VCF%.vcf.gz}.93inds.vcf.gz
+bcftools index -n ${VCF%.vcf.gz}.93inds.vcf.gz #3662669 variants as should
+
+
+#check again the amount of missing data
+vcftools --gzvcf $VCFOUT --missing-indv --out ${VCFOUT%.vcf.gz}.missing
+less ${VCFOUT%.vcf.gz}.missing.imiss | sort -k5
+#Number of sites 
+bcftools index -n $VCF
+
+######
+
+#!/bin/bash -l
+#SBATCH -J filt_AN_97inds
+#SBATCH --account=project_2001443
+#SBATCH -o filt_AN_97inds.out
+#SBATCH -e filt_AN_97inds.err
+#SBATCH -t 04:00:00
+#SBATCH -p small
+#SBATCH --ntasks 4
+#SBATCH --mem=8G
+
+# FILTERING BASED ON ALLELIC NUMBER (AN)
+# 93 diploid samples = 186 alleles expected
+# 10% missing data = 167,4 = 168 alleles min.
+
+VCF1=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.vcf.gz
+VCF2=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.93inds.vcf.gz
+VCF3=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.93inds.AN10percMiss.vcf.gz
+
+
+#filter out individuals RN418, 105-FaquH, 54-Frufa, s353, s354, 110-FaquH, RN421, RN425, RN426, RN422
+vcftools --gzvcf $VCF1 --remove-indv 110-FaquH  --remove-indv RN418 --remove-indv 105-FaquH --remove-indv 54-Frufa --remove-indv s353 --remove-indv s354 --remove-indv RN421 --remove-indv RN425 --remove-indv RN426 --remove-indv RN422 --recode --recode-INFO-all --stdout | bgzip > $VCF2
+
+bcftools index -t $VCF2
+echo "number of inds when should be 93..."
+bcftools query -l $VCF2 | wc -l
+echo "number of variants when should be 3.662.669..."
+bcftools index -n $VCF2
+
+#Filter on allelic number (AN)
+bcftools view --threads 4 -Oz -i 'AN >= 168' $VCF2 > $VCF3
+
+bcftools index -t $VCF3
+echo "number of variants after AN filtering..."
+bcftools index -n $VCF3
+
+###END.
+
+######################################################## Beginning script X
 
 # Thin with 20kb distances, exclude the social chromosome (Scaffold 03). Unmapped regions (Scaffold00) have not been part of the SNP calling in the first place.
 # Exclude sample "105-FaquH" since it has likely too much missing data (DP5 0.44; DP6 0.57; DP7 0.66; DP8 0.72)
