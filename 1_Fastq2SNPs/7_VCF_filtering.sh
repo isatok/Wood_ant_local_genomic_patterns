@@ -354,7 +354,65 @@ bcftools index -n $VCF3
 
 ###END.
 
-######################################################## Beginning script X
+######################################################## Beginning script 5
+
+
+#Exclude Scaffold03 (and indicate in the filename it has no Scaffold00 anyway) - for all analyses at this stage as we look for genome-wide correlations between variables
+
+sinteractive...
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
+module load biokit
+
+VCFIN=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.93inds.AN10percMiss.vcf.gz
+
+vcftools --gzvcf $VCFIN --not-chr Scaffold03 --recode --recode-INFO-all --stdout | bgzip > DP8.93inds.AN10.noScaff0003.vcf.gz       # Not directly for any analyses; 2.556.096 variants
+bcftools index -t DP8.93inds.AN10.noScaff0003.vcf.gz 
+
+### Run the rest as a batch job filter_mac_thin.sh ###
+
+#!/bin/bash -l
+#SBATCH -J filter_mac_thin
+#SBATCH --account=project_2001443
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/vcf/filt/logs/filter_mac_thin.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/vcf/filt/logs/filter_mac_thin.err
+#SBATCH -t 04:00:00
+#SBATCH -p small
+#SBATCH --ntasks 4
+#SBATCH --mem=8G
+#SBATCH --mail-type=END
+
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
+module load biokit
+
+vcftools --gzvcf DP8.93inds.AN10.noScaff0003.vcf.gz --mac 2 --recode --recode-INFO-all --stdout | bgzip >  DP8.93inds.AN10.noScaff0003.mac2.vcf.gz       # Then thin w 1kb, add exsecta, select inds -> NJtree; thin w 20kb -> neighbournet
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.vcf.gz 
+echo "number of variants in DP8.93inds.AN10.noScaff0003.mac2.vcf.gz..."
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.vcf.gz 
+
+vcftools --gzvcf DP8.93inds.AN10.noScaff0003.mac2.vcf.gz --thin 20000 --recode --recode-INFO-all --stdout | bgzip >  DP8.93inds.AN10.noScaff0003.mac2.thin20kb.vcf.gz       # Neighbournet
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.thin20kb.vcf.gz
+echo "number of variants in DP8.93inds.AN10.noScaff0003.mac2.thin20kb.vcf.gz..."
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.thin20kb.vcf.gz
+
+
+vcftools --gzvcf DP8.93inds.AN10.noScaff0003.mac2.vcf.gz --thin 1000 --recode --recode-INFO-all --stdout | bgzip >  DP8.93inds.AN10.noScaff0003.mac2.thin1kb.vcf.gz       # NJtree (still to add exsecta and select inds)
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.thin1kb.vcf.gz  
+echo "number of variants in DP8.93inds.AN10.noScaff0003.mac2.thin1kb.vcf.gz  ..."
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.thin1kb.vcf.gz  
+
+###END.
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Thin with 20kb distances, exclude the social chromosome (Scaffold 03). Unmapped regions (Scaffold00) have not been part of the SNP calling in the first place.
 # Exclude sample "105-FaquH" since it has likely too much missing data (DP5 0.44; DP6 0.57; DP7 0.66; DP8 0.72)
