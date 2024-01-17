@@ -14,6 +14,39 @@ https://github.com/seanstankowski/Littorina_reproductive_mode/blob/main/3_genome
 
 
 
+
+###THE VERSION WITH THE 93inds and over2million SNPs ###
+cd /scratch/project_2001443/barriers_introgr_formica/nj_tree  
+VCF=DP8.93inds.AN10.noScaff0003.mac2.thin1kb.vcf.gz
+
+# Extract first 2 columns (chr - pos)
+gunzip -c $VCF | grep -v '^#' | cut -f1,2 > phased_sites.tmp
+
+# Duplicate pos column for BED format
+cut -f2 phased_sites.tmp > tmp
+paste -d '\t' phased_sites.tmp tmp > tmp2
+
+# Compute BED range (BED is 0-based); to insert tabs (in between ""; 2x), press [ctrl] + v + [tab]
+awk -F"  " 'BEGIN{OFS="  "} {$2=$2-1;print $0}' tmp2 > phased_sites.bed
+rm phased_sites.tmp tmp tmp2
+
+sinteractive ...
+cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+module load biokit
+
+bam=/scratch/project_2001443/Fexsecta_bam/Fexs_nodupl.bam
+ref=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
+phbed=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/phased_sites.bed
+bcftools mpileup -f $ref -R $phbed $bam | bcftools call --ploidy 1 -m -Oz -f GQ -o Fexs_nodupl_phased_sites_tmp.vcf.gz #now this may be overcommented by mistake? should indeed get a haplodised outgroup
+
+# Edit header (instead of adding the read group, here the name of the sample will be "Fexs")
+echo "Fexs" >> out.name
+bcftools reheader -s out.name Fexs_nodupl_phased_sites_tmp.vcf.gz -o Fexs_nodupl_phased_sites.vcf.gz
+rm out.name Fexs_nodupl_phased_sites_tmp.vcf.gz
+
+###INA CONTINUE FROM HERE: MODIFY THE SCRIPT ABOVE. TRY TO ADD PIERRRE'S QUALITY AND THE OTHER CHOICES THERE.
+
+
 ###
 ### Prepare data
 ###
