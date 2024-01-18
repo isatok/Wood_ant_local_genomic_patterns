@@ -4,24 +4,31 @@ mkdir /scratch/project_2001443/barriers_introgr_formica/gvcf/
 mkdir /scratch/project_2001443/barriers_introgr_formica/gvcf/raw/
 mkdir /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/
 
+cd /scratch/project_2001443/barriers_introgr_formica/gvcf/
+
 #make a gvcf.bam.list
-find . -type f -name "*.bam" -exec realpath {} \; > gvcf.bam.list
+#find . -type f -name "*.bam" -exec realpath {} \; > gvcf.bam.list
+
+#make a gvcf.bam.all.list for snp calling with all samples. filter out samples with poor data only after snp calling but before per-site 50% missing data filter
+cd /scratch/project_2001443/barriers_introgr_formica/bam/bam_all/
+find . -type f -name "*.bam" -exec realpath {} \; > /scratch/project_2001443/barriers_introgr_formica/gvcf/gvcf.bam.all.list 
+#Here only RN417 and 121 are excluded as they were not in the SNP calling anyway
 
 
 ### Batch script to make a gvcf: SNP calling and filtering ### 
 
 
 #!/bin/bash -l
-#SBATCH -J allsites_vcf
-#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/allsites_vcf_%j_%a.out
-#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/allsites_vcf_%j_%a.err
+#SBATCH -J allsites_vcf_highcovsamples_mac2
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/allsites_vcf_highcovsamples_mac2_%j_%a.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/allsites_vcf_highcovsamples_mac2_%j_%a.err
 #SBATCH --account=project_2001443
 #SBATCH -t 72:00:00
 #SBATCH -p small
-#SBATCH --array=1-27
+#SBATCH --array=1-26
 #SBATCH --ntasks 1
 #SBATCH --mem=8G
-
+#SBATCH --mail-type=END
 
 #
 # 0. Load modules and set directory and variables -----------------------------
@@ -34,29 +41,40 @@ cd /scratch/project_2001443/barriers_introgr_formica/gvcf/raw/
 
 # Get scaffold ID
 REF=/scratch/project_2001443/reference_genome
-scaffold=$(sed -n "$SLURM_ARRAY_TASK_ID"p ${REF}/scaffold.list)
+scaffold=$(sed -n "$SLURM_ARRAY_TASK_ID"p ${REF}/scaffold_no0300.list)
 
 # write gvcf
 echo "Writing gvcf for ${scaffold} ..."
 
 bcftools mpileup -f $REF/Formica_hybrid_v1_wFhyb_Sapis.fa \
-  -b /scratch/project_2001443/barriers_introgr_formica/gvcf/gvcf.bam.list
+  -b /scratch/project_2001443/barriers_introgr_formica/gvcf/gvcf.bam.all.list \
   -r ${scaffold} | bcftools call -m -Oz -f GQ -o /scratch/project_2001443/barriers_introgr_formica/gvcf/raw/${scaffold}_allsamples.vcf.gz
 
 # Set DP thresholds & filter missing data
 #Max depth threshold: Calculate average of the mean depths and multiply by two -> follow the logic from the variant site vcf filtering where 
-#sites with >2x mean ind depth are set as missing. Bc of big variance add some?
+#sites with >2x mean ind depth are set as missing.
 # IDEPTHPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt
-# cat $IDEPTHPATH/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.idepth | grep -v "105-FaquH" | grep -v "110-FaquH" \
-# | grep -v "INDV" | awk '{ total += $3; count++ } END { print total/count }' #15.5604
-# 15.5604*2= ca. 31,12; set max avg depth to 32x.
+# cat $IDEPTHPATH/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.idepth \
+# | grep -v "INDV" | awk '{ total += $3; count++ } END { print total/count }' #15.6196
+# 15.6196*2= ca. 31,24; set max avg depth to 31x.
 
-mindp=202 #2*101
-maxdp=3232 #32*101
+mindp=206 #2*103
+maxdp=3193 #31*103
 
 echo "Filtering gvcf ..."
-bcftools view -Ou ${scaffold}_allsamples.vcf.gz | bcftools filter -e "DP < ${mindp} | DP > ${maxdp}" --set-GTs . -Ou | bcftools filter -e "F_MISSING > 0.5" -Oz > \
-${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc.vcf.gz
+bcftools view -Ou ${scaffold}_allsamples.vcf.gz | bcftools filter -e "DP < ${mindp} | DP > ${maxdp}" --set-GTs . -Oz > ${scaffold}_allsamples_meanDP${mindp}-${maxdp}.vcf.gz &&
+bcftools index -t ${scaffold}_allsamples_meanDP${mindp}-${maxdp}.vcf.gz
+
+echo "Removing low coverage individuals ..."
+vcftools --gzvcf ${scaffold}_allsamples_meanDP${mindp}-${maxdp}.vcf.gz --remove-indv 110-FaquH  --remove-indv RN418 --remove-indv 105-FaquH --remove-indv 54-Frufa \
+--remove-indv s353 --remove-indv s354 --remove-indv RN421 --remove-indv RN425 --remove-indv RN426 --remove-indv RN422 \
+--recode --recode-INFO-all --stdout | bgzip > ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}.vcf.gz
+bcftools index -t ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}.vcf.gz
+
+echo "Filtering missing data per site ..."
+bcftools view -Ou ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}.vcf.gz | bcftools filter -e "F_MISSING > 0.5" -Oz > \
+${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}_maxNA50perc.vcf.gz
+
 
 # two vcfs will be made, one with only invariant sites and one with only variants\
     # these two are then combine to make a vcf will all sites (gvcf)
@@ -64,34 +82,41 @@ ${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc.vcf.gz
 
 echo "Creating vcf for invariant sites ..."
 # Create a filtered VCF containing only invariant sites
-vcftools --gzvcf ${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc.vcf.gz \
---max-maf 0 --recode --recode-INFO-all --stdout | bgzip -c > ${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc_invar.vcf.gz
+vcftools --gzvcf ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}_maxNA50perc.vcf.gz \
+--max-maf 0 --recode --recode-INFO-all --stdout | bgzip -c > ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}_maxNA50perc_invar.vcf.gz
 
 echo "Creating vcf for variant sites ..."
-# Create a filtered VCF containing only variant sites, keep SNPqual >= 30 and filter out HW excess
-vcftools --gzvcf ${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc.vcf.gz --mac 1 --hwe 0.001 --minQ 30 --recode --recode-INFO-all --stdout | bgzip -c > \
-${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc_var.vcf.gz
+# Create a filtered VCF containing only variant sites, keep SNPqual >= 30 and filter out HW excess and singletons
+vcftools --gzvcf ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}_maxNA50perc.vcf.gz --mac 2 --hwe 0.001 --minQ 30 --recode --recode-INFO-all --stdout | bgzip -c > \
+${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}_maxNA50perc_var.vcf.gz
 
 # Index both vcfs using tabix
-tabix ${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc_invar.vcf.gz
-tabix ${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc_var.vcf.gz
+tabix ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}_maxNA50perc_invar.vcf.gz
+tabix ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}_maxNA50perc_var.vcf.gz
 
 echo "Combining vcfs for ${scaffold} ..."
 # Combine the two VCFs using bcftools concat
 bcftools concat \
 --allow-overlaps \
-${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc_invar.vcf.gz \
-${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc_var.vcf.gz \
--Oz > ${scaffold}_allsamples_filtered.vcf.gz
+${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}_maxNA50perc_invar.vcf.gz \
+${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}_maxNA50perc_var.vcf.gz \
+-Oz > ${scaffold}_highcovsamples_filtered.vcf.gz
 
 # Index for concat afterwards
-tabix ${scaffold}_allsamples_filtered.vcf.gz
+tabix ${scaffold}_highcovsamples_filtered.vcf.gz
 
 echo "Removing temp files ..."
 # Remove temp files
 rm ${scaffold}_allsamples_meanDP${mindp}-${maxdp}_maxNA50perc*
+rm ${scaffold}_allsamples_meanDP${mindp}-${maxdp}*
+rm ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}*
 
 # End bash script. ----------------------------
+
+
+
+
+####### CONTIINUE EDITING AND RUNNING HERE #######
 
 
 
