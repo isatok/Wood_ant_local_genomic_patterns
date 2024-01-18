@@ -3,28 +3,22 @@
 #The script follows the pipeline in SH Martin et al. 2019 (https://doi.org/10.1371/journal.pbio.2006288).
 
 #--------------------------------------------------------
-### FOR THESIS VERSION 6.1.2024 ### 
+### FOR THESIS VERSION 18.1.2024 ### 
 
-#REMOVE SCAFFOLD03, do MAC2 (to replicate Satokangas et al 2023), inspect amount of missing data.
+#USE 20KB THINNED (MAC2 FILTERED) VCF (to replicate Satokangas et al 2023), inspect amount of missing data.
 VCFPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/
-VCFIN=all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff0003.vcf.gz #101 samples; 105, 110 and RN417 excluded
+VCFIN=DP8.93inds.AN10.noScaff0003.mac2.thin20kb.vcf.gz
 
-vcftools --gzvcf $VCFPATH/$VCFIN --mac 2 --recode --stdout | bgzip > $VCFPATH/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff0003.mac2.vcf.gz &&
-bcftools index -t $VCFPATH/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff0003.mac2.vcf.gz
-VCFMAC2=$VCFPATH/all_samples.normalized.SnpGap_2.NonSNP.Balance.PASS.decomposed.SNPQ30.biall.fixedHeader.minDP8.hwe.AN10percMiss.NoScaff0003.mac2.vcf.gz   #495.055 SNPs
+vcftools --gzvcf $VCFPATH/$VCFIN --missing-indv --out $VCFPATH/${VCFIN}.missing
+sort -k 5 $VCFPATH/${VCFIN}.missing.imiss | column -t #all inds have less than 50% missing data; keep all
 
-#Remove RN418, s353 and s354: inspecting missing data shows these have >50% missing.
-vcftools --gzvcf $VCFMAC2  --missing-indv --out $VCFMAC2
-sort -k 5 $VCFMAC2.imiss | column -t
+cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet
 
-vcftools --gzvcf $VCFMAC2 --remove-indv s353 --remove-indv s354 --remove-indv RN418 --recode --stdout | bgzip > $VCFPATH/DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.vcf.gz &&
-bcftools index -t $VCFPATH/DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.vcf.gz
-
-#BATCH JOB
+#BATCH JOB  geno_93inds_20kbthin.sh
 #----
 
 #!/bin/bash -l
-#SBATCH -J geno_thesis
+#SBATCH -J geno_93inds_20kbthin
 #SBATCH --account=project_2001443
 #SBATCH -t 04:00:00
 #SBATCH -p small
@@ -37,9 +31,9 @@ module load python-data
 cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet
 
 VCFPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/
-FILTVCF=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.vcf.gz #98 inds
-GENO=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.geno.gz
-DISTMAT=DP8AN10.NoScaff0003.mac2.noInds417.418.105.110.353.354.dist
+FILTVCF=DP8.93inds.AN10.noScaff0003.mac2.thin20kb.vcf.gz #93 inds, 9816 variants
+GENO=DP8.93inds.AN10.noScaff0003.mac2.thin20kb.geno.gz
+DISTMAT=DP8.93inds.AN10.noScaff0003.mac2.thin20kb.dist
 
 # do it
 
@@ -64,6 +58,10 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen
 
 ### THESIS VERSION ENDS HERE ###
 #--------------------------------------------------------
+
+
+
+
 
 
 ### THE INITIAL EXPLORATION BEGINS HERE
