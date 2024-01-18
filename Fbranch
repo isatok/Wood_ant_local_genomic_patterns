@@ -21,20 +21,98 @@ module load python-data
 python3 setup.py install --user --prefix=
 
 ###
+### 0. Merge outgroup ------------------------------------------------
+###
+
+sinteractive ...
+module load biokit
+cd /scratch/project_2001443/barriers_introgr_formica/dsuite/outgroup_prep
+VCF=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/DP8.93inds.AN10.noScaff0003.mac2.vcf.gz
+
+##Call SNPs for F.exsecta in the position of our main vcf used here
+
+# Extract first 2 columns (chr - pos)
+gunzip -c $VCF | grep -v '^#' | cut -f1,2 > dsuite.mac2.sites.tmp
+wc -l dsuite.mac2.sites.tmp #1890044 ok!
+
+# Duplicate pos column for BED format
+cut -f2 dsuite.mac2.sites.tmp > tmp
+paste -d '\t' dsuite.mac2.sites.tmp tmp > tmp2
+
+# Compute BED range (BED is 0-based); to insert tabs (in between ""; 2x), press [ctrl] + v + [tab]
+awk -F"  " 'BEGIN{OFS="  "} {$2=$2-1;print $0}' tmp2 > dsuite.mac2.sites.bed
+rm dsuite.mac2.sites.tmp tmp tmp2
+
+# SNP calling
+bam=/scratch/project_2001443/Fexsecta_bam/Fexs_nodupl.bam
+ref=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
+phbed=/scratch/project_2001443/barriers_introgr_formica/dsuite/outgroup_prep/dsuite.mac2.sites.bed
+bcftools mpileup -f $ref -B -Q 20 -R $phbed $bam | bcftools call --ploidy 1 -m -Oz -f GQ -o DP8.93inds.AN10.noScaff0003.mac2.Fexs.tmp.vcf.gz
+
+# Edit header (instead of adding the read group, here the name of the sample will be "Fexs")
+rm out.name
+echo "Fexs" >> out.name
+bcftools reheader -s out.name DP8.93inds.AN10.noScaff0003.mac2.Fexs.tmp.vcf.gz -o DP8.93inds.AN10.noScaff0003.mac2.Fexs.vcf.gz
+rm out.name
+
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.Fexs.vcf.gz
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.Fexs.vcf.gz #xx variants (incl duplicates, =xx% of the desired data in the main vcf)
+
+rm out.name DP8.93inds.AN10.noScaff0003.mac2.Fexs.tmp.vcf.gz
+
+#Check duplicate sites
+EXSVCF=DP8.93inds.AN10.noScaff0003.mac2.Fexs.vcf.gz
+
+
+gunzip -c $EXSVCF | cut -f2 | uniq -D | wc -l #Altogether xx/2 = xx duplicates in the unfiltered exsecta file
+
+#Keep only sites hom for reference allele or snps
+bcftools filter --threads 8 -Oz -e 'TYPE!="ref" && TYPE!="snp"' -m+ $EXSVCF > DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.vcf.gz
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.vcf.gz
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.vcf.gz  #xx
+
+gunzip -c DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.vcf.gz | cut -f2 | uniq -D | wc -l #xx /2 =xx #We still have xx duplicates
+gunzip -c DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.vcf.gz | grep "Scaffold01" | cut -f2 | uniq -D     # e.g. xx, xx
+bcftools view -H -r Scaffold01:xx DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.vcf.gz #They are mnps
+
+#Always the first one is the snp and the second one mnp. Remove all second instances
+bcftools norm --rm-dup all --threads 8 -Oz DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.vcf.gz > DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.noMnps.vcf.gz
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.noMnps.vcf.gz
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.noMnps.vcf.gz #xx snp remain; no duplicates left
+
+#Merge the actual dataset and exsecta vcfs
+
+bcftools merge -Ou \
+  $VCF \
+  DP8.93inds.AN10.noScaff0003.mac2.Fexs.noIndels.noMnps.vcf.gz -Oz -o DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.vcf.gz
+
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.vcf.gz
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.vcf.gz # xx - the same amount as in the original vcf dataset. Ready to continue!
+bcftools query -l DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.vcf.gz | wc -l #xx + 1 (Fexs) samples. OK!
+
+# Change GTs in haploid Fexs sample from ./. into . ### NOTE THAT IF THE NUMBER OF SAMPLES CHANGES THIS NEEDS TO CHANGE. NOW ALTOGETHER 103 COLS (9 + 94); FEXS IS THE LAST ONE. ###
+zcat DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.vcf.gz | awk 'BEGIN {OFS=FS="\t"} {gsub(/\.\/\./,".", $103); print $0}' | bgzip > DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
+# check that it worked
+zcat DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz | awk '$103 ~ /^\./ {print; if (++count == 5) exit}' | less -S
+
+###
 ### 1. Input data preparation ------------------------------------------------
 ###
 
 ### a) GENETIC DATA:
 
-#(no mac-filtering or thinning, outgroup merged; 708783 sites)
+##(no mac-filtering or thinning, outgroup merged; xx sites)
 #VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
 
-#no mac-filtering or thinning, outgroup merged, but Scaff03 excluded so that it does not drive the analysis
-VCFTMP=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
-VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz
-vcftools --gzvcf $VCFTMP --not-chr Scaffold03 --recode --stdout | bgzip > $VCF
-bcftools index -t $VCF
-bcftools index -n $VCF #658462 SNPs
+##no mac-filtering or thinning, outgroup merged, but Scaff03 excluded so that it does not drive the analysis
+#VCFTMP=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
+#VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz
+#vcftools --gzvcf $VCFTMP --not-chr Scaffold03 --recode --stdout | bgzip > $VCF
+#bcftools index -t $VCF
+#bcftools index -n $VCF #658462 SNPs
+
+#mac-filtering applied, outgroup merged, 93 individuals + outgroup (?), xx sites
+VCF=/scratch/project_2001443/barriers_introgr_formica/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
 
 
 # check the amount of missing data to plan used samples
@@ -59,6 +137,9 @@ SIMPLE_SET_2=simple.minMiss.aquss.csv #simple tree with swiss and scottish aquil
 
 SPLIT_SET=split.minMiss.csv #set where all species that divide in two clusters in the nj-tree are split in two groups. 2-3 least missing data inds per group.
 sort -k 2 $SPLIT_SET #to double check easily sampling
+
+SIMPLE_SET_1MILSNPS= modify from simple set 1
+SPLIT_SET_1MILSNPS= modify from split set
 
 ### c) TREE TOPOLOGY HYPOTHESIS
 
