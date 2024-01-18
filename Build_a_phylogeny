@@ -12,86 +12,131 @@ https://github.com/seanstankowski/Littorina_reproductive_mode/blob/main/3_genome
 #the data seems to be needed to be in phylip format "variants_only_108_VCF_MAC2_minQ30_maxmiss1.0.recode.min4.phy"
 #converted from VCF. apply mac2 filtering, and they did this with no missing data.
 
+#mkdir /scratch/project_2001443/barriers_introgr_formica/nj_tree  
 
-
-
-###THE VERSION WITH THE 93inds and over2million SNPs ###
-cd /scratch/project_2001443/barriers_introgr_formica/nj_tree  
-VCF=DP8.93inds.AN10.noScaff0003.mac2.thin1kb.vcf.gz
-
-# Extract first 2 columns (chr - pos)
-gunzip -c $VCF | grep -v '^#' | cut -f1,2 > phased_sites.tmp
-
-# Duplicate pos column for BED format
-cut -f2 phased_sites.tmp > tmp
-paste -d '\t' phased_sites.tmp tmp > tmp2
-
-# Compute BED range (BED is 0-based); to insert tabs (in between ""; 2x), press [ctrl] + v + [tab]
-awk -F"  " 'BEGIN{OFS="  "} {$2=$2-1;print $0}' tmp2 > phased_sites.bed
-rm phased_sites.tmp tmp tmp2
+###
+###THE VERSION WITH THE 93inds and originally over2million SNPs, 165.332 in this 1kb thinned vcf ###
+###
 
 sinteractive ...
-cd /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
 module load biokit
+cd /scratch/project_2001443/barriers_introgr_formica/nj_tree  
+VCF=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/DP8.93inds.AN10.noScaff0003.mac2.thin1kb.vcf.gz
 
+##Call SNPs for F.exsecta in the position of our main vcf used here
+
+# Extract first 2 columns (chr - pos)
+gunzip -c $VCF | grep -v '^#' | cut -f1,2 > njtree_thin1kb_sites.tmp
+
+# Duplicate pos column for BED format
+cut -f2 njtree_thin1kb_sites > tmp
+paste -d '\t' njtree_thin1kb_sites tmp > tmp2
+
+# Compute BED range (BED is 0-based); to insert tabs (in between ""; 2x), press [ctrl] + v + [tab]
+awk -F"  " 'BEGIN{OFS="  "} {$2=$2-1;print $0}' tmp2 > njtree_thin1kb_sites.bed
+rm njtree_thin1kb_sites.tmp tmp tmp2
+
+# SNP calling
 bam=/scratch/project_2001443/Fexsecta_bam/Fexs_nodupl.bam
 ref=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
-phbed=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/phased_sites.bed
-bcftools mpileup -f $ref -R $phbed $bam | bcftools call --ploidy 1 -m -Oz -f GQ -o Fexs_nodupl_phased_sites_tmp.vcf.gz #now this may be overcommented by mistake? should indeed get a haplodised outgroup
+phbed=/scratch/project_2001443/barriers_introgr_formica/nj_tree/njtree_thin1kb_sites.bed
+bcftools mpileup -f $ref -B -Q 20 -R $phbed $bam | bcftools call --ploidy 1 -m -Oz -f GQ -o DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.tmp.vcf.gz
 
 # Edit header (instead of adding the read group, here the name of the sample will be "Fexs")
+rm out.name
 echo "Fexs" >> out.name
-bcftools reheader -s out.name Fexs_nodupl_phased_sites_tmp.vcf.gz -o Fexs_nodupl_phased_sites.vcf.gz
+bcftools reheader -s out.name DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.tmp.vcf.gz -o DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.vcf.gz
+rm out.name
+
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.vcf.gz
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.vcf.gz #158634 variants (incl duplicates, =96% of the desired data in the main vcf)
+
 rm out.name Fexs_nodupl_phased_sites_tmp.vcf.gz
 
-###INA CONTINUE FROM HERE: MODIFY THE SCRIPT ABOVE. TRY TO ADD PIERRRE'S QUALITY AND THE OTHER CHOICES THERE.
+#Check duplicate sites
+EXSVCF=DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.vcf.gz
 
 
-###
-### Prepare data
-###
-
-mkdir /scratch/project_2001443/barriers_introgr_formica/nj_tree  #phylogeny dir
-cd /scratch/project_2001443/barriers_introgr_formica/nj_tree    
-
-sinteractive...
-module load biokit
-
-## 1. Imputed (no missing data) and mac2-filtered dataset - all SNPs available for phylogeny
-#PHASEDVCF=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/all_samples.DP8.hwe.AN10.noScaff00.mac2.whap.shapeit.allScafs.vcf.gz 
-#bcftools index -n $PHASEDVCF    #534202 sites
-
-# 2. Mac2-filtered dataset that contains missing data - only SNPs with no missing data will be used for phylogeny
-
-# 3. F. exsecta vcf for outgroup use (genotyped by calling only variant positions from the mac2-filtered VCF above)
-# (see https://github.com/isatok/Wood_ant_local_genomic_patterns/blob/main/3_Prep4trees%26TWISST/2_Add_outgroup.sh how to achieve it)
-EXSVCF=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit/Fexs_nodupl_phased_sites.vcf.gz
-cp $EXSVCF $EXSVCF.tbi .     #Copy it and its index to phylogeny dir
-bcftools index -n $EXSVCF    #524873 sites (9329 less than in the $PHASEDVCF: not all sites were found, but also part of this is duplicates)
-
-gunzip -c $EXSVCF | cut -f2 | uniq -D | wc -l #Altogether 1334/2 = 667 duplicates in the unfiltered exsecta file
+gunzip -c $EXSVCF | cut -f2 | uniq -D | wc -l #Altogether 440/2 = 220 duplicates in the unfiltered exsecta file
 
 #Keep only sites hom for reference allele or snps
-bcftools filter --threads 8 -Oz -e 'TYPE!="ref" && TYPE!="snp"' -m+ $EXSVCF > Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz
-bcftools index -t Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz 
-bcftools index -n Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz  #524313
+bcftools filter --threads 8 -Oz -e 'TYPE!="ref" && TYPE!="snp"' -m+ $EXSVCF > DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.vcf.gz
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.vcf.gz
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.vcf.gz  #158445
 
-gunzip -c Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz | cut -f2 | uniq -D | wc -l #214 /2 =107 #We still have 107 duplicates
-gunzip -c Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz | grep "Scaffold01" | cut -f2 | uniq -D     # e.g. 2442227, 5047119, 5422749
-bcftools view -H -r Scaffold01:2442227 Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz #They are mnps
+gunzip -c DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.vcf.gz | cut -f2 | uniq -D | wc -l #62 /2 =31 #We still have 31 duplicates
+gunzip -c DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.vcf.gz | grep "Scaffold01" | cut -f2 | uniq -D     # e.g. 4838404, 8642132
+bcftools view -H -r Scaffold01:4838404 DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.vcf.gz #They are mnps
 
 #Always the first one is the snp and the second one mnp. Remove all second instances
-bcftools norm --rm-dup all --threads 8 -Oz Fexs_nodupl_phased_sites_noindels_hardfilt_3.vcf.gz > Fexs_nodupl_phased_sites_noindels_hardfilt_3_rmdup.vcf.gz
-bcftools index -n Fexs_nodupl_phased_sites_noindels_hardfilt_3_rmdup.vcf.gz #524206 snp remain; no duplicates left
+bcftools norm --rm-dup all --threads 8 -Oz DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.vcf.gz > DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.noMnps.vcf.gz
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.noMnps.vcf.gz
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.noMnps.vcf.gz #158414 snp remain; no duplicates left
 
 #Merge the actual dataset and exsecta vcfs
 
 bcftools merge -Ou \
-  $PHASEDVCF \
-  Fexs_nodupl_phased_sites_noindels_hardfilt_3_rmdup.vcf.gz -Oz -o phased_with_outgroup_dedupl.vcf.gz
+  $VCF \
+  DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.noIndels.noMnps.vcf.gz -Oz -o DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.vcf.gz
 
-bcftools index -n phased_with_outgroup_dedupl.vcf.gz # 534202 - the same amount as in the original vcf dataset. Ready to continue!
-#IF WANT TO USE THIS, NEED TO DO THE SAME GT TRICK AS BELOW FOR UNPHASED DATA
+bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.vcf.gz
+bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.vcf.gz # 165332 - the same amount as in the original vcf dataset. Ready to continue!
+bcftools query -l DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.vcf.gz | wc -l #93 + 1 (Fexs) samples. OK!
+
+# Change GTs in haploid Fexs sample from ./. into . ### NOTE THAT IF THE NUMBER OF SAMPLES CHANGES THIS NEEDS TO CHANGE. NOW ALTOGETHER 103 COLS (9 + 94); FEXS IS THE LAST ONE. ###
+zcat DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.vcf.gz | awk 'BEGIN {OFS=FS="\t"} {gsub(/\.\/\./,".", $103); print $0}' | bgzip >  DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix.vcf.gz
+
+####NEXT CONTINUE FROM HERE-EDIT THE "THESIS VERSION" CHUNCK BELOW TO GET NJTREE DATA READY###
+#### FOR THAT WE ALSO NEED THE NJ-NETWORK TO BE READY, SO PERHAPS CONTINUE WITH THAT FIRST ####
+
+### THESIS VERSION: ###
+
+#Keep only individuals that have been identified nonadmixed (no detectable admixture based on ADMIXTURE, PCA, neighbour-joining tree; Satokangas et al. 2023 and Fig. SXX )
+#as including admixed individuals would be unhelpful in constructing a species' phylogeny.
+
+SAMPLELIST=nonadmixed_nj_sample_list.txt #81 inds
+
+#Keep only selected individuals
+zcat $VCFIN | bcftools view -S $SAMPLELIST | bgzip > unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree.vcf.gz 
+bcftools query -l unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree.vcf.gz  | wc -l #81 inds; all good
+
+#How much missing data per ind?
+vcftools --gzvcf unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree.vcf.gz  --missing-indv --out unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree.vcf.gz.MISSING_DATA
+sort -k 5 unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree.vcf.gz.MISSING_DATA.imiss | column -t
+
+#Keep only individuals with less than 15% missing data ***TO INCLUDE RN420** and so that we'll have enough SNPs in the non-missing data SNP set
+awk '$5 < 0.15 {print $1}' unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree.vcf.gz.MISSING_DATA.imiss > nonadmixed_nj_sample_list_INDmaxmiss15.txt #74 inds; all good
+zcat unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree.vcf.gz | bcftools view -S nonadmixed_nj_sample_list_INDmaxmiss15.txt | bgzip > unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15.vcf.gz 
+
+#keep loci with 1% missing data; following Stankowski pipeline
+zcat unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15.vcf.gz | bcftools view -e 'F_MISSING > 1.0' | bgzip > unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.vcf.gz
+bcftools index -t unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.vcf.gz
+bcftools index -n unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.vcf.gz #534202 SNPs i.e. all SNPs can be used!
+python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.vcf.gz -o Fexs -w #convert to phylip
+
+vcftools --gzvcf unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.vcf.gz --not-chr Scaffold03 --recode --stdout | bgzip > unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0_noScaff03.vcf.gz
+bcftools index -t unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0_noScaff03.vcf.gz
+bcftools index -n unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0_noScaff03.vcf.gz #495055 SNPs
+python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0_noScaff03.vcf.gz -o Fexs -w #convert to phylip
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0.min4.phy' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/unphased_with_outgroup_dedupl_gtfix_nonadmixed_NJ_tree_INDmaxmiss15_SNPmaxmiss1.0_noScaff03.min4.phy' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/nonadmixed_nj_sample_list_INDmaxmiss15.txt' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
+
+### THESIS VERSION ENDS HERE ###
+
+
+
+
+
+
+
+
+
+
 
 # 4. Prepare the ***unphased*** vcf 
 
