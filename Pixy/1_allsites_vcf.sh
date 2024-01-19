@@ -116,12 +116,8 @@ rm ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}*
 
 
 
-####### CONTIINUE EDITING AND RUNNING HERE #######
 
-
-
-
-### Interactive script to combine the per scaffold gvcf files ### 
+### Interactive script to combine the per scaffold gvcf files ### ----------------------------
 
 
 # Combine VCFs
@@ -141,8 +137,7 @@ bcftools concat \
 tabix /highcovsamples_filtered.vcf.gz
 
 
-### Filter out duplicate sites from the all-sites vcf highcovsamples_filtered.vcf.gz ### 
-### FOLLOW THIS PIPELINE MADE FOR EXSECTA ###
+### Filter out duplicate sites from the all-sites vcf highcovsamples_filtered.vcf.gz ### ----------------------------
 
 
 ### remove_duplicates_highcov.sh ### 
