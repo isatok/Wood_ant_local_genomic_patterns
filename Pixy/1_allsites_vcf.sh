@@ -134,7 +134,7 @@ bcftools concat \
 -f highcovsamples_filtered_vcfs.list \
 -Oz > ../highcovsamples_filtered.vcf.gz
 
-tabix /highcovsamples_filtered.vcf.gz
+tabix highcovsamples_filtered.vcf.gz
 
 
 ### Filter out duplicate sites from the all-sites vcf highcovsamples_filtered.vcf.gz ### ----------------------------
