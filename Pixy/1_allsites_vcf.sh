@@ -126,38 +126,30 @@ rm ${scaffold}_highcovsamples_meanDP${mindp}-${maxdp}*
 
 # Combine VCFs
 cd /scratch/project_2001443/barriers_introgr_formica/gvcf/raw/
-#for file in *allsamples_filtered.vcf.gz ; do tabix $file ; done
 
-ls *allsamples_filtered.vcf.gz > all_filtered_vcfs.list
+#ls *allsamples_filtered.vcf.gz > all_filtered_vcfs.list
+ls *_highcovsamples_filtered.vcf.gz > highcovsamples_filtered_vcfs.list
 
 sinteractive...
 module load biokit
 
 bcftools concat \
 --allow-overlaps \
--f all_filtered_vcfs.list \
--Oz > ../allsamples_filtered.vcf.gz
+-f highcovsamples_filtered_vcfs.list \
+-Oz > ../highcovsamples_filtered.vcf.gz
 
-tabix allsamples_filtered.vcf.gz
+tabix /highcovsamples_filtered.vcf.gz
 
 
-
-### Filter out duplicate sites from the all-sites vcf ### 
+### Filter out duplicate sites from the all-sites vcf highcovsamples_filtered.vcf.gz ### 
 ### FOLLOW THIS PIPELINE MADE FOR EXSECTA ###
 
-VCFIN=/scratch/project_2001443/barriers_introgr_formica/gvcf/allsamples_filtered.vcf.gz
 
-#How many sites to begin with?
-bcftools index -n $VCFIN #208.029.582
-#How many duplicate sites to begin with?
-gunzip -c $VCFIN | cut -f2 | uniq -D | wc -l #Altogether 268.064 /2 = 134.032 duplicates
-
-
-### remove_duplicates.sh ### 
+### remove_duplicates_highcov.sh ### 
 #!/bin/bash -l
-#SBATCH -J remove_duplicates
-#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/remove_duplicates.out
-#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/remove_duplicates.err
+#SBATCH -J remove_duplicates_highcov
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/remove_duplicates_highcov.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/gvcf/logs/remove_duplicates_highcov.err
 #SBATCH --account=project_2001443
 #SBATCH -t 24:00:00
 #SBATCH -p small
@@ -167,36 +159,40 @@ gunzip -c $VCFIN | cut -f2 | uniq -D | wc -l #Altogether 268.064 /2 = 134.032 du
 module load biokit
 cd /scratch/project_2001443/barriers_introgr_formica/gvcf
 
-VCFIN=/scratch/project_2001443/barriers_introgr_formica/gvcf/allsamples_filtered.vcf.gz
+VCFIN=/scratch/project_2001443/barriers_introgr_formica/gvcf/highcovsamples_filtered.vcf.gz
 
-#How many sites to begin with?
-#bcftools index -n $VCFIN #208.029.582
+echo "counting the initial number of sites in highcovsamples_filtered.vcf.gz ..."
+bcftools index -n $VCFIN
 
-# Filter out duplicate sites (achieve this by filtering out all that are mnp's and not homozygous "ref" or "snp" type)
+#Filter out duplicate sites (achieve this by filtering out all that are mnp's and not homozygous "ref" or "snp" type)
 
-#gunzip -c $VCFIN | cut -f2 | uniq -D | wc -l #Altogether 268.064 /2 = 134.032 duplicates in the unfiltered file
+echo "counting the amount of duplicates in highcovsamples_filtered.vcf.gz (divide this number by two)..."
+echo $VCFIN
+gunzip -c $VCFIN | cut -f2 | uniq -D | wc -l
 
 #Keep only sites hom for reference allele or snps
-bcftools filter --threads 8 -Oz -e 'TYPE!="ref" && TYPE!="snp"' -m+ $VCFIN > allsamples_filtered_noindels.vcf.gz
-bcftools index -t allsamples_filtered_noindels.vcf.gz
+bcftools filter --threads 8 -Oz -e 'TYPE!="ref" && TYPE!="snp"' -m+ $VCFIN > highcovsamples_filtered_noindels.vcf.gz
+bcftools index -t highcovsamples_filtered_noindels.vcf.gz
 
 echo "counting how many sites remain after TYPEref and TYPEsnp filtering..."
-bcftools index -n allsamples_filtered_noindels.vcf.gz  #xx -> yy sites removed
+bcftools index -n highcovsamples_filtered_noindels.vcf.gz
 
 echo "counting how many duplicates are left (divide the number by two)..."
-gunzip -c allsamples_filtered_noindels.vcf.gz | cut -f2 | uniq -D | wc -l #xx /2 =yy #We still have yy duplicates
+gunzip -c highcovsamples_filtered_noindels.vcf.gz | cut -f2 | uniq -D | wc -l
 
-echo "checking examples of what kind of variants they are - mnps? look at these coordinates in the allsamples_filtered_noindels.vcf.gz file..."
-gunzip -c allsamples_filtered_noindels.vcf.gz | grep "Scaffold01" | cut -f2 | uniq -D | head     # e.g. xx, yy, zz
-#bcftools view -H -r Scaffold01:5047119 allsamples_filtered_noindels.vcf.gz #They are mnps
+echo "checking examples of what kind of variants they are - mnps? look at these coordinates in the highcovsamples_filtered_noindels.vcf.gz file..."
+gunzip -c highcovsamples_filtered_noindels.vcf.gz | grep "Scaffold01" | cut -f2 | uniq -D | head     # e.g. xx, yy, zz
+#bcftools view -H -r Scaffold01:5047119 highcovsamples_filtered_noindels.vcf.gz #They are mnps
 
 #Always the first one is the snp and the second one mnp. Remove all second instances
-echo "removing all second instances of duplicate sites (expecting the first ones to be the real snps..."
-bcftools norm --rm-dup all --threads 8 -Oz allsamples_filtered_noindels.vcf.gz > allsamples_filtered_noindels_rmdup.vcf.gz
-bcftools index -t allsamples_filtered_noindels_rmdup.vcf.gz
-echo "counting how many snps remain..."
-bcftools index -n allsamples_filtered_noindels_rmdup.vcf.gz #xx snps remain
-echo "counting how many duplicates remain..."
-gunzip -c allsamples_filtered_noindels_rmdup.vcf.gz | cut -f2 | uniq -D | wc -l #no duplicates left; xx(remaining)+yy(duplicates)=zz sites, equals to original amount of sites in $vcfex
+echo "removing all second instances of duplicate sites (expecting the first ones to be the real snps)..."
+bcftools norm --rm-dup all --threads 8 -Oz highcovsamples_filtered_noindels.vcf.gz > highcovsamples_filtered_noindels_rmdup.vcf.gz
+bcftools index -t highcovsamples_filtered_noindels_rmdup.vcf.gz
+
+echo "counting how many sites remain after duplicate filtering (add to this the initial #of duplicates - does it match with the input vcf site count?) ..."
+bcftools index -n highcovsamples_filtered_noindels_rmdup.vcf.gz 
+
+echo "counting how many duplicates remain (divide by two)..."
+gunzip -c highcovsamples_filtered_noindels_rmdup.vcf.gz | cut -f2 | uniq -D | wc -l
 
 ### END.
