@@ -211,7 +211,6 @@ SPLIT_SET=indset_split_189milSNPs.csv #split set
 
 ############################
 WHEN THIS IS DONE, GO TO LINE 345 TO DO FBRANCH AND ITS PLOTTING, AND ALSO THEN DINVESTIGATE (REMEMBER 100KB BLOCKS NON-OVERLAPPING WINDOWS!) FOR THE SIMPLE SET
-PS. FOR PIXY, REMEMBER TO CHECK WHICH VARIANT FILTERING IS NEEDED. ALSO MAYBE TAKE OFF THE INDS WITH LOT OF MISSING DATA ALREADY BEFORE SNP-CALLING?
 ############################
 
 
@@ -348,6 +347,30 @@ SPLIT_SET=split.minMiss.csv
 
 # The Dtrios output formica_sets_tree.txt will be used for the Fbranch:
 
+
+# indset_simple_189milSNPs_tree.txt & indset_split_189milSNPs_tree.txt (19.1.2024)
+
+./Dsuite/Build/Dsuite Fbranch -Z treehyp_simple_189milSNPs.txt indset_simple_189milSNPs_tree.txt > formica_Fbranch_simple_189milSNPs_zscore.txt
+./Dsuite/Build/Dsuite Fbranch treehyp_simple_189milSNPs.txt indset_simple_189milSNPs_tree.txt > formica_Fbranch_simple_189milSNPs.txt
+
+./Dsuite/Build/Dsuite Fbranch -Z treehyp_split_189milSNPs.txt indset_split_189milSNPs_tree.txt > formica_Fbranch_split_189milSNPs_zscore.txt
+./Dsuite/Build/Dsuite Fbranch treehyp_split_189milSNPs.txt indset_split_189milSNPs_tree.txt > formica_Fbranch_split_189milSNPs.txt
+
+module load python-data
+python3 ./Dsuite/utils/dtools.py -n indset_simple_189milSNPs formica_Fbranch_simple_189milSNPs.txt treehyp_simple_189milSNPs.txt
+python3 ./Dsuite/utils/dtools.py -n indset_split_189milSNPs formica_Fbranch_split_189milSNPs.txt treehyp_split_189milSNPs.txt
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/fbranch.*' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/*png' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/*svg' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
+
+
+
+
+
 # Test 1
 ./Dsuite/Build/Dsuite Fbranch formica_tree_test1.txt sample.list_test1_tree.txt > formica_Fbranch.txt
 module load python-data
@@ -402,8 +425,10 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsu
 
 
 ###
-### 3. Dinvestigate run ------------------------------------------------
+### 3. Dinvestigate run ------------------------------------------------ THIS CANNOT BE USED FOR LOCAL WINDOW COMPARISONS NOW; THE WINDOWS COUNT NUMBER OF SNPS, NOT BASES! OTHER METRICS LIKE RHO ETC ARE IN KB, NOT SNP WINDOWS.
 ###
+
+#
 
 #Dsuite Dinvestigate -w 50,25 scaffold_18.vcf.gz MalawiSetsFile.txt MalawiTestTriosForInvestigate.txt
 The strongest signals of introgression are between F. aquilonia and F. polyctena, and 
