@@ -1,0 +1,121 @@
+#This script is to compute fd statistics in 100kb non-overlapping sliding windows using Simon Martin's ABBABABAwindows.py script
+#https://github.com/simonhmartin/genomics_general
+
+
+# - for help: python ABBABABAwindows.py -h 
+# - shares several command arguments with popgenWindows.py. And input formats are the same. Please see the notes for that script above.
+# - provide a populations file, which has two columns: the first gives sample names and teh second gives population name. - modify from Fbranch
+# - fd values for windows with negative D should therefore either be discarded or converted to zero,
+# - recommended window size that allows at least 100 biallelic SNPs per window (see the sitesUsed column to see the number of biallelic SNPs available).
+# - most sensitive to introgression from P3 into P2, rather than the other way around.
+
+#Introgression hypotheses:
+
+# P1=rufa_fi_2 P2=rufa_fi_1 P3=pol_wswi O=Outgroup  #more gene flow between western swiss pol and rufa_1; assumedly more from pol to rufa (fbranch)
+# P1=lug P2=aqu_fi P3=pol O=Outgroup  #no detected gene flow between aqu and lug, and hybrids rarely found. hypothesis about adaptive introgression from pol to aqu
+# P1=rufa P2=pol P3=aqu O=Outgroup  #lot of introgression from aqu to pol. is there a difference in its adaptive nature depending on the direction? here we don't see that hypothetical amount that has been going all the way from aqu through pol to rufa. 
+# P1=lug P2=pol P3=prat O=Outgroup   #lugubris and polyctena don't have gene flow with each other
+
+
+#example command: 
+python ABBABABAwindows.py -g /zoo/disk1/shm45/vcf/set62/set62.chr21.DP5GQ30.AN100MAC1.diplo.gz -f phased -o output.csv \
+-w 100000 -m 100 -s 100000 -P1 A -P2 B -P3 C -O D -T 10 --minData 0.5 --popsFile pops.txt --writeFailedWindows --polarize &
+
+
+### MODIFY THE popsFile (abwind.pops.txt)
+
+cd /scratch/project_2001443/barriers_introgr_formica/abwind
+
+# Copy the simple indset used for Fbranch (5 least missing data inds per species, all Finnish except F. polyctena, for which inds were selected from Switzerland & maximising the number of pops)
+# for comparisons (lug aqu<-pol), (rufa pol<-aqu), and (lug pol<-prat)
+
+cp /scratch/project_2001443/barriers_introgr_formica/dsuite/indset_simple_189milSNPs.csv . 
+grep -v "xxx" indset_simple_189milSNPs.csv > abwind.simple.pops.txt  # 25 inds + outgroup (rufa, pol, aqu_fi, lug, prat, Outgroup)
+
+# Copy the split indset for (rufafi2 rufafi1 <- polwswi)
+cp /scratch/project_2001443/barriers_introgr_formica/dsuite/indset_split_189milSNPs.csv . 
+grep -v "xxx" indset_split_189milSNPs.csv > abwind.split.pops.txt
+
+
+
+# Check options
+
+module load python-data
+python3 /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet/genomics_general/ABBABABAwindows.py -h
+
+  --windType coordinate  #Windows will cover a fixed range in the genome, which is defined as the window size. 
+  -w 100000  #Window size in bases      
+  -s 100000  #Step size for sliding window
+  -m 100  #Minumum good sites per window ("If a small number of SNPs is used per window, stochastic errors can cause fd to have meaningless values _ _ try to use a window size that allows at least 100 biallelic SNPs per window")
+#  --minData proportion  Min proportion of samples genotped per site; 0.5?
+  -P1 popName
+  -P2 popName
+  -P3 popName
+  -O Outgroup
+  --popsFile abwind.simple.pops.txt
+  --haploid Fexs  #name samples that are haploid
+  -g DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.geno.gz
+  -o DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix_ABBABABA_out.csv
+  -f phased
+#  --header HEADER       Header text if no header in input
+  -T 4  #Number of worker threads for parallel processing
+  --verbose
+#  --writeFailedWindows  Write output even for windows with too few sites.
+
+
+### RUN AS A BATCH SCRIPT abbababawind_100kb.sh ###
+
+#!/bin/bash -l
+#SBATCH -J abbababawind_100kb
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/abwind/logs/abbababawind_100kb.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/abwind/logs/abbababawind_100kb.err
+#SBATCH --account=project_2001443
+#SBATCH -t 24:00:00
+#SBATCH -p small
+#SBATCH --ntasks=4
+#SBATCH --mem=8G
+#SBATCH --mail-type=END
+
+cd /scratch/project_2001443/barriers_introgr_formica/abwind
+
+module load python-data
+export PYTHONPATH="/scratch/project_2001443/analysis/genomics_simon/genomics_general:$PYTHONPATH"
+
+SCRIPTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet/genomics_general
+VCF=/scratch/project_2001443/barriers_introgr_formica/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz    #See how the vcf is prepared in Fbranch script
+GENO=DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.geno.gz
+
+python3 $SCRIPTPATH/VCF_processing/parseVCF.py -i $VCF | bgzip > $GENO &&
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType coordinate -w 100000 -s 100000 -m 100 \
+-P1 rufa_fi_2 -P2 rufa_fi_1 -P3 pol_wswi -O Outgroup \
+--popsFile abwind.split.pops.txt --haploid Fexs \
+-o rufafi2.rufafi1.polwswi_ABBABABA_out.csv \
+--verbose
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType coordinate -w 100000 -s 100000 -m 100 \
+-P1 lug -P2 aqu_fi -P3 pol -O Outgroup \
+--popsFile abwind.simple.pops.txt --haploid Fexs \
+-o lug.aqufi.pol_ABBABABA_out.csv \
+--verbose
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType coordinate -w 100000 -s 100000 -m 100 \
+-P1 rufa -P2 pol -P3 aqu_fi -O Outgroup \
+--popsFile abwind.simple.pops.txt --haploid Fexs \
+-o rufa.pol.aqufi_ABBABABA_out.csv \
+--verbose
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType coordinate -w 100000 -s 100000 -m 100 \
+-P1 lug -P2 pol -P3 prat -O Outgroup \
+--popsFile abwind.simple.pops.txt --haploid Fexs \
+-o lug.pol.prat_ABBABABA_out.csv \
+--verbose
+
+done
+
+###END.
+
