@@ -37,6 +37,14 @@ cp /scratch/project_2001443/barriers_introgr_formica/dsuite/indset_split_189milS
 grep -v "xxx" indset_split_189milSNPs.csv > abwind.split.pops.txt
 
 
+###create a ploidy file
+VCF=/scratch/project_2001443/barriers_introgr_formica/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
+
+#create a ploidy file from the vcf, where 1st col are vcf_id's and 2nd col "2" for all samples; then modify by hand "1" for exsecta
+gunzip -c $VCF | grep '^#CHROM' | cut -f 10- | tr '\t' '\n' > ploidy.file.tab.tmp
+awk '{print $0 "\t2"}' ploidy.file.tab.tmp > ploidy.file.tab
+rm ploidy.file.tab.tmp #clean up
+
 
 # Check options
 
@@ -85,7 +93,7 @@ SCRIPTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet
 VCF=/scratch/project_2001443/barriers_introgr_formica/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz    #See how the vcf is prepared in Fbranch script
 GENO=DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.geno.gz
 
-python3 $SCRIPTPATH/VCF_processing/parseVCF.py -i $VCF | bgzip > $GENO &&
+python3 $SCRIPTPATH/VCF_processing/parseVCF.py --ploidyFile ploidy.file.tab -i $VCF | bgzip > $GENO &&
 
 python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
 -g $GENO -f phased --windType coordinate -w 100000 -s 100000 -m 100 \
