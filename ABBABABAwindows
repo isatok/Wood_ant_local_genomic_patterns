@@ -135,3 +135,55 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/abw
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/abwind'
 
 
+
+
+#### RUN ANOTHER SET WITH NON-INTROGRESSING PAIRS ####
+
+### RUN AS A BATCH SCRIPT abbababawind_100kb_nonintrogr.sh ###
+
+#!/bin/bash -l
+#SBATCH -J abbababawind_100kb_nonintrogr
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/abwind/logs/abbababawind_100kb_nonintrogr.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/abwind/logs/abbababawind_100kb_nonintrogr.err
+#SBATCH --account=project_2001443
+#SBATCH -t 24:00:00
+#SBATCH -p small
+#SBATCH --ntasks=4
+#SBATCH --mem=8G
+#SBATCH --mail-type=END
+
+cd /scratch/project_2001443/barriers_introgr_formica/abwind
+
+module load python-data
+export PYTHONPATH="/scratch/project_2001443/analysis/genomics_simon/genomics_general:$PYTHONPATH"
+
+SCRIPTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet/genomics_general
+GENO=DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.geno.gz
+
+#lug rufa, aqu prat
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType coordinate -w 100000 -s 100000 -m 100 \
+-P1 pol -P2 rufa -P3 lug -O Outgroup \
+--popsFile abwind.simple.pops.txt --haploid Fexs \
+-o pol.rufa.lug_ABBABABA_out.csv \
+--verbose
+
+#aqu prat
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType coordinate -w 100000 -s 100000 -m 100 \
+-P1 lug -P2 aqu_fi -P3 prat -O Outgroup \
+--popsFile abwind.simple.pops.txt --haploid Fexs \
+-o lug.aqufi.prat_ABBABABA_out.csv \
+--verbose
+
+
+done
+
+#END.
+#-----
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/abwind/pol.rufa.lug_ABBABABA_out.csv' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/abwind'
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/abwind/lug.aqufi.prat_ABBABABA_out.csv' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/abwind'
