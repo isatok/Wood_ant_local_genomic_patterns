@@ -39,3 +39,14 @@ fastqc trim/$file"_2.trim.pair.fq.gz" -o trim/fastqc
 #from the NEBNext manual (the kit: NEBNext® Ultra™ II FS DNA Library Prep Kit for Illumina (E7805L) 
 # + NEBNext® Multiplex Oligos for Illumina® (Dual Index Primers Set 1, E7600S)), supplemented with the TruSeq 3
 #adapters from Trimmomatic website, which are actually reverse complements of the NEBNext sequences.
+
+The used adapters are these:
+
+>PrefixNEBNext/1
+AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
+>PrefixNEBNext/2
+AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+>PrefixPE/1
+TACACTCTTTCCCTACACGACGCTCTTCCGATCT
+>PrefixPE/2
+GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT
