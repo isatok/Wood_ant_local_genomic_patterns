@@ -51,7 +51,15 @@ grep -v 'txt' all.overlap_correction.mosdepth.summary.tmp > tmp1
 grep 'txt' all.overlap_correction.mosdepth.summary.tmp | perl -npe 's/_overlap_correction.mosdepth.summary.txt//' > tmp2
 paste tmp2 tmp1 > all.overlap_correction.mosdepth.summary.txt ; rm *tmp*
 
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/bam/stats/coverage/all.overlap_correction.mosdepth.summary.txt' \
+#this makes the right computation (excludes scaffs 00 & 03), although it doesn't take into account the different chr lengths which is åperhaps now ok
+for i in *overlap_correction.mosdepth.summary.txt
+ do echo $i ; grep 'Scaffold' $i | grep -v 'region' | grep -v 'Scaffold03' | grep -v 'Scaffold00' | awk '{sum+=$4;} END{print sum/NR;}'
+done > all.overlap_correction_no0003.mosdepth.summary.tmp
+grep -v 'txt' all.overlap_correction_no0003.mosdepth.summary.tmp > tmp1
+grep 'txt' all.overlap_correction_no0003.mosdepth.summary.tmp | perl -npe 's/_overlap_correction_no0003.mosdepth.summary.txt//' > tmp2
+paste tmp2 tmp1 > all.overlap_correction_no0003.mosdepth.summary.txt ; rm *tmp*
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/bam/bam_all/stats/coverage/all.overlap_correction_no0003.mosdepth.summary.txt' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/mapping_and_insert_stats/'
 
 ### Get coverage for *NON* overlap corrected data  --------------------
