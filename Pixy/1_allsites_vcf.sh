@@ -12,7 +12,7 @@ cd /scratch/project_2001443/barriers_introgr_formica/gvcf/
 #make a gvcf.bam.all.list for snp calling with all samples. filter out samples with poor data only after snp calling but before per-site 50% missing data filter
 cd /scratch/project_2001443/barriers_introgr_formica/bam/bam_all/
 find . -type f -name "*.bam" -exec realpath {} \; > /scratch/project_2001443/barriers_introgr_formica/gvcf/gvcf.bam.all.list 
-#Here only RN417 and 121 are excluded as they were not in the SNP calling anyway
+#Here only RN417 and 121 are excluded as they were not in the SNP calling anyway due to bad sequencing data quality
 
 
 ### Batch script to make a gvcf: SNP calling and filtering ### 
