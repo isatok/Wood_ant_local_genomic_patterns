@@ -1,3 +1,5 @@
+### Not used for the current manuscript (updated in May 2024) ###
+
 # PCA
 
 ##### ON THE CLUSTER #####
@@ -9,31 +11,31 @@ cd /scratch/project_2001443/barriers_introgr_formica/gen_str/pca
 OUTPATH=/scratch/project_2001443/barriers_introgr_formica/gen_str/pca
 
 #For Bernhard Seifert (all_samples_BS.*), social chromosome EXCLUDED and 20.000 KB THINNING
-VCF1=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
-VCF2=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP6.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
-VCF3=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP7.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
-VCF4=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+# VCF1=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+# VCF2=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP6.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+# VCF3=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP7.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+# VCF4=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples_BS.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
 #For my project (all_samples.*), social chromosome EXCLUDED and 20.000 KB THINNING
-VCF5=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
-VCF6=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP6.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
-VCF7=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP7.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+# VCF5=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP5.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+# VCF6=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP6.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
+# VCF7=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP7.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 VCF8=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.mac2.noScaff0003.thin20kb.vcf.gz
 
 # PLINK/ PCA #
 
 #all samples; BS
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF1 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP5_BS
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF2 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP6_BS
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF3 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP7_BS
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF4 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP8_BS
+# $PROJAPPL/PLINK/plink --threads 1 --vcf $VCF1 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP5_BS
+# $PROJAPPL/PLINK/plink --threads 1 --vcf $VCF2 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP6_BS
+# $PROJAPPL/PLINK/plink --threads 1 --vcf $VCF3 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP7_BS
+# $PROJAPPL/PLINK/plink --threads 1 --vcf $VCF4 --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/all_indv_DP8_BS
 
 #pratensis clear cluster (2,3,6,117,120,122,123) filtered out; BS
 #removed inds listed in no_prat.txt, following instructions in https://www.cog-genomics.org/plink/1.9/filter
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF1 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP5_BS
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF2 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP6_BS
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF3 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP7_BS
-$PROJAPPL/PLINK/plink --threads 1 --vcf $VCF4 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP8_BS
+# $PROJAPPL/PLINK/plink --threads 1 --vcf $VCF1 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP5_BS
+# $PROJAPPL/PLINK/plink --threads 1 --vcf $VCF2 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP6_BS
+# $PROJAPPL/PLINK/plink --threads 1 --vcf $VCF3 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP7_BS
+# $PROJAPPL/PLINK/plink --threads 1 --vcf $VCF4 --remove no_prat.txt --double-id --allow-extra-chr --set-missing-var-ids @:# --pca header var-wts --out $OUTPATH/no_prat_DP8_BS
 
 #For record; no_prat.txt
 #2-Fprat	2-Fprat
