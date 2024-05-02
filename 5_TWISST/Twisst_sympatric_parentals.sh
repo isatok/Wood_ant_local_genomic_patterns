@@ -1,3 +1,5 @@
+### TWISST is not used for the current manuscript (updated in May 2024) ###
+
 #!/bin/bash -l
 #SBATCH -J twisst_symparsamples_exsog_Mi50
 #SBATCH --account=project_2001443
