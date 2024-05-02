@@ -43,7 +43,7 @@ paste -d '\t' dsuite.mac2.sites.tmp tmp > tmp2
 awk -F"  " 'BEGIN{OFS="  "} {$2=$2-1;print $0}' tmp2 > dsuite.mac2.sites.bed
 rm dsuite.mac2.sites.tmp tmp tmp2
 
-# SNP calling
+# SNP calling for exsecta
 bam=/scratch/project_2001443/Fexsecta_bam/Fexs_nodupl.bam
 ref=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
 phbed=/scratch/project_2001443/barriers_introgr_formica/dsuite/outgroup_prep/dsuite.mac2.sites.bed
@@ -100,19 +100,7 @@ zcat DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz | awk '$103 ~ /^\./ 
 
 ### a) GENETIC DATA:
 
-##(no mac-filtering or thinning, outgroup merged; xx sites)
-#VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
-
-##no mac-filtering or thinning, outgroup merged, but Scaff03 excluded so that it does not drive the analysis
-#VCFTMP=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
-#VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz
-#vcftools --gzvcf $VCFTMP --not-chr Scaffold03 --recode --stdout | bgzip > $VCF
-#bcftools index -t $VCF
-#bcftools index -n $VCF #658462 SNPs
-
-
-
-#mac-filtering applied, outgroup merged, 93 individuals + outgroup (?), xx sites
+#mac-filtering applied, outgroup merged, 93 individuals + outgroup
 VCF=/scratch/project_2001443/barriers_introgr_formica/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
 
 
@@ -130,50 +118,15 @@ rm sample.list.csv.tmp #clean up
 
 formica_sets.txt: file specifying sample -> species relationship; 1st col individual vcf_id, 2nd col species (for outgroup "Outgroup"); in the tutorial 2-4 inds per species
 
-TEST_SET_1=sample.list_test1.csv #3 inds for all geographic regions, 2 inds for German rufa (high missingness), 1 for outgroup
-TEST_SET_2=sample.list.minMiss.fineResolRufa.csv ##3 inds for all geographic regions, 2 inds for German rufa & 2+3 for Finnish rufa, 1 for outgroup
-
-SIMPLE_SET_1=simple.minMiss.aqufi.csv #simple set with finnish aquilonia (only in finland aqu has experienced gene flow from pol; in other locations only pol -> aqu)
-SIMPLE_SET_2=simple.minMiss.aquss.csv #simple tree with swiss and scottish aquilonia
-
-SPLIT_SET=split.minMiss.csv #set where all species that divide in two clusters in the nj-tree are split in two groups. 2-3 least missing data inds per group.
-sort -k 2 $SPLIT_SET #to double check easily sampling
-
-SIMPLE_SET_1MILSNPS= modify from simple set 1 #5 least missing data inds from Finland per species. For pol not possible -> 5 Swiss inds so that pops are maximised. Same inds as in PIXY.
-SPLIT_SET_1MILSNPS= modify from split set #2-3 least missing data individuals according to availability such, that every branch in the species tree is divided in two based on the first split. 
-                                          #When the first split distinguishes only one ind from the others, the closest one from the neighbouring branch is selected along.
 
 ### c) TREE TOPOLOGY HYPOTHESIS
-
 #formica_tree.txt: the tree topology hypothesis. In the tutorial: Outgroup,((((((neobri,(neooli,neopul)),neohel),neosav),neogra),(neocra,neomar)),(neochi,neowal)));
-    # make two hypotheses: one with country-level species grouping, one that follows the F. polyctena split from the nj-tree, (and one with aqu/rufa samples grouped(?)).
-    # Outgroup, (prat_fi,(lug_fi,((aqu_swi,aqu_sco),aqu_fi)),((rufa_fi,rufa_ger),(pol_wswi,pol_eswi))); #locality-level grouping ##MODIFY THIS IS NOT CORRECT
-    # ((((((aqu_swi,aqu_sco),aqu_fi),lug_fi),(((rufa_fi,rufa_ger),pol_eswi),pol_wswi)),prat_fi),Outgroup); #following nj-tree with weird polyctena/rufa splits
-
-     # ((((((aqu_swi,aqu_sco),aqu_fi),lug_fi),((((rufa_fi_1,rufa_ger),rufa_fi_2),pol_eswi),pol_wswi)),prat_fi),Outgroup); #following nj-tree with all polyctena/rufa splits
-     
-    # ((((aqu_fi,lug),(rufa,pol)),prat),Outgroup); #keep it simple, have 6 inds per species so other analyses can be replicated with those inds. finnish aqu.
-    # ((((aqu_ss,lug),(rufa,pol)),prat),Outgroup); #keep it simple, have 6 inds per species so other analyses can be replicated with those inds. swiss & scottish aqu.
-    
-    # (((((aqu_ss,aqu_fi),lug_fi),((rufa_1,rufa_2),(pol_eswi,pol_wswi))),prat_fi),Outgroup); #the split tree; two groups for each species that divides in two in nj-tree
-
-
-
-TEST_TREE_1=formica_tree_test1.txt #following nj-tree with weird polyctena/rufa splits
-TEST_TREE_2=formica_tree_fineResolRufa.txt #following nj-tree with all polyctena/rufa splits
-
-SIMPLE_TREE_1=formica_tree_simple_aqufi.txt #simple tree with finnish aquilonia (only in finland aqu has experienced gene flow from pol; in other locations only pol -> aqu)
-SIMPLE_TREE_2=formica_tree_simple_aquss.txt #simple tree with swiss and scottish aquilonia
-SIMPLE_TREE_3= ###DO THIS: 6 LEAST MISSING DATA INDS PER SPECIES
-
-SPLIT_TREE=formica_tree_split.txt
 
 ###
 ### 2. Dtrios run ------------------------------------------------
 ###
 
 # Run the analysis for all possible trios.
-
 
 #THE 1,89 million SNP DATA - 18.1.24 VERSION
 
@@ -209,138 +162,6 @@ SPLIT_SET=indset_split_189milSNPs.csv #split set
 
 
 
-############################
-WHEN THIS IS DONE, GO TO LINE 345 TO DO FBRANCH AND ITS PLOTTING, AND ALSO THEN DINVESTIGATE (REMEMBER 100KB BLOCKS NON-OVERLAPPING WINDOWS!) FOR THE SIMPLE SET
-############################
-
-
-
-
-###
-
-
-#TEST 1 
-
-###ftrios_test1.sh
-
-----
-#!/bin/bash -l
-#SBATCH -J ftrios_test1
-#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/dsuite/ftrios_test1.out
-#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/dsuite/ftrios_test1.err
-#SBATCH --account=project_2001443
-#SBATCH -t 24:00:00
-#SBATCH -p small
-#SBATCH --ntasks 8
-#SBATCH --mem=4G
-
-module load biokit
-cd /scratch/project_2001443/barriers_introgr_formica/dsuite
-
-TEST_TREE_1=formica_tree_test1.txt
-VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix.vcf.gz
-TEST_SET_1=sample.list_test1.csv
-
-./Dsuite/Build/Dsuite Dtrios -c -t $TEST_TREE_1 $VCF $TEST_SET_1
-
-
-#END.
-----
-
-#TEST 2
-
-###ftrios_test2.sh
-
-----
-#!/bin/bash -l
-#SBATCH -J ftrios_test2
-#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/dsuite/ftrios_test2.out
-#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/dsuite/ftrios_test2.err
-#SBATCH --account=project_2001443
-#SBATCH -t 24:00:00
-#SBATCH -p small
-#SBATCH --ntasks 8
-#SBATCH --mem=4G
-
-module load biokit
-cd /scratch/project_2001443/barriers_introgr_formica/dsuite
-
-TEST_TREE_2=formica_tree_fineResolRufa.txt
-VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz
-TEST_SET_2=sample.list.minMiss.fineResolRufa.csv
-
-./Dsuite/Build/Dsuite Dtrios -c -t $TEST_TREE_2 $VCF $TEST_SET_2
-
-
-#END.
-----
-
-#KEEP IT SIMPLE 1 & 2: five taxa; one test with finnish and one with swiss & scottish aqu because of shown differences in pol -> aqu gene flow.
-
-###ftrios_simple12.sh
-
-----
-#!/bin/bash -l
-#SBATCH -J ftrios_simple12
-#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/dsuite/logs/ftrios_simple12.out
-#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/dsuite/logs/ftrios_simple12.err
-#SBATCH --account=project_2001443
-#SBATCH -t 03:00:00
-#SBATCH -p small
-#SBATCH --ntasks 8
-#SBATCH --mem=4G
-#SBATCH --mail-type=END
-
-module load biokit
-cd /scratch/project_2001443/barriers_introgr_formica/dsuite
-
-SIMPLE_TREE_1=formica_tree_simple_aqufi.txt #simple tree with finnish aquilonia (only in finland aqu has experienced gene flow from pol; in other locations only pol -> aqu)
-SIMPLE_TREE_2=formica_tree_simple_aquss.txt #simple tree with swiss and scottish aquilonia
-VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz
-SIMPLE_SET_1=simple.minMiss.aqufi.csv #simple set with finnish aquilonia (only in finland aqu has experienced gene flow from pol; in other locations only pol -> aqu)
-SIMPLE_SET_2=simple.minMiss.aquss.csv #simple tree with swiss and scottish aquilonia
-
-./Dsuite/Build/Dsuite Dtrios -c -t $SIMPLE_TREE_1 $VCF $SIMPLE_SET_1
-./Dsuite/Build/Dsuite Dtrios -c -t $SIMPLE_TREE_2 $VCF $SIMPLE_SET_2
-
-
-#END.
-----
-
-#SPLIT: split all splitting taxa to two
-
-###ftrios_split.sh
-
-----
-#!/bin/bash -l
-#SBATCH -J ftrios_split
-#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/dsuite/logs/ftrios_split.out
-#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/dsuite/logs/ftrios_split.err
-#SBATCH --account=project_2001443
-#SBATCH -t 03:00:00
-#SBATCH -p small
-#SBATCH --ntasks 8
-#SBATCH --mem=4G
-#SBATCH --mail-type=END
-
-module load biokit
-cd /scratch/project_2001443/barriers_introgr_formica/dsuite
-
-SPLIT_TREE=formica_tree_split.txt
-VCF=/scratch/project_2001443/barriers_introgr_formica/admixtools/all_samples_DP8_wFexs_dedupl_gtfix_noScaff03.vcf.gz
-SPLIT_SET=split.minMiss.csv
-
-./Dsuite/Build/Dsuite Dtrios -c -t $SPLIT_TREE $VCF $SPLIT_SET
-
-
-#END.
-----
-
-
-
-
-
-
 ###
 ### 3. Fbranch run ------------------------------------------------
 ###
@@ -360,67 +181,20 @@ module load python-data
 python3 ./Dsuite/utils/dtools.py -n indset_simple_189milSNPs formica_Fbranch_simple_189milSNPs.txt treehyp_simple_189milSNPs.txt
 python3 ./Dsuite/utils/dtools.py -n indset_split_189milSNPs formica_Fbranch_split_189milSNPs.txt treehyp_split_189milSNPs.txt
 
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/fbranch.*' \
-'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/*png' \
-'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/*svg' \
-'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
-
-
-
-
-
-# Test 1
-./Dsuite/Build/Dsuite Fbranch formica_tree_test1.txt sample.list_test1_tree.txt > formica_Fbranch.txt
-module load python-data
-python3 ./Dsuite/utils/dtools.py formica_Fbranch.txt formica_tree_test1.txt
-
-# No scaff03, finescale rufa, Z-scores added
-./Dsuite/Build/Dsuite Fbranch -Z formica_tree_fineResolRufa.txt sample.list.minMiss.fineResolRufa_tree.txt > formica_Fbranch_noScaff03_fineScaleRufa_zscore.txt
-./Dsuite/Build/Dsuite Fbranch formica_tree_fineResolRufa.txt sample.list.minMiss.fineResolRufa_tree.txt > formica_Fbranch_noScaff03_fineScaleRufa.txt
-
-module load python-data
-python3 ./Dsuite/utils/dtools.py formica_Fbranch_noScaff03_fineScaleRufa.txt formica_tree_fineResolRufa.txt
-
-# No scaff03, Z-scores added, keeping it simple: 5 taxa, 2 runs (1 with aqu_fi, 1 with aqu_ss)
-./Dsuite/Build/Dsuite Fbranch -Z formica_tree_simple_aqufi.txt simple.minMiss.aqufi_tree.txt > formica_Fbranch_noScaff03_simple_aqufi_zscore.txt
-./Dsuite/Build/Dsuite Fbranch formica_tree_simple_aqufi.txt simple.minMiss.aqufi_tree.txt > formica_Fbranch_noScaff03_simple_aqufi.txt
-
-./Dsuite/Build/Dsuite Fbranch -Z formica_tree_simple_aquss.txt simple.minMiss.aquss_tree.txt > formica_Fbranch_noScaff03_simple_aquss_zscore.txt
-./Dsuite/Build/Dsuite Fbranch formica_tree_simple_aquss.txt simple.minMiss.aquss_tree.txt > formica_Fbranch_noScaff03_simple_aquss.txt
-
-module load python-data
-python3 ./Dsuite/utils/dtools.py -n noScaff03_simple_aqufi formica_Fbranch_noScaff03_simple_aqufi.txt formica_tree_simple_aqufi.txt
-python3 ./Dsuite/utils/dtools.py -n noScaff03_simple_aquss formica_Fbranch_noScaff03_simple_aquss.txt formica_tree_simple_aquss.txt
-
-# Split
-./Dsuite/Build/Dsuite Fbranch -Z formica_tree_split.txt split.minMiss_tree.txt > formica_Fbranch_noScaff03_split.minMiss_zscore.txt
-./Dsuite/Build/Dsuite Fbranch formica_tree_split.txt split.minMiss_tree.txt > formica_Fbranch_noScaff03_split.minMiss.txt
-
-module load python-data
-python3 ./Dsuite/utils/dtools.py -n noScaff03_split.minMiss formica_Fbranch_noScaff03_split.minMiss.txt formica_tree_split.txt
-
-
-
 
 # Get the Fbranch results
-scp
-""
-""
-
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/fbranch.*' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
-
-
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/*zscore.txt' \
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/*png' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
-
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/*svg' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
 
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/dsuite/*png' \
-'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/fbranch'
+
+
+
+
+
 
 
 
