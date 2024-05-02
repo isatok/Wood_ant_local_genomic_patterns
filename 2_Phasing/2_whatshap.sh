@@ -1,3 +1,6 @@
+### The phased data is not used in the manuscript analyses (updated on 05/2024) ###
+
+
 #Create and ind list of the used vcf:
 cd /scratch/project_2001443/barriers_introgr_formica/vcf/filt
 bcftools query -l all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz > all_samples.DP8.hwe.AN10.noScaff00.mac2.ind.list
