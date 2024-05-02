@@ -1,3 +1,5 @@
+### Not used for the current manuscript (updated in May 2024) ###
+
 #Build local trees with PhyML, allowing max 50% of missing data per individual, for 50 SNPs per window.
 #Use F. exsecta as the outgroup, include all sequenced samples excluding 110 (collaborative sample not published here) and 105 (too much missing data).
 
