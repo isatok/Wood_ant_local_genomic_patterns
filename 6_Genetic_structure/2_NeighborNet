@@ -3,7 +3,7 @@
 #The script follows the pipeline in SH Martin et al. 2019 (https://doi.org/10.1371/journal.pbio.2006288).
 
 #--------------------------------------------------------
-### FOR THESIS VERSION 18.1.2024 ### 
+### FOR THESIS MANUSCRIPT 18.1.2024 ### 
 
 #USE 20KB THINNED (MAC2 FILTERED) VCF (to replicate Satokangas et al 2023), inspect amount of missing data.
 VCFPATH=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/
@@ -56,7 +56,7 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen
 # node shape: circle, size 5 (Edit -> select labeled nodes; View -> Format nodes and edges.
 
 
-### THESIS VERSION ENDS HERE ###
+### THESIS MANUSCRIPT ENDS HERE ###
 #--------------------------------------------------------
 
 
@@ -64,7 +64,7 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/gen
 
 
 
-### THE INITIAL EXPLORATION BEGINS HERE
+### THE INITIAL EXPLORATION BEGINS HERE - IGNORE
 
 cd /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet
 
