@@ -1,3 +1,6 @@
+
+### Not used for the current manuscript (updated in May 2024) ###
+
 #update Simon's scripts if needed: 
 cd /scratch/project_2001443/analysis/genomics_simon
 git clone https://github.com/simonhmartin/genomics_general.git
