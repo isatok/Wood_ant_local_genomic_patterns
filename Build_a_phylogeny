@@ -6,16 +6,13 @@
 #Create the tree with *no missing data*
 nj(X)    #X: a distance matrix; may be an object of class “dist”.
 
-## Follow Sean's recent NJ pipeline in 
+## Example NJ pipeline by SS in 
 https://github.com/seanstankowski/Littorina_reproductive_mode/blob/main/3_genomeWide_relationships/NJtree_phylonet/buildTrees.ipynb
-
-#the data seems to be needed to be in phylip format "variants_only_108_VCF_MAC2_minQ30_maxmiss1.0.recode.min4.phy"
-#converted from VCF. apply mac2 filtering, and they did this with no missing data.
 
 #mkdir /scratch/project_2001443/barriers_introgr_formica/nj_tree  
 
 ###
-###THE VERSION WITH THE 93inds and originally over2million SNPs, 165.332 in this 1kb thinned vcf ###
+### 93inds and originally over2million SNPs, 165.332 in this 1kb thinned vcf ###
 ###
 
 sinteractive ...
@@ -23,7 +20,7 @@ module load biokit
 cd /scratch/project_2001443/barriers_introgr_formica/nj_tree  
 VCF=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/DP8.93inds.AN10.noScaff0003.mac2.thin1kb.vcf.gz
 
-##Call SNPs for F.exsecta in the position of our main vcf used here
+##Call SNPs for F. exsecta in the position of our main vcf used here
 
 # Extract first 2 columns (chr - pos)
 gunzip -c $VCF | grep -v '^#' | cut -f1,2 > njtree_thin1kb_sites.tmp
@@ -105,14 +102,19 @@ sort -k 5 DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix_nonadmixed_NJ_
 #12-Frufa 0.313775
 #RN424 0.41534
 
-#Keep only individuals with less than 30% missing data ***TO INCLUDE RN420** and so that we'll have enough SNPs in the non-missing data SNP set
+#Keep only individuals with less than 30% missing data
 awk '$5 < 0.30 {print $1}' DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix_nonadmixed_NJ_tree.imiss > nonadmixed_nj_think1b_sample_list_INDmaxmiss30.txt #74 inds; all good
 zcat DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix_nonadmixed_NJ_tree.vcf.gz | bcftools view -S nonadmixed_nj_think1b_sample_list_INDmaxmiss30.txt | bgzip > DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix_nonadmixed_NJ_tree_INDmaxmiss30.vcf.gz 
 
-#keep loci with 1% missing data; following Stankowski pipeline
+#keep loci with more than 1% missing data
 zcat DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix_nonadmixed_NJ_tree_INDmaxmiss30.vcf.gz | bcftools view -e 'F_MISSING > 1.0' | bgzip > DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix_nonadmixed_NJ_tree_INDmaxmiss30_SNPmaxmiss1.0.vcf.gz
 bcftools index -t DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix_nonadmixed_NJ_tree_INDmaxmiss30_SNPmaxmiss1.0.vcf.gz
 bcftools index -n DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix_nonadmixed_NJ_tree_INDmaxmiss30_SNPmaxmiss1.0.vcf.gz #165332 SNPs i.e. all SNPs can be used!
+#The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
+#convert a VCF matrix into several matrix formats for phylogenetic analysis (2019; https://zenodo.org/record/2540861).
+#wget https://github.com/edgardomortiz/vcf2phylip/archive/refs/tags/v2.8.zip 
+#unzip v2.8.zip
+#module load python-data
 python ./vcf2phylip-2.8/vcf2phylip.py -i DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix_nonadmixed_NJ_tree_INDmaxmiss30_SNPmaxmiss1.0.vcf.gz -o Fexs -w #convert to phylip
 
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/DP8.93inds.AN10.noScaff0003.mac2.thin1kb.Fexs.SNP.gtFix_nonadmixed_NJ_tree_INDmaxmiss30_SNPmaxmiss1.0.min4.phy' \
@@ -121,178 +123,9 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/nonadmixed_nj_think1b_sample_list_INDmaxmiss30.txt' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
 
-### THESIS VERSION ON 18.1.2024 ENDS HERE ###
-
-
-
-
-
-
-
-
-
-
-
-# 4. Prepare the ***unphased*** vcf 
-
-# Merge F. exsecta outgroup
-VCFIN=/scratch/project_2001443/barriers_introgr_formica/vcf/filt/all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz
-bcftools index -n $VCFIN  #534202 variants; just a double check
-
-bcftools merge -Ou \
-  $VCFIN \
-  Fexs_nodupl_phased_sites_noindels_hardfilt_3_rmdup.vcf.gz -Oz -o unphased_with_outgroup_dedupl.vcf.gz
-
-bcftools index -t unphased_with_outgroup_dedupl.vcf.gz
-bcftools index -n unphased_with_outgroup_dedupl.vcf.gz #534202 variants, 102 samples; all good
-
-# Change GTs in haploid Fexs sample from ./. into . ### NOTE THAT IF THE NUMBER OF SAMPLES CHANGES THIS NEEDS TO CHANGE. NOW ALTOGETHER 111 COLS (9 + 102); FEXS IS THE LAST ONE. ###
-zcat unphased_with_outgroup_dedupl.vcf.gz | awk 'BEGIN {OFS=FS="\t"} {gsub(/\.\/\./,".", $111); print $0}' | bgzip >  unphased_with_outgroup_dedupl_gtfix.vcf.gz
-
-# Select samples to be used in the NJ tree; should be same individuals that are used in PIXY.
-# Selected individuals that are a) included in demographic modelling b) otherwise random c) mostly in sympatric region in Finland d) from all wider geographic locations
-# e) non-admixed
-
-cat nj_sample_list.txt #43 inds
-
-CBAQ2_2w
-CBAQ3_1w
-CBAQ1_1w
-NAZa_1w
-VDa_1w
-CAGa_1w
-CF8b_1w
-CF4b_1w
-Pus2_1w
-CF14a_1w
-67-Faqu
-103-Faqu
-Lai_1w
-Loa_1w
-Lai_2w
-1-Fprat
-11-Flug
-88-Flug
-113-Flug
-124-Flug
-115-Flug
-CBCH1_1w
-CBCH2_2w
-CBCH3_1w
-2-Fprat
-3-Fprat
-6-Fprat
-117-Fprat
-120-Fprat
-123-Fprat
-12-Frufa
-16-Frufa
-26-Frufa
-37-Frufa
-72-Frufa
-102-Frufa
-RN424
-RN421
-RN422
-RN419
-RN420
-RN426
-Fexs
-
-#Keep only selected individuals
-zcat unphased_with_outgroup_dedupl_gtfix.vcf.gz | bcftools view -S nj_sample_list.txt | bgzip > unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz 
-bcftools query -l unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz | wc -l #43 inds; all good
-
-#How much missing data per ind?
-vcftools --gzvcf unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz --missing-indv --out unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz.MISSING_DATA
-sort -k 5 unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz.MISSING_DATA.imiss | column -t
-
-# Keep only loci with no missing data and check the number of snps remaining
-zcat unphased_with_outgroup_dedupl_gtfix_NJ_tree.vcf.gz | bcftools view -e 'F_MISSING > 0.0' | bgzip > unphased_with_outgroup_dedupl_gtfix_NJ_tree_maxmiss0.vcf.gz
-bcftools index -t unphased_with_outgroup_dedupl_gtfix_NJ_tree_maxmiss0.vcf.gz
-bcftools index -n unphased_with_outgroup_dedupl_gtfix_NJ_tree_maxmiss0.vcf.gz #31.683 SNPs
-
-#Too few SNPs. Exclude individuals with more than 10% missing data and re-filter the previous step
-
-cat nj_sample_list_maxmiss10.txt #37 inds
-CBAQ2_2w
-CBAQ3_1w
-CBAQ1_1w
-NAZa_1w
-VDa_1w
-CAGa_1w
-CF8b_1w
-CF4b_1w
-Pus2_1w
-CF14a_1w
-Att1_1w
-Jar6_1w
-Fis2_1w
-Lok3_1w
-67-Faqu
-103-Faqu
-Lai_1w
-Loa_1w
-Lai_2w
-1-Fprat
-11-Flug
-88-Flug
-113-Flug
-124-Flug
-115-Flug
-CBCH1_1w
-CBCH2_2w
-CBCH3_1w
-2-Fprat
-3-Fprat
-6-Fprat
-117-Fprat
-120-Fprat
-123-Fprat
-16-Frufa
-26-Frufa
-37-Frufa
-72-Frufa
-102-Frufa
-RN419
-Fexs
-
-#Keep only selected individuals when 
-zcat unphased_with_outgroup_dedupl_gtfix.vcf.gz | bcftools view -S nj_sample_list_maxmiss10.txt | bgzip > unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10.vcf.gz 
-bcftools query -l unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10.vcf.gz | wc -l #37 inds; all good
-
-# Keep again only loci with no missing data and check the number of snps remaining
-zcat unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10.vcf.gz | bcftools view -e 'F_MISSING > 0.0' | bgzip > unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz
-bcftools index -t unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz
-bcftools index -n unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz #205.503 SNPs - better, let's continue with this.
-
-###Let's test if we took all nonadmixed individuals, 
-### Convert to phylip
-#The VCF file was converted to phylip format using the script vcf2phylip (28).  E. M. Ortiz, vcf2phylip v2.0: 
-#convert a VCF matrix into several matrix formats for phylogenetic analysis (2019; https://zenodo.org/record/2540861).
-
-wget https://github.com/edgardomortiz/vcf2phylip/archive/refs/tags/v2.8.zip 
-unzip v2.8.zip
-
-module load python-data
-python ./vcf2phylip-2.8/vcf2phylip.py -i unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.vcf.gz -o Fexs -w
-
-#Number of samples in VCF: 37
-#Total of genotypes processed: 205503
-#Genotypes excluded because they exceeded the amount of missing data allowed: 0
-#Genotypes that passed missing data filter but were excluded for being MNPs: 0
-#SNPs that passed the filters: 205503
-#Used sites saved to: 'unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.min4.used_sites.tsv'
 
 ### NEXT MOVE TO R ! ###
-
-#Get files to local 
-
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/unphased_with_outgroup_dedupl_gtfix_NJ_tree_INDmaxmiss10_SNPmaxmiss0.min4.phy' \
-'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
-
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/nj_tree/nj_sample_list_maxmiss10.txt' \
-'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Phylogeny/nj_tree'
+### THESIS VERSION ON 18.1.2024 ENDS HERE ###
 
 
 
@@ -325,19 +158,3 @@ gff2bed < annotations.gff | grep -w 'gene' | cut -f1-4 > genes.bed
 java -jar astral.5.7.8.jar -i in.tree -o out.tre 2>out.log
 # also include "-a" option: When multiple individuals from the same species are available, you can ask ASTRAL to force them to be together in the species tree. 
 # To do this, a mapping file needs to be provided using the -a option: one species per line; species_name [number of individuals] individual_1 individual_2 ...
-
-#QUESTIONS:
-# Can I use my imputed and phased SNP-data to build the gene trees? Is it correct to define the tree regions by using "gene" annotations from the annotation file?
-
-
-
-###
-### Obsolete
-###
-
-#Create the tree using dataset *with missing data*
-njs(X, fs = 15)
-#https://rdrr.io/cran/ape/man/njs.html
-#X: a distance matrix.
-#fs: argument s of the agglomerative criterion: it is coerced as an integer and must at least equal to one.
-
