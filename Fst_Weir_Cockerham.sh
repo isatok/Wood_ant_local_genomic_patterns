@@ -1,3 +1,7 @@
+
+### Not used for the manuscript (updated 05/2024) ###
+
+
 #This is to calculate Fst in 20kb windows with vcftools weighted W&C estimate. If this works, I will need to do it to all species pairs. ANd/ or for the 1000 genomic blocks simulations!
 
 cd /scratch/project_2001443/barriers_introgr_formica/fst_vcftools_windowed
