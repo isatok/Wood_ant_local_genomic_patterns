@@ -1,3 +1,6 @@
+
+### Not used for the current manuscript (updated in May 2024) ###
+
 ### 1. Install AdmixTools
 
 ##env.yml
