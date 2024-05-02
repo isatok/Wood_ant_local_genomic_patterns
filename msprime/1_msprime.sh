@@ -1,3 +1,7 @@
+
+### Not used for the current manuscript (updated in May 2024) ###
+
+
 #This msprime simulation outputs an "output.vcf.gz" file. For input, information on demographic history of the species is needed.
 
 #---------------------------------------
