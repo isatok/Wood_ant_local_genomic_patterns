@@ -1,0 +1,60 @@
+### Get the data from NCBI
+
+# 500bp insert library (8.5 Gbp): https://www.ncbi.nlm.nih.gov/biosample/SAMN07344806/
+# Accession: SAMN07344806 (BioSample: SAMN07344806)
+# Sample name: F162_Sample2
+# SRA: SRS2348679
+
+module load biokit
+vdb-config -i # configure SRA toolkit
+prefetch SRS2348679
+mkdir fastq/raw
+fastq-dump -A SRS2348679 --split-files --outdir fastq/raw
+
+
+### Trim, map, remove duplicates, filter & write sync
+
+#!/bin/bash -l
+#SBATCH -J Fexs
+#SBATCH -o Fexs.out
+#SBATCH -e Fexs.err
+#SBATCH --account=project_2001443
+#SBATCH -t 24:00:00
+#SBATCH -p small
+#SBATCH --ntasks 8
+#SBATCH --mem=24G
+
+cd /scratch/project_2001443/Fexs_Illumina
+
+### 1. Trim reads
+module load trimmomatic/0.39
+trimmomatic PE -threads 1 -phred33 fastq/raw/SRS2348679_1.fastq fastq/raw/SRS2348679_2.fastq \
+-trimlog fastq/trim/Fexs.trim.log \
+fastq/trim/SRS2348679_1.trim.pair.fq.gz fastq/trim/SRS2348679_1.trim.unpair.fq.gz \
+fastq/trim/SRS2348679_2.trim.pair.fq.gz fastq/trim/SRS2348679_2.trim.unpair.fq.gz \
+LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+
+### 2. Map, sort & index
+module load biokit
+REFPATH=/scratch/project_2001443/reference_genome
+bwa mem -t8 $REFPATH/Formica_hybrid_v1_wFhyb_Sapis.fa \
+fastq/trim/SRS2348679_1.trim.pair.fq.gz \
+fastq/trim/SRS2348679_2.trim.pair.fq.gz | samtools sort -@8 -m512M -o bam/raw/Fexs.bam -
+
+### 3. Compute insert size distribution
+module load picard/2.21.4
+java -Xmx4G -jar /appl/soft/bio/picard/picard-tools-2.21.4/picard.jar CollectInsertSizeMetrics \
+I=bam/raw/Fexs.bam \
+O=bam/raw/Fexs_insert_size_metrics.txt \
+H=bam/raw/Fexs_insert_size_hist.pdf
+
+### 4. Duplicate filtering
+java -Xmx4G -jar /appl/soft/bio/picard/picard-tools-2.21.4/picard.jar MarkDuplicates \
+I=bam/raw/Fexs.bam \
+O=bam/nodupl/Fexs_nodupl.bam \
+M=bam/nodupl/Fexs_dupl_metrics.txt \
+REMOVE_DUPLICATES=T TMP_DIR=$SCRATCH
+
+#
+##
+### End.
