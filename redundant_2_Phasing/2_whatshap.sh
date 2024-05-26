@@ -13,11 +13,12 @@ bcftools query -l all_samples.DP8.hwe.AN10.noScaff00.mac2.vcf.gz > all_samples.D
 #SBATCH -o /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/whatshap/logs/whatshap_%a.out
 #SBATCH -e /scratch/project_2001443/barriers_introgr_formica/vcf/phasing/whatshap/logs/whatshap_%a.err
 #SBATCH --account=project_2001443
-#SBATCH -t 05:00:00
+#SBATCH -t 24:00:00
 #SBATCH -p small
 #SBATCH --array=1-101
 #SBATCH --ntasks 1
-#SBATCH --mem=3G
+#SBATCH --mem=25G
+#SBATCH --mail-type=END
 
 # modules
 module load biokit
