@@ -8,6 +8,26 @@ module spider ...
 
 #--> Puhti has tensorflow/2.17...2.8, cuda (which may contain cudatoolkit), and cudnn (7.6.5...8.1.0)
 
+#Second try using a virtual python environment 8.11.2024 (https://docs.csc.fi/support/tutorials/python-usage-guide/)#
+
+cd /projappl/project_2001443
+module load python-data
+python3 -m venv --system-site-packages ReLERNN_venv
+source ReLERNN_venv/bin/activate
+
+git clone https://github.com/kr-colab/ReLERNN.git
+pip install ReLERNN
+
+##Later when you wish to use the virtual environment you only need to load the module and activate the environment:
+#module load python-data
+#source /projappl/<your_project>/<venv_name>/bin/activate
+
+module load tensorflow cuda cudnn
+
+
+
+
+#Initial try, did not work#
 ### Install ReLERNN ###
 cd $PROJAPPL
 git clone https://github.com/kr-colab/ReLERNN.git
