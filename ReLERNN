@@ -8,22 +8,34 @@ module spider ...
 
 #--> Puhti has tensorflow/2.17...2.8, cuda (which may contain cudatoolkit), and cudnn (7.6.5...8.1.0)
 
-#Second try using a virtual python environment 8.11.2024 (https://docs.csc.fi/support/tutorials/python-usage-guide/)#
+#Second try using a virtual python environment 12.11.2024 (https://docs.csc.fi/support/tutorials/python-usage-guide/)#
 
 cd /projappl/project_2001443
+
 module load python-data
 python3 -m venv --system-site-packages ReLERNN_venv
 source ReLERNN_venv/bin/activate
 
+module load tensorflow cuda cudnn
+
 git clone https://github.com/kr-colab/ReLERNN.git
-pip install ReLERNN
+cd ReLERNN
+pip install .
 
 ##Later when you wish to use the virtual environment you only need to load the module and activate the environment:
 #module load python-data
 #source /projappl/<your_project>/<venv_name>/bin/activate
 
-module load tensorflow cuda cudnn
+# WARNING: The script demes is installed in '/users/satokan1/.local/bin' which is not on PATH.
+#  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+#  WARNING: The script tskit is installed in '/users/satokan1/.local/bin' which is not on PATH.
+#  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+#  WARNING: The scripts msp and mspms are installed in '/users/satokan1/.local/bin' which is not on PATH.
+#  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
 
+export PATH="/users/satokan1/.local/bin:$PATH"
+export PATH="/usr/local/lib64/python3.9/site-packages:$PATH"
+python3 -m pip install numpy
 
 
 
