@@ -1,0 +1,96 @@
+### INSTALLATION, as per https://github.com/kr-colab/ReLERNN 06.11.2024 ###
+
+#Install tensorflow 2 on your system. You will also need to install the CUDA toolkit and CuDNN. 
+#ReLERNN requires the use of a CUDA-Enabled NVIDIA GPU. The current version of ReLERNN has been successfully tested with 
+#tensorflow/2.2.0, cudatoolkit/10.1.243, and cudnn/7.6.5.
+
+module spider ...
+
+#--> Puhti has tensorflow/2.17...2.8, which (according to helpdesk) "bundles CUDA as well as python".
+
+#### Install ReLERNN ####
+
+cd /projappl/project_2001443                                 #my projappl folder
+rm -rf ReLERNN_venv/                                                 #remove my previous venv
+module load tensorflow                                              #load only tensorflow
+python3 -m venv --system-site-packages ReLERNN_venv         #create the venv
+source ReLERNN_venv/bin/activate                     #activate venv
+cd ReLERNN_venv
+git clone https://github.com/kr-colab/ReLERNN.git     #get the code
+pip install ReLERNN                                                      #install
+ReLERNN_SIMULATE                                                    #test
+
+### Test it functions properly ### --> YES IT DOES
+cd $SCRATCH
+mkdir ReLERNN
+cd ReLERNN
+mkdir logs
+mkdir example_output
+
+cp $PROJAPPL/ReLERNN/examples/example_pipeline.sh .
+nano example_pipeline.sh
+
+######---test script starts here---
+
+#!/bin/bash -l
+#SBATCH -J relernn_test
+#SBATCH -o logs/ReLERNN_test.out
+#SBATCH -e logs/ReLERNN_test.err
+#SBATCH --account=project_2001443
+#SBATCH -t 01:00:00 #THIS RAN OUT OF TIME - SHOULD BE AT LEAST DOUBLE
+#SBATCH -p small
+#SBATCH --ntasks 1
+#SBATCH --mem=6G
+
+cd $PROJAPPL/ReLERNN_venv
+module load tensorflow
+source /projappl/project_2001443/ReLERNN_venv/bin/activate
+
+SIMULATE="ReLERNN_SIMULATE"
+TRAIN="ReLERNN_TRAIN"
+PREDICT="ReLERNN_PREDICT"
+BSCORRECT="ReLERNN_BSCORRECT"
+SEED="42"
+MU="1e-8"
+URTR="1"
+DIR="/scratch/project_2001443/ReLERNN/example_output/"
+VCF="/projappl/project_2001443/ReLERNN_venv/ReLERNN/examples/example.vcf"
+GENOME="/projappl/project_2001443/ReLERNN_venv/ReLERNN/examples/genome.bed"
+MASK="/projappl/project_2001443/ReLERNN_venv/ReLERNN/examples/accessibility_mask.bed"
+
+# Simulate data
+#python3.6 /projappl/project_2001443/ReLERNN/build/lib/
+${SIMULATE} \
+    --vcf ${VCF} \
+    --genome ${GENOME} \
+    --mask ${MASK} \
+    --projectDir ${DIR} \
+    --assumedMu ${MU} \
+    --upperRhoThetaRatio ${URTR} \
+    --nTrain 13000 \
+    --nVali 2000 \
+    --nTest 100 \
+    --seed ${SEED}
+
+# Train network
+${TRAIN} \
+    --projectDir ${DIR} \
+    --seed ${SEED}
+
+# Predict
+${PREDICT} \
+    --vcf ${VCF} \
+    --projectDir ${DIR} \
+    --seed ${SEED}
+
+# Parametric Bootstrapping
+${BSCORRECT} \
+    --projectDir ${DIR} \
+    --nSlice 2 \
+    --nReps 2 \
+    --seed ${SEED}
+
+
+###This is the end.
+
+#####---End of the test script-----
