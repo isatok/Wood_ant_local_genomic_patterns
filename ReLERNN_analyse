@@ -1,0 +1,21 @@
+# Start the actual analysis here. 
+# Read https://github.com/kr-colab/ReLERNN & https://academic.oup.com/mbe/article/37/6/1790/5741419?login=false
+
+# Use VCFs in the local barriers analysis folder:
+
+cd /scratch/project_2001443/barriers_introgr_formica_112024/vcf/filt --> 
+DP8.93inds.AN10.noScaff0003.mac2.vcf.gz       # Then thin w 1kb, add exsecta, select inds -> NJtree; thin w 20kb -> neighbournet
+
+
+#Select some number of aqu samples, maybe at least the five with least missing data that were used in other analyses:
+
+# From ABBABABA WINDOWS:
+# Copy the simple indset used for Fbranch (5 least missing data inds per species, all Finnish except F. polyctena, for which inds were selected from Switzerland & maximising the number of pops)
+# for comparisons (lug aqu<-pol), (rufa pol<-aqu), and (lug pol<-prat)
+
+cp /scratch/project_2001443/barriers_introgr_formica/dsuite/indset_simple_189milSNPs.csv . 
+grep -v "xxx" indset_simple_189milSNPs.csv > abwind.simple.pops.txt  # 25 inds + outgroup (rufa, pol, aqu_fi, lug, prat, Outgroup)
+
+#Modify the test script to suit the actual analysis:
+cd $SCRATCH/ReLERNN/example_pipeline.sh
+#BUT ACTUALLY CREATE A RELERNN DIR INTO THE BARRIERS INTROGR FOLDER AND ANALYSE THERE - NOT DIRECTLY IN SCRATCH/RELERNN, TO KEEP SOME ORDER !
