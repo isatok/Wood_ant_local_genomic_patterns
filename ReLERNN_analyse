@@ -1,10 +1,12 @@
-# Start the actual analysis here. 
-# Read https://github.com/kr-colab/ReLERNN & https://academic.oup.com/mbe/article/37/6/1790/5741419?login=false
+### Start the actual analysis here. 
+### Read https://github.com/kr-colab/ReLERNN & https://academic.oup.com/mbe/article/37/6/1790/5741419?login=false
+### How to estimate recombination rates per window!! "The recombination rate for each 100-kb window was calculated
+  # by taking the average of all raw rate windows predicted by ReLERNN, weighted by the fraction that each window over-
+  # lapped the larger 100-kb sliding window."
 
-# Use VCFs in the local barriers analysis folder:
+### Use VCFs in the local barriers analysis folder:
 
-cd /scratch/project_2001443/barriers_introgr_formica_112024/vcf/filt --> 
-DP8.93inds.AN10.noScaff0003.mac2.vcf.gz       # Then thin w 1kb, add exsecta, select inds -> NJtree; thin w 20kb -> neighbournet
+VCFIN="/scratch/project_2001443/barriers_introgr_formica_112024/vcf/filt/DP8.93inds.AN10.noScaff0003.mac2.vcf.gz"
 
 
 #Select some number of aqu samples, maybe at least the five with least missing data that were used in other analyses:
@@ -19,3 +21,69 @@ grep -v "xxx" indset_simple_189milSNPs.csv > abwind.simple.pops.txt  # 25 inds +
 #Modify the test script to suit the actual analysis:
 cd $SCRATCH/ReLERNN/example_pipeline.sh
 #BUT ACTUALLY CREATE A RELERNN DIR INTO THE BARRIERS INTROGR FOLDER AND ANALYSE THERE - NOT DIRECTLY IN SCRATCH/RELERNN, TO KEEP SOME ORDER !
+
+#!/bin/bash -l
+#SBATCH -J relernn_1
+#SBATCH -o logs/ReLERNN_1.out
+#SBATCH -e logs/ReLERNN_1.err
+#SBATCH --account=project_2001443
+#SBATCH --time=01:00:00
+#SBATCH --partition=gpu
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=64G
+#SBATCH --time=1:00:00
+#SBATCH --gres=gpu:v100:1
+#SBATCH --mail-type=END
+
+cd $PROJAPPL/ReLERNN_venv
+module load tensorflow
+source /projappl/project_2001443/ReLERNN_venv/bin/activate
+
+SIMULATE="ReLERNN_SIMULATE"
+TRAIN="ReLERNN_TRAIN"
+PREDICT="ReLERNN_PREDICT"
+BSCORRECT="ReLERNN_BSCORRECT"
+SEED="42"
+MU="1e-8"
+URTR="1"
+DIR="/scratch/project_2001443/ReLERNN/example_output/"
+VCF="/projappl/project_2001443/ReLERNN_venv/ReLERNN/examples/example.vcf"
+GENOME="/projappl/project_2001443/ReLERNN_venv/ReLERNN/examples/genome.bed"
+MASK="/projappl/project_2001443/ReLERNN_venv/ReLERNN/examples/accessibility_mask.bed"
+
+# Simulate data
+#python3.6 /projappl/project_2001443/ReLERNN/build/lib/
+${SIMULATE} \
+    --vcf ${VCF} \
+    --genome ${GENOME} \
+    --mask ${MASK} \
+    --projectDir ${DIR} \
+    --assumedMu ${MU} \
+    --upperRhoThetaRatio ${URTR} \
+    --nTrain 13000 \
+    --nVali 2000 \
+    --nTest 100 \
+    --seed ${SEED}
+
+# Train network
+${TRAIN} \
+    --projectDir ${DIR} \
+    --seed ${SEED}
+
+# Predict
+${PREDICT} \
+    --vcf ${VCF} \
+    --projectDir ${DIR} \
+    --seed ${SEED}
+
+# Parametric Bootstrapping
+${BSCORRECT} \
+    --projectDir ${DIR} \
+    --nSlice 2 \
+    --nReps 2 \
+    --seed ${SEED}
+
+
+###This is the end.
