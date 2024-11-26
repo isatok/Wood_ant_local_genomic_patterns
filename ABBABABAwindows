@@ -22,7 +22,9 @@ python ABBABABAwindows.py -g /zoo/disk1/shm45/vcf/set62/set62.chr21.DP5GQ30.AN10
 -w 100000 -m 100 -s 100000 -P1 A -P2 B -P3 C -O D -T 10 --minData 0.5 --popsFile pops.txt --writeFailedWindows --polarize &
 
 
-### MODIFY THE popsFile (abwind.pops.txt)
+###
+### MODIFY THE popsFile (abwind.pops.txt) ###
+###
 
 cd /scratch/project_2001443/barriers_introgr_formica/abwind
 
@@ -37,7 +39,20 @@ cp /scratch/project_2001443/barriers_introgr_formica/dsuite/indset_split_189milS
 grep -v "xxx" indset_split_189milSNPs.csv > abwind.split.pops.txt
 
 
-###create a ploidy file
+# 26.11.2024: Modify the simple indset used for Franch (5 least missing data inds per species, all Finnish except F. polyctena, for which inds were selected from Switzerland & maximising the number of pops)
+# by tagging three aqu_sco individuals (Lai1, Lai2, Loa) for a pol_wswi vs aqu_sco comparison, and three aqu_eswi individuals (CBAQ1_1w, CBAQ2_2w, and CBAQ3_1w) for a aqu_eswi vs pol_wswi comparison.
+
+cp /scratch/project_2001443/barriers_introgr_formica_112024/dsuite/indset_simple_189milSNPs.csv /scratch/project_2001443/barriers_introgr_formica_112024/dsuite/indset_simple_aquSCO_aquESWI_189milSNPs.csv
+nano /scratch/project_2001443/barriers_introgr_formica_112024/dsuite/indset_simple_aquSCO_aquESWI_189milSNPs.csv #add species tags for the aqu inds listed above
+cd /scratch/project_2001443/barriers_introgr_formica_112024/abwind
+cp /scratch/project_2001443/barriers_introgr_formica_112024/dsuite/indset_simple_aquSCO_aquESWI_189milSNPs.csv .
+grep -v "xxx" indset_simple_aquSCO_aquESWI_189milSNPs.csv > abwind.simple_aquSCO_aquESWI.pops.txt  # 31 inds + outgroup (rufa, pol, aqu_fi, lug, prat, Outgroup)
+
+###
+### create a ploidy file
+###
+
+
 VCF=/scratch/project_2001443/barriers_introgr_formica/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
 
 #create a ploidy file from the vcf, where 1st col are vcf_id's and 2nd col "2" for all samples; then modify by hand "1" for exsecta
@@ -45,8 +60,16 @@ gunzip -c $VCF | grep '^#CHROM' | cut -f 10- | tr '\t' '\n' > ploidy.file.tab.tm
 awk '{print $0 "\t2"}' ploidy.file.tab.tmp > ploidy.file.tab
 rm ploidy.file.tab.tmp #clean up
 
+# 26.11.2024: create a ploidy file for the additional aqu vs pol comparisons
+VCF=/scratch/project_2001443/barriers_introgr_formica_112024/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
+#create a ploidy file from the vcf, where 1st col are vcf_id's and 2nd col "2" for all samples; then modify by hand "1" for exsecta
+gunzip -c $VCF | grep '^#CHROM' | cut -f 10- | tr '\t' '\n' > ploidy.file.tab.tmp
+awk '{print $0 "\t2"}' ploidy.file.tab.tmp > ploidy.file.tab
+rm ploidy.file.tab.tmp #clean up
 
-# Check options
+###
+### Check options
+###
 
 module load python-data
 python3 /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet/genomics_general/ABBABABAwindows.py -h
@@ -71,8 +94,74 @@ python3 /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet/ge
 #  --writeFailedWindows  Write output even for windows with too few sites.
 
 
+###
+### RUN AS A BATCH SCRIPT - SLIDING WINDOWS with Scottish & Swiss aquilonia compared to Swiss polyctena 11/2024: /scratch/project_2001443/barriers_introgr_formica_112024/abwind/slidingw/abbababawind_sliding_50kb_aquSCO_aquESWI.sh ###
+###
 
+#pwd /projappl/project_2001443/genomics_simon
+#git clone https://github.com/simonhmartin/genomics_general.git
+
+#!/bin/bash -l
+#SBATCH -J abbababawind_sliding_50kb_aquSCO_aquESWI
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica_112024/abwind/logs/abbababawind_sliding_50kb_aquSCO_aquESWI.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica_112024/abwind/logs/abbababawind_sliding_50kb_aquSCO_aquESWI.err
+#SBATCH --account=project_2001443
+#SBATCH -t 01:00:00
+#SBATCH -p small
+#SBATCH --ntasks=4
+#SBATCH --mem=1G
+#SBATCH --mail-type=END
+
+cd /scratch/project_2001443/barriers_introgr_formica_112024/abwind/slidingw
+
+module load python-data
+export PYTHONPATH="/projappl/project_2001443/genomics_simon/genomics_general:$PYTHONPATH"
+
+SCRIPTPATH=/projappl/project_2001443/genomics_simon/genomics_general
+VCF=/scratch/project_2001443/barriers_introgr_formica_112024/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz    #See how the vcf is prepared in Fbranch script
+GENO=/scratch/project_2001443/barriers_introgr_formica_112024/abwind/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.geno.gz
+
+#python3 $SCRIPTPATH/VCF_processing/parseVCF.py --ploidyFile ../ploidy.file.tab -i $VCF | bgzip > $GENO &&
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType coordinate -w 50000 -s 20000 -m 100 \
+-P1 lug -P2 aqu_sco -P3 pol -O Outgroup \
+--popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
+-o lug.aqusco.pol_ABBABABA_sliding_out.csv \
+--verbose
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType coordinate -w 50000 -s 20000 -m 100 \
+-P1 rufa -P2 pol -P3 aqu_sco -O Outgroup \
+--popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
+-o rufa.pol.aqusco_ABBABABA_sliding_out.csv \
+--verbose
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType coordinate -w 50000 -s 20000 -m 100 \
+-P1 lug -P2 aqu_eswi -P3 pol -O Outgroup \
+--popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
+-o lug.aqueswi.pol_ABBABABA_sliding_out.csv \
+--verbose
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType coordinate -w 50000 -s 20000 -m 100 \
+-P1 rufa -P2 pol -P3 aqu_eswi -O Outgroup \
+--popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
+-o rufa.pol.aqueswi_ABBABABA_sliding_out.csv \
+--verbose
+
+###END.
+
+
+###Get the data
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica_112024/abwind/slidingw/*csv' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/abwind'
+
+###
 ### RUN AS A BATCH SCRIPT - SLIDING WINDOWS 11/2024: abbababawind_sliding_50kb.sh ###
+###
 
 #pwd /projappl/project_2001443/genomics_simon
 #git clone https://github.com/simonhmartin/genomics_general.git
@@ -82,10 +171,10 @@ python3 /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet/ge
 #SBATCH -o /scratch/project_2001443/barriers_introgr_formica_112024/abwind/logs/abbababawind_sliding_50kb.out
 #SBATCH -e /scratch/project_2001443/barriers_introgr_formica_112024/abwind/logs/abbababawind_sliding_50kb.err
 #SBATCH --account=project_2001443
-#SBATCH -t 24:00:00
+#SBATCH -t 01:00:00
 #SBATCH -p small
 #SBATCH --ntasks=4
-#SBATCH --mem=8G
+#SBATCH --mem=1G
 #SBATCH --mail-type=END
 
 cd /scratch/project_2001443/barriers_introgr_formica_112024/abwind/slidingw
@@ -127,7 +216,6 @@ python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
 -o lug.pol.prat_ABBABABA_sliding_out.csv \
 --verbose
 
-done
 
 ###END.
 
@@ -137,18 +225,19 @@ done
 scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica_112024/abwind/slidingw/*csv' \
 '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/abwind'
 
-
-### RUN AS A BATCH SCRIPT abbababawind_100kb.sh ###
+###
+### RUN AS A BATCH SCRIPT abbababawind_100kb.sh ### (for dissertation)
+###
 
 #!/bin/bash -l
 #SBATCH -J abbababawind_100kb
 #SBATCH -o /scratch/project_2001443/barriers_introgr_formica/abwind/logs/abbababawind_100kb.out
 #SBATCH -e /scratch/project_2001443/barriers_introgr_formica/abwind/logs/abbababawind_100kb.err
 #SBATCH --account=project_2001443
-#SBATCH -t 24:00:00
+#SBATCH -t 01:00:00
 #SBATCH -p small
 #SBATCH --ntasks=4
-#SBATCH --mem=8G
+#SBATCH --mem=1G
 #SBATCH --mail-type=END
 
 cd /scratch/project_2001443/barriers_introgr_formica/abwind
@@ -190,7 +279,6 @@ python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
 -o lug.pol.prat_ABBABABA_out.csv \
 --verbose
 
-done
 
 ###END.
 
@@ -206,17 +294,19 @@ scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica/abw
 
 #### RUN ANOTHER SET WITH NON-INTROGRESSING PAIRS ####
 
-### RUN AS A BATCH SCRIPT abbababawind_100kb_nonintrogr.sh ###
+###
+### RUN AS A BATCH SCRIPT abbababawind_100kb_nonintrogr.sh ### (for dissertation)
+###
 
 #!/bin/bash -l
 #SBATCH -J abbababawind_100kb_nonintrogr
 #SBATCH -o /scratch/project_2001443/barriers_introgr_formica/abwind/logs/abbababawind_100kb_nonintrogr.out
 #SBATCH -e /scratch/project_2001443/barriers_introgr_formica/abwind/logs/abbababawind_100kb_nonintrogr.err
 #SBATCH --account=project_2001443
-#SBATCH -t 24:00:00
+#SBATCH -t 01:00:00
 #SBATCH -p small
 #SBATCH --ntasks=4
-#SBATCH --mem=8G
+#SBATCH --mem=1G
 #SBATCH --mail-type=END
 
 cd /scratch/project_2001443/barriers_introgr_formica/abwind
@@ -243,8 +333,6 @@ python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
 -o lug.aqufi.prat_ABBABABA_out.csv \
 --verbose
 
-
-done
 
 #END.
 #-----
