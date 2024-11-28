@@ -1,0 +1,126 @@
+### TWISST2 ###
+
+cd $PROJAPPL
+module load python-data
+python3 -m venv --system-site-packages twisst2_venv
+source twisst2_venv/bin/activate
+cd twisst2_venv
+git clone https://github.com/simonhmartin/twisst2.git
+cd twisst2
+pip install -e .
+deactivate
+
+cd $PROJAPPL
+module load python-data
+python3 -m venv --system-site-packages sticcs_venv
+source sticcs_venv/bin/activate
+cd sticcs_venv
+git clone https://github.com/simonhmartin/sticcs.git
+cd sticcs
+pip install -e .
+deactivate
+---
+
+cd /scratch/project_2001443/barriers_introgr_formica_112024/sticcs
+
+sinteractive --account project_2001443 --mem 6000
+
+#source /projappl/project_2001443/sticcs_venv/bin/activate
+#python3 /projappl/project_2001443/sticcs_venv/sticcs/
+
+VCF=/scratch/project_2001443/barriers_introgr_formica_112024/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
+VCFOUT=/scratch/project_2001443/barriers_introgr_formica_112024/sticcs/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.sticcs.vcf.gz
+
+#export PYTHONPATH="/projappl/project_2001443/sticcs_venv:$PYTHONPATH"
+export PATH="/projappl/project_2001443/sticcs_venv/bin:$PATH"
+
+sticcs prep -i $VCF -o $VCFOUT --outgroup Fexs #prep the vcf file to contain a DC field
+
+GROUPDIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+
+twisst2 -i $VCFOUT  -o DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.sticcs --max_iterations 100 --ploidy 2 --groups <groupname1> <groupname2> <groupname3> <groupname4> --groups_file
+
+
+
+DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+GENO=phased.exsecta.geno.gz
+PLOIDYTAB=ploidy.tab
+
+
+
+### Transform the data from the geno.gz format into bases.geno.gz, which has each sample divided into two columns A&B corresponding to the phased haplotypes
+  
+  python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/filterGenotypes.py \
+  -t 4 \
+  -i $DATADIR/$GENO \
+  --ploidyFile $DATADIR/$PLOIDYTAB \
+  --outputGenoFormat bases \
+  -o $DATADIR/phased.exsecta.bases.geno.gz
+
+### Transform the data from the bases.geno.gz format into bases.csv, which (in this case) gives information on whether each allele in each individual is derived or ancestral
+### -> this results with 0 and 1 values (corresponding to ancestral and derived with respect to the exsecta sample).
+ 
+python3 /scratch/project_2001443/analysis/genomics_simon/genomics_general/freq.py \
+-g $DATADIR/phased.exsecta.bases.geno.gz -o $DATADIR/phased.exsecta.bases.csv \
+--indFreqs --target derived  --threads 10  --asCounts --verbose --ploidyFile ploidyAB.tab
+
+
+ 
+#### build trees with sticcs.py
+
+#input file: /scratch/project_2001443/vcf/geno/phased.exsecta.bases.csv
+#needs imputed or phased data (since it allows no missing data)
+#sensitive to genotyping (and imputation) errors. when zooming in to narrow regions this manifests as spurious trees but with broader distances works well
+#Simon wants to see:
+#-relative proportions of topologies genome-wide, and patterns along the chromosomes, in comparison to PhyML trees
+#-also interesting to make a comparison with relate & tsinfer but not priority now
+#download the script from discord
+
+#python3 /scratch/project_2001443/analysis/twisst/trees_simon/sticcs.py \
+#-i input.freqs.tsv.gz -o output_prefix -l reference.fai
+#one more option is --allowSecondChances
+
+sinteractive --account project_2001443 --mem 6000
+
+#export PATH="/projappl/project_2001443/phymlenv/bin:$PATH" # No need to export if already did it during the same session (above)
+
+cd /scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs
+
+DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+RESDIR=/scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs
+BASES=phased.exsecta.bases.csv
+REFERENCE=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa.fai
+OUTFILE=phased_exs_out.sticcs
+
+python3 /scratch/project_2001443/analysis/twisst/trees_simon/sticcs.py \
+-i $DATADIR/$BASES -o $RESDIR/$OUTFILE -l $REFERENCE --allowSecondChances
+
+
+#####------------------- sticcs as a bash script
+
+#!/bin/bash -l
+#SBATCH -J sticcs_trees_exs
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs/logs/sticcs_trees_exs.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs/logs/sticcs_trees_exs.err
+#SBATCH --account=project_2001443
+#SBATCH -t 08:00:00
+#SBATCH -p small
+#SBATCH --ntasks=1
+#SBATCH --mem=8G
+#SBATCH --mail-type=END
+
+cd /scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs
+
+export PATH="/projappl/project_2001443/phymlenv/bin:$PATH"
+
+DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+RESDIR=/scratch/project_2001443/barriers_introgr_formica/local_trees/sticcs
+BASES=phased.exsecta.bases.csv
+REFERENCE=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa.fai
+OUTFILE=phased_exs_out.sticcs
+
+python3 /scratch/project_2001443/analysis/twisst/trees_simon/sticcs.py \
+-i $DATADIR/$BASES -o $RESDIR/$OUTFILE -l $REFERENCE --allowSecondChances
+
+
+###END.
