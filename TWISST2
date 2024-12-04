@@ -2,44 +2,38 @@
 
 cd $PROJAPPL
 module load python-data
-python3 -m venv --system-site-packages twisst2_venv
-source twisst2_venv/bin/activate
-cd twisst2_venv
-git clone https://github.com/simonhmartin/twisst2.git
-cd twisst2
-pip install -e .
-deactivate
-
-cd $PROJAPPL
-module load python-data
-python3 -m venv --system-site-packages sticcs_venv
-source sticcs_venv/bin/activate
-cd sticcs_venv
+python3 -m venv --system-site-packages sticcsTwisst2_venv
+source sticcsTwisst2_venv/bin/activate
+cd sticcsTwisst2_venv
 git clone https://github.com/simonhmartin/sticcs.git
+git clone https://github.com/simonhmartin/twisst2.git
+
 cd sticcs
+pip install -e .
+
+cd ../twisst2
 pip install -e .
 deactivate
 ---
 
+#### RUN STICCS & TWISST2 ####
 cd /scratch/project_2001443/barriers_introgr_formica_112024/sticcs
 
 sinteractive --account project_2001443 --mem 6000
 
-#source /projappl/project_2001443/sticcs_venv/bin/activate
-#python3 /projappl/project_2001443/sticcs_venv/sticcs/
-
 VCF=/scratch/project_2001443/barriers_introgr_formica_112024/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
 VCFOUT=/scratch/project_2001443/barriers_introgr_formica_112024/sticcs/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.sticcs.vcf.gz
 
-#export PYTHONPATH="/projappl/project_2001443/sticcs_venv:$PYTHONPATH"
-export PATH="/projappl/project_2001443/sticcs_venv/bin:$PATH"
+export PATH="/projappl/project_2001443/sticcsTwisst2_venv/bin:$PATH"
 
 sticcs prep -i $VCF -o $VCFOUT --outgroup Fexs #prep the vcf file to contain a DC field
 
-GROUPDIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
+cd /scratch/project_2001443/barriers_introgr_formica_112024/twisst2
+twisst2 -i $VCFOUT  -o DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.sticcs --max_iterations 100 --ploidy 2 --group_names aqu lug pol rufa prat --groups_file group_allParentals.tab
 
-twisst2 -i $VCFOUT  -o DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.sticcs --max_iterations 100 --ploidy 2 --groups <groupname1> <groupname2> <groupname3> <groupname4> --groups_file
+#now this works! But it takes long. Maybe convert into a batch job!
 
+######
 
 
 DATADIR=/scratch/project_2001443/barriers_introgr_formica/vcf/phasing/shapeit
