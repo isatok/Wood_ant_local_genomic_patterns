@@ -29,9 +29,36 @@ export PATH="/projappl/project_2001443/sticcsTwisst2_venv/bin:$PATH"
 sticcs prep -i $VCF -o $VCFOUT --outgroup Fexs #prep the vcf file to contain a DC field
 
 cd /scratch/project_2001443/barriers_introgr_formica_112024/twisst2
+
 twisst2 -i $VCFOUT  -o DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.sticcs --max_iterations 100 --ploidy 2 --group_names aqu lug pol rufa prat --groups_file group_allParentals.tab
 
 #now this works! But it takes long. Maybe convert into a batch job!
+
+#### twisst2_allParentals.sh ####
+
+#!/bin/bash -l
+#SBATCH -J twisst2_allParentals
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica_112024/twisst2/logs/twisst2_allParentals.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica_112024/twisst2/logs/twisst2_allParentals.err
+#SBATCH --account=project_2001443
+#SBATCH -t 06:00:00
+#SBATCH -p small
+#SBATCH --ntasks=1
+#SBATCH --mem=6G
+#SBATCH --mail-type=END
+
+cd /scratch/project_2001443/barriers_introgr_formica_112024/twisst2
+
+export PATH="/projappl/project_2001443/sticcsTwisst2_venv/bin:$PATH"
+
+VCF=/scratch/project_2001443/barriers_introgr_formica_112024/sticcs/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.sticcs.vcf.gz
+OUT=DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.sticcs
+GROUPFILE=group_allParentals.tab
+
+twisst2 -i $VCF  -o $OUT --max_iterations 100 --ploidy 2 --group_names aqu lug pol rufa prat --groups_file $GROUPFILE
+
+###END.
+
 
 ######
 
