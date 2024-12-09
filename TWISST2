@@ -34,6 +34,18 @@ twisst2 -i $VCFOUT  -o DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.sticcs --
 
 #now this works! But it takes long. Maybe convert into a batch job!
 
+#### Batch job also takes long. Process with groups of three chromosomes. ####
+
+bcftools view -r Scaffold02, Scaffold04, Scaffold05
+bcftools view -r Scaffold06, Scaffold07, Scaffold08
+bcftools view -r Scaffold09, Scaffold10, Scaffold11
+bcftools view -r Scaffold12, Scaffold13, Scaffold14
+bcftools view -r Scaffold15, Scaffold16, Scaffold17
+bcftools view -r Scaffold18, Scaffold04, Scaffold05
+bcftools view -r Scaffold02, Scaffold04, Scaffold05
+bcftools view -r Scaffold02, Scaffold04, Scaffold05
+bcftools view -r Scaffold02, Scaffold04, Scaffold05
+
 #### twisst2_allParentals.sh ####
 
 #!/bin/bash -l
