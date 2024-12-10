@@ -91,7 +91,8 @@ echo "All Scaffolds are done."
 
 ######
 
-
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica_112024/twisst2/*tsv.gz' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/twisst2/'
 
 
 
