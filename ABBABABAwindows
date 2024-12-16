@@ -95,6 +95,71 @@ python3 /scratch/project_2001443/barriers_introgr_formica/gen_str/neighbornet/ge
 
 
 ###
+### RUN AS A BATCH SCRIPT - MIN # OF SNPS/ WINDOW - SLIDING WINDOWS with Scottish & Swiss aquilonia compared to Swiss polyctena 12/2024: /scratch/project_2001443/barriers_introgr_formica_112024/abwind/slidingw/abbababawind_sliding_50kb_aquSCO_aquESWI.sh ###
+###
+
+#pwd /projappl/project_2001443/genomics_simon
+#git clone https://github.com/simonhmartin/genomics_general.git
+
+#!/bin/bash -l
+#SBATCH -J abbababawind_sliding_100SNPs_aquSCO_aquESWI
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica_112024/abwind/logs/abbababawind_sliding_100SNPs_aquSCO_aquESWI.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica_112024/abwind/logs/abbababawind_sliding_100SNPs_aquSCO_aquESWI.err
+#SBATCH --account=project_2001443
+#SBATCH -t 04:00:00
+#SBATCH -p small
+#SBATCH --ntasks=4
+#SBATCH --mem=8G
+#SBATCH --mail-type=END
+
+cd /scratch/project_2001443/barriers_introgr_formica_112024/abwind/slidingw
+
+module load python-data
+export PYTHONPATH="/projappl/project_2001443/genomics_simon/genomics_general:$PYTHONPATH"
+
+SCRIPTPATH=/projappl/project_2001443/genomics_simon/genomics_general
+VCF=/scratch/project_2001443/barriers_introgr_formica_112024/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz    #See how the vcf is prepared in Fbranch script
+GENO=/scratch/project_2001443/barriers_introgr_formica_112024/abwind/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.geno.gz
+
+#python3 $SCRIPTPATH/VCF_processing/parseVCF.py --ploidyFile ../ploidy.file.tab -i $VCF | bgzip > $GENO &&
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType sites --minSites 100 --overlap 60 \
+-P1 lug -P2 aqu_sco -P3 pol -O Outgroup \
+--popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
+-o lug.aqusco.pol_ABBABABA_sliding_out.csv \
+--verbose
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType sites --minSites 100 --overlap 60 \
+-P1 rufa -P2 pol -P3 aqu_sco -O Outgroup \
+--popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
+-o rufa.pol.aqusco_ABBABABA_sliding_out.csv \
+--verbose
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType sites --minSites 100 --overlap 60 \
+-P1 lug -P2 aqu_eswi -P3 pol -O Outgroup \
+--popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
+-o lug.aqueswi.pol_ABBABABA_sliding_out.csv \
+--verbose
+
+python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
+-g $GENO -f phased --windType sites --minSites 100 --overlap 60 \
+-P1 rufa -P2 pol -P3 aqu_eswi -O Outgroup \
+--popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
+-o rufa.pol.aqueswi_ABBABABA_sliding_out.csv \
+--verbose
+
+###END.
+
+
+###Get the data
+
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica_112024/abwind/slidingw/*csv' \
+'/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/abwind'
+
+###
 ### RUN AS A BATCH SCRIPT - SLIDING WINDOWS with Scottish & Swiss aquilonia compared to Swiss polyctena 11/2024: /scratch/project_2001443/barriers_introgr_formica_112024/abwind/slidingw/abbababawind_sliding_50kb_aquSCO_aquESWI.sh ###
 ###
 
