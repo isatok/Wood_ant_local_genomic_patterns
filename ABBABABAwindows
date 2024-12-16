@@ -124,28 +124,28 @@ GENO=/scratch/project_2001443/barriers_introgr_formica_112024/abwind/DP8.93inds.
 #python3 $SCRIPTPATH/VCF_processing/parseVCF.py --ploidyFile ../ploidy.file.tab -i $VCF | bgzip > $GENO &&
 
 python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
--g $GENO -f phased --windType sites --minSites 100 --overlap 60 \
+-g $GENO -f phased --windType sites --windSize 100 --overlap 60 \
 -P1 lug -P2 aqu_sco -P3 pol -O Outgroup \
 --popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
 -o lug.aqusco.pol_ABBABABA_sliding_out.csv \
 --verbose
 
 python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
--g $GENO -f phased --windType sites --minSites 100 --overlap 60 \
+-g $GENO -f phased --windType sites --windSize 100 --overlap 60 \
 -P1 rufa -P2 pol -P3 aqu_sco -O Outgroup \
 --popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
 -o rufa.pol.aqusco_ABBABABA_sliding_out.csv \
 --verbose
 
 python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
--g $GENO -f phased --windType sites --minSites 100 --overlap 60 \
+-g $GENO -f phased --windType sites --windSize 100 --overlap 60 \
 -P1 lug -P2 aqu_eswi -P3 pol -O Outgroup \
 --popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
 -o lug.aqueswi.pol_ABBABABA_sliding_out.csv \
 --verbose
 
 python3 $SCRIPTPATH/ABBABABAwindows.py -T 4 \
--g $GENO -f phased --windType sites --minSites 100 --overlap 60 \
+-g $GENO -f phased --windType sites --windSize 100 --overlap 60 \
 -P1 rufa -P2 pol -P3 aqu_eswi -O Outgroup \
 --popsFile ../abwind.simple_aquSCO_aquESWI.pops.txt --haploid Fexs \
 -o rufa.pol.aqueswi_ABBABABA_sliding_out.csv \
