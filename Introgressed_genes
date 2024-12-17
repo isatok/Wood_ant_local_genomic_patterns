@@ -1,0 +1,15 @@
+# extract genes in the regionsin
+cd /scratch/project_2001443/barriers_introgr_formica_112024/introgressed_genes
+sinteractive --account project_2001443 --mem 3000
+
+module load biokit
+GFF=/scratch/project_2001443/reference_genome/Faqxpol_genome_annotation_v1.gff3
+REF=/scratch/project_2001443/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
+GFFREG=genes_scaff06_pol_to_aqufi.gff3
+FASTAREG=genes_scaff06_pol_to_aqufi.fasta
+
+awk '$1 == "Scaffold06" && $4 >= 7321085 && $5 <= 7432689 && $3 == "gene"' $GFF > $GFFREG
+bedtools getfasta -fi $REF -bed $GFFREG -fo $FASTAREG
+
+blastx -query $FASTAREG -db nr -out results1.out -evalue 1e-5 -outfmt 6 -max_target_seqs 1
+blastn -query $FASTAREG -db nt -out results2.out -evalue 1e-5 -outfmt 6 -max_target_seqs 1
