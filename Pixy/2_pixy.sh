@@ -18,6 +18,14 @@ cd /scratch/project_2001443/barriers_introgr_formica/pixy
 ### 2. Compute PIXY ------
 ###
 
+###Additional run on 18.12.2024: use the same 250SNP windows as for fd (60% overlap), to have comparable estimates for introgression and PIXY
+###values across the genome.
+
+#Create a bed-file with fd windows
+#...
+
+
+
 
 ###ONCE MORE 21.1.2024, with updated groupsfile to be similar w "simple" Fbranch & updated highcov vcf file###
 ###REMEMBER THAT W RUFA/POL COMPARISONS WE HAVE INTROGRESSION DATA FOR ONLY A SUBSET OF THE SAMPLES GROUPED HERE###
