@@ -24,14 +24,16 @@ bedtools getfasta -fi $REF -bed $GFFREG2 -fo $FASTAREG2
 ## Let's use CSC instructions to do the BLAST/ find functional annotations for the extracte regions:
 
 cd /scratch/project_2001443/barriers_introgr_formica_112024/introgressed_genes
-sinteractive --account project_2001443 --mem 8000 #Reserve 8 GiB of memory
+sinteractive --account project_2001443 --mem 12000 --cores 4
 
 module load biokit
 FASTAREG2=genes_1window_scaff06_pol_to_aqufi.fasta
 
-blastx -query $FASTAREG2 -db nr -out results_introgressed_genes_climate_nr.out -evalue 1e-3 -outfmt 7 -max_target_seqs 5
-blastn -query $FASTAREG2 -db nt -out results_introgressed_genes_climate_nt.out -evalue 1e-5 -outfmt 7 -max_target_seqs 3
+blastx -query $FASTAREG2 -db nr -num_threads 4 -out results_introgressed_genes_climate_nr.out -evalue 1e-3 -outfmt 7 -max_target_seqs 5
+#the runtime for above was xx and the memory consumption was xx
 
+blastn -query $FASTAREG2 -db nt -num_threads 4 -out results_introgressed_genes_climate_nr.out -evalue 1e-3 -outfmt 7 -max_target_seqs 5
+#the runtime for above was xx and the memory consumption was xx
 
 #### If this consumes too much memory and time, let's use the automated batch blast #### 
 # https://docs.csc.fi/apps/blast/
