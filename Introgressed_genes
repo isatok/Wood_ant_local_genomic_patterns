@@ -38,5 +38,18 @@ blastn -query $FASTAREG2 -db nt -num_threads 4 -out results_introgressed_genes_c
 #### If this consumes too much memory and time, let's use the automated batch blast #### 
 # https://docs.csc.fi/apps/blast/
 
+module load biokit
+cd /scratch/project_2001443/barriers_introgr_formica_112024/introgressed_genes
+sinteractive --account project_2001443 --mem 32000 --cores 4
+
+pb blastn -db nt -query $FASTAREG2 -out results_introgressed_genes_climate_pb_nt.out -evalue 1e-3 -outfmt 7 -max_target_seqs 5
+#Close the monitoring by pressing Ctrl-c. After that you can start other tasks or log out from Puhti.
+#To reconnect to your pb blast job, go to scratch and run command: > blast_clusterrun
+#This lists the temporary directories of your unfinished pb blast jobs. 
+#You can check the job number of your blast job from the directory name. 
+#Use this number with -jobid option to define the pb blast job you wish to reconnect to.
+# > blast_clusterrun -jobid some-number
+
+
 
 
