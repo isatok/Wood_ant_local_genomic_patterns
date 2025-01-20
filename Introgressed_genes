@@ -51,6 +51,29 @@ pb blastx -query $FASTAREG2 -db nr -out results_introgressed_genes_climate_pb_nr
 #Use this number with -jobid option to define the pb blast job you wish to reconnect to.
 # > blast_clusterrun -jobid some-number
 
+#Collect BLAST results:
 
 
+#Among the results, choose for each query the best hit: among the (equally) best e-values, select the one with the highest bit score
+
+awk '!/^#/ { 
+evalue1 = ($11 ~ /[eE]/) ? $11 + 0 : $11 
+if (min[$1] == "" || evalue1 < min[$1]) { 
+min[$1] = evalue1 
+best[$1] = $0 
+split_bit[$1] = $12 
+}
+else if (evalue1 == min[$1] && $12 > split_bit[$1]) {
+split_bit[$1] = $12 
+best[$1] = $0 
+} 
+} 
+END {
+ for (q in best) print best[q] 
+}' results_introgressed_genes_climate_pb_nt.out > bestHits_results_introgressed_genes_climate_pb_nt.txt
+
+#Select only the protein/ mRNA IDs
+awk '{print $2}' bestHits_results_introgressed_genes_climate_pb_nt.txt > protID_bestHits_results_introgressed_genes_climate_pb_nt.txt
+
+#Now these are refseq entries. How to find the uniprot ids in order to do go enrichment?
 
