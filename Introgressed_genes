@@ -45,16 +45,17 @@ cd /scratch/project_2001443/barriers_introgr_formica_112024/introgressed_genes
 pb blastn -query $FASTAREG2 -db nt -out results_introgressed_genes_climate_pb_nt.out -evalue 1e-3 -outfmt 7 -max_target_seqs 5
 pb blastx -query $FASTAREG2 -db nr -out results_introgressed_genes_climate_pb_nr.out -evalue 1e-3 -outfmt 7 -max_target_seqs 5
 
-#Close the monitoring: Ctrl-c. To reconnect to pb blast job: blast_clusterrun
+#Close the monitoring: Ctrl-c. To reconnect to pb blast job &COLLECT THE RESULTS WHEN IT'S READY: blast_clusterrun
 #This lists the temporary directories of your unfinished pb blast jobs. 
 #You can check the job number of your blast job from the directory name. 
 #Use this number with -jobid option to define the pb blast job you wish to reconnect to.
 # > blast_clusterrun -jobid some-number
 
+
 #Collect BLAST results:
 
-
-#Among the results, choose for each query the best hit: among the (equally) best e-values, select the one with the highest bit score
+#Among the results, choose for each query the best hit: among the (equally) best e-values, select the one with the highest bit score (change the in/output
+#file name accordingly.
 
 awk '!/^#/ { 
 evalue1 = ($11 ~ /[eE]/) ? $11 + 0 : $11 
@@ -70,10 +71,10 @@ best[$1] = $0
 } 
 END {
  for (q in best) print best[q] 
-}' results_introgressed_genes_climate_pb_nt.out > bestHits_results_introgressed_genes_climate_pb_nt.txt
+}' results_introgressed_genes_climate_pb_nt.out > results_introgressed_genes_climate_pb_nt_bestHits.txt
 
 #Select only the protein/ mRNA IDs
-awk '{print $2}' bestHits_results_introgressed_genes_climate_pb_nt.txt > protID_bestHits_results_introgressed_genes_climate_pb_nt.txt
+awk '{print $2}' results_introgressed_genes_climate_pb_nt_bestHits.txt > results_introgressed_genes_climate_pb_nt_bestHits_protID.txt
 
 #Now these are refseq entries. How to find the uniprot ids in order to do go enrichment?
 
