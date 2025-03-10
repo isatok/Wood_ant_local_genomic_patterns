@@ -36,14 +36,17 @@ bedtools getfasta -fi $REF -bed $GFFREG2 -fo $FASTAREG2
 #the runtime for above was xx and the memory consumption was xx
 
 #### If this consumes too much memory and time, let's use the automated batch blast #RUNNING THIS 19.12.2024# #### 
+#### RUNNING THIS AGAIN 10.03.2025 WITH TBLASTX & INSECTA #### --> check: blast_clusterrun -jobid 2030350
+
 # https://docs.csc.fi/apps/blast/
 
 module load biokit
 FASTAREG2=genes_1window_scaff06_pol_to_aqufi.fasta
 cd /scratch/project_2001443/barriers_introgr_formica_112024/introgressed_genes
 
-pb blastn -query $FASTAREG2 -db nt -out results_introgressed_genes_climate_pb_nt.out -evalue 1e-3 -outfmt 7 -max_target_seqs 5
-pb blastx -query $FASTAREG2 -db nr -out results_introgressed_genes_climate_pb_nr.out -evalue 1e-3 -outfmt 7 -max_target_seqs 5
+#pb blastn -query $FASTAREG2 -db nt -out results_introgressed_genes_climate_pb_nt.out -evalue 1e-3 -outfmt 7 -max_target_seqs 5
+#pb blastx -query $FASTAREG2 -db nr -out results_introgressed_genes_climate_pb_nr.out -evalue 1e-3 -outfmt 7 -max_target_seqs 5
+pb tblastx -taxids 50557 -query $FASTAREG2 -db nt -out tblastx_nt_insecta_scaff06_7342056_7404659.out -evalue 1e-3 -outfmt 7 -max_target_seqs 20
 
 #Close the monitoring: Ctrl-c. To reconnect to pb blast job &COLLECT THE RESULTS WHEN IT'S READY: blast_clusterrun
 #This lists the temporary directories of your unfinished pb blast jobs. 
