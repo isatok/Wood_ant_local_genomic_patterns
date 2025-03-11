@@ -51,7 +51,7 @@ pixy --stats pi dxy fst \
 
 
 #get the results for plotting
-scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica_112024/pixy/pixy_50kb_highcov_5inds*.txt' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Pixy'
+scp satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica_112024/pixy/pixy_scaff06_7342056_7404659/pixy_scaff06_7342056_7404659_highcov_5inds*.txt' '/Users/inaukkar/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/Pixy'
 
 
 
