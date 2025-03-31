@@ -26,6 +26,9 @@ bedtools getfasta -fi $REF -bed $GFFREG2 -fo $FASTAREG2
 #Scaffold06 7342056 7404659
 bedtools getfasta -fi $REF -bed 1window_scaff06_pol_to_aqufi.bed -fo entire1window_scaff06_pol_to_aqufi.fasta
 
+## D. extract extended potential heat shock protein region
+bedtools getfasta -fi $REF -bed extended_heatshock.bed -fo extended_heatshock.fasta
+
 
 ## Let's use CSC instructions to do the BLAST/ find functional annotations for the extracted regions:
 
