@@ -21,6 +21,12 @@ FASTAREG2=genes_1window_scaff06_pol_to_aqufi.fasta
 awk '$1 == "Scaffold06" && $4 >= 7342056 && $5 <= 7404659 && $3 == "gene"' $GFF > $GFFREG2
 bedtools getfasta -fi $REF -bed $GFFREG2 -fo $FASTAREG2
 
+## C. extract the whole 50kb sequence fasta
+#nano 1window_scaff06_pol_to_aqufi.bed
+#Scaffold06 7342056 7404659
+bedtools getfasta -fi $REF -bed 1window_scaff06_pol_to_aqufi.bed -fo entire1window_scaff06_pol_to_aqufi.fasta
+
+
 ## Let's use CSC instructions to do the BLAST/ find functional annotations for the extracted regions:
 
 #cd /scratch/project_2001443/barriers_introgr_formica_112024/introgressed_genes
