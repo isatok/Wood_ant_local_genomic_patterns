@@ -1,0 +1,5 @@
+#This is to make a gene tree to confirm the F rufa group phylogeny
+
+VCF=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
+
+#subset 5 inds per species from $VCF, phase them, and add exsecta back (if phasing tools don't allow a haploid individual along)
