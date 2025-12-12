@@ -1,5 +1,62 @@
 #This is to make a gene tree to confirm the F rufa group phylogeny
 
-VCF=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
+#Subset 73 inds used in NJ-tree, phase them, and add F. exsecta back
 
-#subset 5 inds per species from $VCF, phase them, and add exsecta back (if phasing tools don't allow a haploid individual along)
+#### PREP VCF ###
+
+sinteractive --account project_2001443 --mem 4000
+VCF=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
+VCF73=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/vcf/filt/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.73inds.vcf.gz
+
+bcftools view -S ind.list -Oz -o $VCF73 $VCF && bcftools index $VCF73
+
+#List individuals:
+bcftools query -l $VCF73 > ${VCF73%.vcf.gz}.list
+
+### RUN WHATSHAP ###
+REF=/scratch/project_2001443/barriers_introgr_formica_revision/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
+BAM=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/bam/bam_all/
+
+mkdir /scratch/project_2001443/barriers_introgr_formica_revision/whatshap
+mkdir /scratch/project_2001443/barriers_introgr_formica_revision/whatshap/logs
+
+###---whatshap.sh---### 
+
+#!/bin/bash -l
+#SBATCH -J whap
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica_revision/whatshap/logs/whatshap_%a.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica_revision/whatshap/logs/whatshap_%a.err
+#SBATCH --account=project_2001443
+#SBATCH -t 24:00:00
+#SBATCH -p small
+#SBATCH --array=1-73
+#SBATCH --ntasks 1
+#SBATCH --mem=25G
+#SBATCH --mail-type=END
+
+# modules
+module load biokit
+export PATH="/projappl/project_2001443/whatshapenv/bin:$PATH" 
+
+cd /scratch/project_2001443/barriers_introgr_formica_revision/whatshap
+
+# Define paths
+BAMDIR=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/bam/bam_all/
+masterVCF=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/vcf/filt/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.73inds.vcf.gz
+REF=/scratch/project_2001443/barriers_introgr_formica_revision/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
+INDLIST=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/vcf/filt/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.73inds.list
+
+# Define focal ind
+ind=$(sed -n "$SLURM_ARRAY_TASK_ID"p $INDLIST)
+indbam=${ind%%-*} #in the bam file names, inds sequenced earlier have only numbers as ids, whereas the vcf ids (and INDLIST) contain species info for these. Match these.
+
+# 1. Extract single individual from VCF & fix floats in GQ field (or issue later when parsing with whatshap)
+bcftools view -s $ind $masterVCF -Ov | perl -npe 's/(.\/.)\:.+\:(.+\:.+\:.+\:.+\:.+\:.+\:.+)/$1\:99\:$2/' | bgzip > ${ind}.GQfixed.vcf.gz &&\
+bcftools index -t ${ind}.GQfixed.vcf.gz
+
+# 2. Phase
+whatshap phase -o ${ind}.phased.vcf.gz --reference $REF \
+               ${ind}.GQfixed.vcf.gz $BAMDIR/${indbam}_nodupl_*.bam &&\
+whatshap stats ${ind}.phased.vcf.gz --tsv=${ind}.phased.tsv
+
+### end
