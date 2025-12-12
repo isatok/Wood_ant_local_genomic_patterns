@@ -20,6 +20,13 @@ BAM=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_
 mkdir /scratch/project_2001443/barriers_introgr_formica_revision/whatshap
 mkdir /scratch/project_2001443/barriers_introgr_formica_revision/whatshap/logs
 
+#FIX GL (which was set as .) so that WhatsHap can run
+
+bcftools view -h $VCF73   | sed 's/ID=GL,Number=\./ID=GL,Number=G/'   > header_fixed.txt
+bcftools reheader -h header_fixed.txt $VCF73 -o fixedGL.vcf.gz
+bcftools index fixedGL.vcf.gz
+
+
 ###---whatshap.sh---### 
 
 #!/bin/bash -l
@@ -42,7 +49,7 @@ cd /scratch/project_2001443/barriers_introgr_formica_revision/whatshap
 
 # Define paths
 BAMDIR=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/bam/bam_all/
-masterVCF=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/vcf/filt/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.73inds.vcf.gz
+masterVCF=/scratch/project_2001443/barriers_introgr_formica_revision/whatshap/fixedGL.vcf.gz
 REF=/scratch/project_2001443/barriers_introgr_formica_revision/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
 INDLIST=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/vcf/filt/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.73inds.list
 
