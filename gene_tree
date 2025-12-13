@@ -20,11 +20,9 @@ BAM=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_
 mkdir /scratch/project_2001443/barriers_introgr_formica_revision/whatshap
 mkdir /scratch/project_2001443/barriers_introgr_formica_revision/whatshap/logs
 
-#FIX GL (which was set as .) so that WhatsHap can run
+# REMOVE UNNECESSARY FORMAT FIELDS (at least GQ causing problems) so WhatsHap is happy to run
 
-bcftools view -h $VCF73   | sed 's/ID=GL,Number=\./ID=GL,Number=G/'   > header_fixed.txt
-bcftools reheader -h header_fixed.txt $VCF73 -o fixedGL.vcf.gz
-bcftools index fixedGL.vcf.gz
+bcftools annotate -x FORMAT/GL,FORMAT/PL,FORMAT/GQ -Oz -o master.whatsHapClean.vcf.gz $VCF73
 
 
 ###---whatshap.sh---### 
@@ -49,7 +47,7 @@ cd /scratch/project_2001443/barriers_introgr_formica_revision/whatshap
 
 # Define paths
 BAMDIR=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/bam/bam_all/
-masterVCF=/scratch/project_2001443/barriers_introgr_formica_revision/whatshap/fixedGL.vcf.gz
+masterVCF=/scratch/project_2001443/barriers_introgr_formica_revision/whatshap/master.whatsHapClean.vcf.gz
 REF=/scratch/project_2001443/barriers_introgr_formica_revision/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
 INDLIST=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/vcf/filt/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.73inds.list
 
@@ -57,13 +55,13 @@ INDLIST=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_intr
 ind=$(sed -n "$SLURM_ARRAY_TASK_ID"p $INDLIST)
 indbam=${ind%%-*} #in the bam file names, inds sequenced earlier have only numbers as ids, whereas the vcf ids (and INDLIST) contain species info for these. Match these.
 
-# 1. Extract single individual from VCF & fix floats in GQ field (or issue later when parsing with whatshap)
-bcftools view -s $ind $masterVCF -Ov | perl -npe 's/(.\/.)\:.+\:(.+\:.+\:.+\:.+\:.+\:.+\:.+)/$1\:99\:$2/' | bgzip > ${ind}.GQfixed.vcf.gz &&\
-bcftools index -t ${ind}.GQfixed.vcf.gz
+# 1. Extract single individual from VCF
+bcftools view -s $ind $masterVCF -Ov | bgzip > ${ind}.vcf.gz &&\
+bcftools index -t ${ind}.vcf.gz
 
 # 2. Phase
 whatshap phase -o ${ind}.phased.vcf.gz --reference $REF \
-               ${ind}.GQfixed.vcf.gz $BAMDIR/${indbam}_nodupl_*.bam &&\
+               ${ind}.vcf.gz $BAMDIR/${indbam}_nodupl_*.bam &&\
 whatshap stats ${ind}.phased.vcf.gz --tsv=${ind}.phased.tsv
 
 ### end
