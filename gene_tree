@@ -2,7 +2,7 @@
 
 #Subset 73 inds used in NJ-tree, phase them, and add F. exsecta back
 
-#### PREP VCF ###
+#### PREP VCF ### ------------------------------------
 
 sinteractive --account project_2001443 --mem 4000
 VCF=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
@@ -13,7 +13,8 @@ bcftools view -S ind.list -Oz -o $VCF73 $VCF && bcftools index $VCF73
 #List individuals:
 bcftools query -l $VCF73 > ${VCF73%.vcf.gz}.list
 
-### RUN WHATSHAP ###
+
+### RUN WHATSHAP ### ------------------------------------
 REF=/scratch/project_2001443/barriers_introgr_formica_revision/reference_genome/Formica_hybrid_v1_wFhyb_Sapis.fa
 BAM=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/bam/bam_all/
 
@@ -68,3 +69,37 @@ bcftools index -t ${ind}.phased.vcf.gz &&
 whatshap stats ${ind}.phased.vcf.gz --tsv=${ind}.phased.tsv
 
 ### end
+
+###---whatshap.sh ends---### 
+
+
+
+### MERGE INDIVIDUAL VCFs ### ------------------------------------
+
+###---mergevcf.sh---### 
+
+
+### Create a list of the phased vcf files
+cd /scratch/project_2001443/barriers_introgr_formica_revision/whatshap
+ls *.phased.vcf.gz > phased_vcf.list
+
+### Run a batch job to merge the individual whatshap-phased vcf files into one vcf file
+
+#!/bin/bash -l
+#SBATCH -J mergevcf
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica_revision/whatshap/logs/mergevcf_%a.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica_revision/whatshap/logs/mergevcf_%a.err
+#SBATCH --account=project_2001443
+#SBATCH -t 02:00:00
+#SBATCH -p small
+#SBATCH --ntasks 1
+#SBATCH --mem=5G
+
+cd /scratch/project_2001443/barriers_introgr_formica_revision/whatshap
+module load biokit
+
+bcftools merge -l /scratch/project_2001443/barriers_introgr_formica_revision/whatshap/phased_vcf.list -Oz > master.whatsHapClean.whap.vcf.gz &&\
+bcftools index -t master.whatsHapClean.whap.vcf.gz
+###END
+
+###---mergevcf.sh ends---### 
