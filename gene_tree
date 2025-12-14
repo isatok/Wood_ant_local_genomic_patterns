@@ -41,7 +41,7 @@ bcftools annotate -x FORMAT/GL,FORMAT/PL,FORMAT/GQ -Oz -o master.whatsHapClean.v
 
 # modules
 module load biokit
-export PATH="/projappl/project_2001443/whatshapenv/bin:$PATH" 
+export PATH="/projappl/project_2001443/whatshapenv/bin:$PATH"
 
 cd /scratch/project_2001443/barriers_introgr_formica_revision/whatshap
 
@@ -57,11 +57,14 @@ indbam=${ind%%-*} #in the bam file names, inds sequenced earlier have only numbe
 
 # 1. Extract single individual from VCF
 bcftools view -s $ind $masterVCF -Ov | bgzip > ${ind}.vcf.gz &&\
-bcftools index -t ${ind}.vcf.gz
+bcftools index -t ${ind}.vcf.gz &&
 
 # 2. Phase
+echo "Start phasing ${ind}."
+
 whatshap phase -o ${ind}.phased.vcf.gz --reference $REF \
                ${ind}.vcf.gz $BAMDIR/${indbam}_nodupl_*.bam &&\
+bcftools index -t ${ind}.phased.vcf.gz &&
 whatshap stats ${ind}.phased.vcf.gz --tsv=${ind}.phased.tsv
 
 ### end
