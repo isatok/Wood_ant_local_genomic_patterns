@@ -223,15 +223,35 @@ ANNOT=/scratch/project_2001443/barriers_introgr_formica_revision/reference_genom
 VCF=/scratch/project_2001443/barriers_introgr_formica_revision/outgroup/master.whatsHapClean.whap.shapeit.allScafs.outgroup.gtfix.vcf.gz
 
 ## Step 1 — Build a CDS BED
-grep -P "\tCDS\t" $ANNOT \
-| awk 'BEGIN{OFS="\t"}{print $1,$4-1,$5}' \
-> cds.bed
+zcat "$ANNOT" | awk 'BEGIN{OFS="\t"} $3=="CDS" {print $1,$4-1,$5}' > cds.bed
+bedtools sort -i cds.bed | uniq > cds.uniq.bed   #only unique records
 
 ## Step 2 — Restrict the VCF to CDS sites
-bcftools view -R cds.bed $VCF -Oz -o cds_only.vcf.gz
+bcftools view -R cds.uniq.bed $VCF -Oz -o cds_only.vcf.gz
 bcftools index cds_only.vcf.gz
 
-##remember to convert vcf to geno now! this is not in the instructions.
+## Step 3 - Make a GENO file from the VCF 
+
+#Make Ploidy tab
+
+VCFCDS=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/cds_only.vcf.gz
+
+bcftools query -l $VCFCDS > ${VCFCDS%.vcf.gz}.ind.list
+awk '{print $0, 2}' cds_only.ind.list > ploidy.tab
+nano ploidy.tab #Change manually F. exsecta to "1"
+
+PLOIDYTAB=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/ploidy.tab
+
+#Get parseVCF
+module load git
+git clone https://github.com/simonhmartin/genomics_general.git
+
+#make a geno file
+PARSEPY=/scratch/project_2001443/barriers_introgr_formica_revision/genomics_general/VCF_processing/parseVCF.py
+module load python-data
+
+python $PARSEPY -i $VCFCDS --skipIndels --excludeDuplicates --ploidyFile $PLOIDYTAB | bgzip > cds_only.geno.gz
+
 
 ## Step 3 — Build gene windows (contiguous)
 grep -P "\tgene\t" $ANNOT \
