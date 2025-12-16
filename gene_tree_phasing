@@ -185,6 +185,63 @@ bcftools concat -Oz -f shapeit.file.list -o master.whatsHapClean.whap.shapeit.al
 ###---combineCHR.sh ends---###  
 
 
+###
+### ADD OUTGROUP ### ------------------------------------
+###
+
+# Combine outgroup + sample VCFs
+
+# Subset exsecta from the initial master vcf
+sinteractive --account project_2001443 --mem 4000
+
+PHASEDVCF=/scratch/project_2001443/barriers_introgr_formica_revision/shapeit/master.whatsHapClean.whap.shapeit.allScafs.vcf.gz
+MAINVCF=/scratch/project_2001443/barriers_introgr_formica_revision/barriers_introgr_formica_112024/dsuite/outgroup_prep/DP8.93inds.AN10.noScaff0003.mac2.Fexs.SNP.gtFix.vcf.gz
+OUTVCF=/scratch/project_2001443/barriers_introgr_formica_revision/shapeit/Fexs.vcf.gz
+
+bcftools index -t $PHASEDVCF 
+bcftools view -S Fexs -Oz -o $OUTVCF $MAINVCF && bcftools index -t $OUTVCF
+
+bcftools merge -Ou \
+  $PHASEDVCF \
+  $OUTVCF -Oz -o master.whatsHapClean.whap.shapeit.allScafs.outgroup.vcf.gz
+
+  #Set missing genotypes (which are only in exsecta) to . instead of ./.
+zcat master.whatsHapClean.whap.shapeit.allScafs.outgroup.vcf.gz | awk '{gsub(/\.\/\./,"."); print $0}' | bgzip > master.whatsHapClean.whap.shapeit.allScafs.outgroup.gtfix.vcf.gz
+
+#Checked that the initial master vcf and the phased one with outgroup have same amount of loci (1890044).
 
 
+###
+### SUBSET CDS REGIONS, COMBINE IN GENES ### ------------------------------------
+###
 
+sinteractive...
+mkdir phyml && cd phyml
+module load biokit
+
+ANNOT=/scratch/project_2001443/barriers_introgr_formica_revision/reference_genome/Faqxpol_genome_annotation_v1.gff3.gz
+VCF=/scratch/project_2001443/barriers_introgr_formica_revision/outgroup/master.whatsHapClean.whap.shapeit.allScafs.outgroup.gtfix.vcf.gz
+
+## Step 1 — Build a CDS BED
+grep -P "\tCDS\t" $ANNOT \
+| awk 'BEGIN{OFS="\t"}{print $1,$4-1,$5}' \
+> cds.bed
+
+## Step 2 — Restrict the VCF to CDS sites
+bcftools view -R cds.bed $VCF -Oz -o cds_only.vcf.gz
+bcftools index cds_only.vcf.gz
+
+##remember to convert vcf to geno now! this is not in the instructions.
+
+## Step 3 — Build gene windows (contiguous)
+grep -P "\tgene\t" $ANNOT \
+| awk 'BEGIN{OFS="\t"}{print $1,$4,$5,$9}' \
+> gene_windows.coords
+
+## Step 4 — Run phyml sliding windows
+#CHECK THIS
+phyml_sliding_windows.py \
+  -v cds_only.vcf.gz \
+  -c gene_windows.coords \
+  -o cds_gene_trees \
+  --minSites 50
