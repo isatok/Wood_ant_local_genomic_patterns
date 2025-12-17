@@ -258,16 +258,32 @@ python $PARSEPY -i $VCFCDS --skipIndels --excludeDuplicates --ploidyFile $PLOIDY
 GENO=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/cds_only.geno.gz
 
 ## Step 3 — Build gene windows (scaffold, start, end)
-zcat -f "$ANNOT" | awk 'BEGIN{OFS="\t"} $3=="gene" {print $1,$4,$5}' > /scratch/project_2001443/barriers_introgr_formica_revision/phyml/gene_windows.coords
 
-COORDS=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/gene_windows.coords
+#Extract all gene windows from genome annotation and make it bed-style
+zcat -f "$ANNOT" | awk 'BEGIN{OFS="\t"} $3=="gene" {print $1,$4,$5}' > /scratch/project_2001443/barriers_introgr_formica_revision/phyml/gene_windows.coords
+awk 'BEGIN{OFS="\t"} {print $1,$2-1,$3}' gene_windows.coords > gene_windows.bed
+
+#Get all positions of loci remaining in the geno file (bed-coords)
+zcat cds_only.geno.gz | awk 'BEGIN{OFS="\t"} {print $1,$2-1,$2}' > cds_only.loci.bed
+
+#Count how many loci (in the geno file) are in each gene window
+bedtools intersect   -a gene_windows.bed   -b cds_only.loci.bed   -c > gene_windows.with_counts.bed
+
+#Get coordinates for those windows with 20 or more SNPs & make it back to 1-based
+awk '$4 >= 20 {print $1,$2,$3}' gene_windows.with_counts.bed > gene_windows_min20loci.bed
+awk 'BEGIN{OFS="\t"} {print $1,$2+1,$3}' gene_windows_min20loci.bed > gene_windows_min20loci.coords
+
+COORDS=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/gene_windows_min20loci.coords
 
 PHYMLPY=/scratch/project_2001443/barriers_introgr_formica_revision/genomics_general/phylo/phyml_sliding_windows.py
 
 cd /scratch/project_2001443/barriers_introgr_formica_revision/genomics_general/phylo #to make the code work, cd in the phylo dir...
 python $PHYMLPY -h
 
+
 ## Step 4 — Run phyml sliding windows
+
+#help? module load python-data; python3 phyml_sliding_windows.py -h
 
 ###----------phyml.sh ------------ ###
 
@@ -282,34 +298,27 @@ python $PHYMLPY -h
 #SBATCH --mem=8G
 #SBATCH --mail-type=END
 
-cd /scratch/project_2001443/barriers_introgr_formica_revision/phyml/
+cd /scratch/project_2001443/barriers_introgr_formica_revision/genomics_general/
 
-export PATH="/projappl/project_2001443/phymlenv/bin:$PATH" 
+export PATH="/projappl/project_2001443/phymlenv/bin:$PATH"
 export PYTHONPATH="scratch/project_2001443/barriers_introgr_formica_revision/genomics_general:$PYTHONPATH"
 
 GENO=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/cds_only.geno.gz
-COORDS=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/gene_windows.coords
+COORDS=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/gene_windows_min20loci.coords
 PHYMLPY=/scratch/project_2001443/barriers_introgr_formica_revision/genomics_general/phylo/phyml_sliding_windows.py
 RESDIR=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/
 
-# Fraction of missing data allowed
-fractMiss=50
-for x in 50 ; do
-# compute max missing data per individual allowed (set to 50%)
-(( Mi = x - x*fractMiss/100 ))
-
-echo "Inferring trees with window size $x SNPs, at least $Mi sites per individual"
 
 python3 $PHYMLPY \
 -T 4 \
---windType coordinate \
+--windType predefined \
 --windCoords $COORDS \
---genoFile $GENO \
+--minSites 10 \ #no effect, all windows have min20 loci
+--minSNPs 10 \
+-g $GENO \
 --outgroup Fexs \
 --model GTR \
 --optimise tlr \
---minSites 20 \
---prefix $RESDIR/minsites20.phyml_bionj.w$x \
-done
+--prefix $RESDIR/minsites20.minsnps10.phyml_bionj
 
 ###END.
