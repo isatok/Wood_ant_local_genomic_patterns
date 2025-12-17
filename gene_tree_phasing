@@ -306,14 +306,10 @@ python3 $PHYMLPY \
 --windCoords $COORDS \
 --genoFile $GENO \
 --outgroup Fexs \
-
---model GTR  ###phyml model
---optimise n  ###{tlr,tl,tr,lr,t,l,r,n} parameters to optimise - see phyml manual
-
---prefix $RESDIR/phased_exs_out_max${fractMiss}percMi.phyml_bionj.w$x \
--w $x     #window size 50 SNPs
--Mi $Mi   #max 50% missing data per ind
-
+--model GTR \
+--optimise tlr \
+--minSites 20 \
+--prefix $RESDIR/minsites20.phyml_bionj.w$x \
 done
 
 ###END.
