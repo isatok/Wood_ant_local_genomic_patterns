@@ -208,7 +208,10 @@ bcftools merge -Ou \
   #Set missing genotypes (which are only in exsecta) to . instead of ./.
 zcat master.whatsHapClean.whap.shapeit.allScafs.outgroup.vcf.gz | awk '{gsub(/\.\/\./,"."); print $0}' | bgzip > master.whatsHapClean.whap.shapeit.allScafs.outgroup.gtfix.vcf.gz
 
-#Checked that the initial master vcf and the phased one with outgroup have same amount of loci (1890044).
+#Remove all loci with missing data - missing data is caused by shapeit4 cleaning up loci that had allele "2" in exsecta (&then when joining exsecta back, other inds have missing data in these loci).
+bcftools view -i 'F_MISSING < 0.5' master.whatsHapClean.whap.shapeit.allScafs.outgroup.gtfix.vcf.gz -Oz \
+-o master.whatsHapClean.whap.shapeit.allScafs.outgroup.gtfix.nomiss.vcf.gz         #1881405 loci
+bcftools index -t master.whatsHapClean.whap.shapeit.allScafs.outgroup.gtfix.nomiss.vcf.gz
 
 
 ###
@@ -220,7 +223,7 @@ mkdir phyml && cd phyml
 module load biokit
 
 ANNOT=/scratch/project_2001443/barriers_introgr_formica_revision/reference_genome/Faqxpol_genome_annotation_v1.gff3.gz
-VCF=/scratch/project_2001443/barriers_introgr_formica_revision/outgroup/master.whatsHapClean.whap.shapeit.allScafs.outgroup.gtfix.vcf.gz
+VCF=/scratch/project_2001443/barriers_introgr_formica_revision/outgroup/master.whatsHapClean.whap.shapeit.allScafs.outgroup.gtfix.nomiss.vcf.gz
 
 ## Step 1 — Build a CDS BED
 zcat "$ANNOT" | awk 'BEGIN{OFS="\t"} $3=="CDS" {print $1,$4-1,$5}' > cds.bed
@@ -228,7 +231,7 @@ bedtools sort -i cds.bed | uniq > cds.uniq.bed   #only unique records
 
 ## Step 2 — Restrict the VCF to CDS sites
 bcftools view -R cds.uniq.bed $VCF -Oz -o cds_only.vcf.gz
-bcftools index cds_only.vcf.gz
+bcftools index -t cds_only.vcf.gz
 
 ## Step 3 - Make a GENO file from the VCF 
 
@@ -252,16 +255,65 @@ module load python-data
 
 python $PARSEPY -i $VCFCDS --skipIndels --excludeDuplicates --ploidyFile $PLOIDYTAB | bgzip > cds_only.geno.gz
 
+GENO=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/cds_only.geno.gz
 
-## Step 3 — Build gene windows (contiguous)
-grep -P "\tgene\t" $ANNOT \
-| awk 'BEGIN{OFS="\t"}{print $1,$4,$5,$9}' \
-> gene_windows.coords
+## Step 3 — Build gene windows (scaffold, start, end)
+zcat -f "$ANNOT" | awk 'BEGIN{OFS="\t"} $3=="gene" {print $1,$4,$5}' > /scratch/project_2001443/barriers_introgr_formica_revision/phyml/gene_windows.coords
+
+COORDS=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/gene_windows.coords
+
+PHYMLPY=/scratch/project_2001443/barriers_introgr_formica_revision/genomics_general/phylo/phyml_sliding_windows.py
+
+cd /scratch/project_2001443/barriers_introgr_formica_revision/genomics_general/phylo #to make the code work, cd in the phylo dir...
+python $PHYMLPY -h
 
 ## Step 4 — Run phyml sliding windows
-#CHECK THIS
-phyml_sliding_windows.py \
-  -v cds_only.vcf.gz \
-  -c gene_windows.coords \
-  -o cds_gene_trees \
-  --minSites 50
+
+###----------phyml.sh ------------ ###
+
+#!/bin/bash -l
+#SBATCH -J phyml_gene_trees
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica_revision/phyml/logs/phyml.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica_revision/phyml/logs/phyml.err
+#SBATCH --account=project_2001443
+#SBATCH -t 08:00:00
+#SBATCH -p small
+#SBATCH --ntasks=4
+#SBATCH --mem=8G
+#SBATCH --mail-type=END
+
+cd /scratch/project_2001443/barriers_introgr_formica_revision/phyml/
+
+export PATH="/projappl/project_2001443/phymlenv/bin:$PATH" 
+export PYTHONPATH="scratch/project_2001443/barriers_introgr_formica_revision/genomics_general:$PYTHONPATH"
+
+GENO=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/cds_only.geno.gz
+COORDS=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/gene_windows.coords
+PHYMLPY=/scratch/project_2001443/barriers_introgr_formica_revision/genomics_general/phylo/phyml_sliding_windows.py
+RESDIR=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/
+
+# Fraction of missing data allowed
+fractMiss=50
+for x in 50 ; do
+# compute max missing data per individual allowed (set to 50%)
+(( Mi = x - x*fractMiss/100 ))
+
+echo "Inferring trees with window size $x SNPs, at least $Mi sites per individual"
+
+python3 $PHYMLPY \
+-T 4 \
+--windType coordinate \
+--windCoords $COORDS \
+--genoFile $GENO \
+--outgroup Fexs \
+
+--model GTR  ###phyml model
+--optimise n  ###{tlr,tl,tr,lr,t,l,r,n} parameters to optimise - see phyml manual
+
+--prefix $RESDIR/phased_exs_out_max${fractMiss}percMi.phyml_bionj.w$x \
+-w $x     #window size 50 SNPs
+-Mi $Mi   #max 50% missing data per ind
+
+done
+
+###END.
