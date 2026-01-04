@@ -2,6 +2,9 @@
   scp -ri ~/.ssh/satokan1-key-ecdsa satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica_revision/phyml/minsites20.minsnps10.*' \
     '/Users/inasatokangas/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/DensiTree'
 
+scp -ri ~/.ssh/satokan1-key-ecdsa satokan1@puhti.csc.fi:'/scratch/project_2001443/barriers_introgr_formica_revision/phyml/*0snps_HKY85_noOpt/minsites*' \
+    '/Users/inasatokangas/Library/CloudStorage/OneDrive-UniversityofHelsinki/PhD/4_formica_local_genomics/twisst/phyml_genetree'
+
 
 ### DENSITREE
 
@@ -44,11 +47,14 @@ GROUPFILE=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/group
 
 #run twisst.sh
 
-  
+### 20 SNPS per window -------------------
+
+#run twisst_20snps.sh
+
 #!/bin/bash -l
 #SBATCH -J twisst
-#SBATCH -o /scratch/project_2001443/barriers_introgr_formica_revision/twisst/logs/twisst.out
-#SBATCH -e /scratch/project_2001443/barriers_introgr_formica_revision/twisst/logs/twisst.err
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica_revision/twisst/logs/twisst_20snps.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica_revision/twisst/logs/twisst_20snps.err
 #SBATCH --account=project_2001443
 #SBATCH -t 10:00:00
 #SBATCH -p small
@@ -62,8 +68,43 @@ export PATH="/projappl/project_2001443/ete3env/bin:$PATH"
 GROUPFILE=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/groupfile_genetrees.tab
 
 python3.6 /projappl/project_2001443/twisst/twisst.py \
--t "/scratch/project_2001443/barriers_introgr_formica_revision/phyml/minsites20.minsnps10.phyml_bionj.trees.gz" \
--w "/scratch/project_2001443/barriers_introgr_formica_revision/phyml/minsites20.minsnps10.phyml_bionj.weights.csv.gz" \
+-t "/scratch/project_2001443/barriers_introgr_formica_revision/phyml/minsites20.minsnps20.HKY85.noOpt.phyml_bionj.trees.gz" \
+-w "/scratch/project_2001443/barriers_introgr_formica_revision/phyml/minsites20.minsnps20.HKY85.noOpt.phyml_bionj.weights.csv.gz" \
+-g prat \
+-g aqu \
+-g rufa \
+-g pol \
+-g lug \
+-g exsecta \
+--outgroup exsecta \
+--groupsFile $GROUPFILE
+
+#END.
+
+
+
+### 50 SNPS per window -------------------
+
+
+#!/bin/bash -l
+#SBATCH -J twisst
+#SBATCH -o /scratch/project_2001443/barriers_introgr_formica_revision/twisst/logs/twisst_50snps.out
+#SBATCH -e /scratch/project_2001443/barriers_introgr_formica_revision/twisst/logs/twisst_50snps.err
+#SBATCH --account=project_2001443
+#SBATCH -t 10:00:00
+#SBATCH -p small
+#SBATCH --ntasks=4
+#SBATCH --mem=8G
+#SBATCH --mail-type=END
+
+cd /scratch/project_2001443/barriers_introgr_formica_revision/twisst
+export PATH="/projappl/project_2001443/ete3env/bin:$PATH"
+
+GROUPFILE=/scratch/project_2001443/barriers_introgr_formica_revision/phyml/groupfile_genetrees.tab
+
+python3.6 /projappl/project_2001443/twisst/twisst.py \
+-t "/scratch/project_2001443/barriers_introgr_formica_revision/phyml/minsites50.minsnps50.HKY85.noOpt.phyml_bionj.trees.gz" \
+-w "/scratch/project_2001443/barriers_introgr_formica_revision/phyml/minsites50.minsnps50.HKY85.noOpt.phyml_bionj.weights.csv.gz" \
 -g prat \
 -g aqu \
 -g rufa \
